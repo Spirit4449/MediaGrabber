@@ -1,0 +1,20 @@
+# Inside your server { } block (HTTPS strongly recommended)
+# Proxy only the private API to localhost
+location /api/download {
+    proxy_pass http://127.0.0.1:4000;
+    proxy_http_version 1.1;
+    proxy_set_header Connection "";
+    proxy_set_header Host $host;
+    proxy_buffering off;
+
+    # Optional allowlist (replace with your bot backend IP)
+    # allow 127.0.0.1;
+    # deny all;
+}
+
+location /healthz {
+    proxy_pass http://127.0.0.1:4000;
+    proxy_http_version 1.1;
+    proxy_set_header Connection "";
+    proxy_set_header Host $host;
+}
