@@ -1,0 +1,31 @@
+2025-10-29 17:05:52: [dotenv@17.2.3] injecting env (7) from .env -- tip: ⚙️  specify custom .env file path with { path: '/custom/path/.env' }
+2025-10-29 17:05:53: Server listening on http://127.0.0.1:4000
+2025-10-29 17:07:03: [bot] preflight for https://t.me/c/1773081661/4380
+2025-10-29 17:07:04: [spawn] python downloader.py --link https://t.me/c/1773081661/4380 --outdir /home/nisch/Desktop/Satsangfetcher/downloads --preflight
+2025-10-29 17:07:04: [bot] starting download for https://t.me/c/1773081661/4380
+2025-10-29 17:07:04: [spawn] python downloader.py --link https://t.me/c/1773081661/4380 --outdir /home/nisch/Desktop/Satsangfetcher/downloads
+2025-10-29 17:07:05: [process close] 1
+2025-10-29 17:27:11: [dotenv@17.2.3] injecting env (7) from .env -- tip: 🔐 encrypt with Dotenvx: https://dotenvx.com
+2025-10-29 17:27:12: Server listening on http://127.0.0.1:4000
+2025-10-29 17:27:41: [bot] preflight for https://t.me/c/1843778443/469
+2025-10-29 17:27:41: [spawn] python downloader.py --link https://t.me/c/1843778443/469 --outdir /home/nisch/Desktop/Satsangfetcher/downloads --preflight
+2025-10-29 17:27:42: [bot] starting download for https://t.me/c/1843778443/469
+2025-10-29 17:27:42: [spawn] python downloader.py --link https://t.me/c/1843778443/469 --outdir /home/nisch/Desktop/Satsangfetcher/downloads
+2025-10-29 17:27:42: [process close] 1
+2025-10-29 17:28:37: [bot] preflight for https://t.me/c/1843778443/469
+2025-10-29 17:28:37: [spawn] python downloader.py --link https://t.me/c/1843778443/469 --outdir /home/nisch/Desktop/Satsangfetcher/downloads --preflight
+2025-10-29 17:28:38: [bot] starting download for https://t.me/c/1843778443/469
+2025-10-29 17:28:38: [spawn] python downloader.py --link https://t.me/c/1843778443/469 --outdir /home/nisch/Desktop/Satsangfetcher/downloads
+2025-10-29 17:28:38: [process close] 1
+2025-10-29 17:32:02: Bot polling started
+2025-10-29 17:32:04: [dotenv@17.2.3] injecting env (0) from .env -- tip: ⚙️  suppress all logs with { quiet: true }
+2025-10-29 17:32:05: [dotenv@17.2.3] injecting env (0) from .env -- tip: ⚙️  suppress all logs with { quiet: true }
+2025-10-29 17:32:05: Server listening on http://127.0.0.1:4000
+2025-10-29 17:32:35: [bot] preflight for https://t.me/c/1843778443/469
+2025-10-29 17:32:36: [spawn] python downloader.py --link https://t.me/c/1843778443/469 --outdir /home/nisch/Desktop/Satsangfetcher/downloads --preflight
+2025-10-29 17:32:38: [bot] starting download for https://t.me/c/1843778443/469
+2025-10-29 17:32:38: [spawn] python downloader.py --link https://t.me/c/1843778443/469 --outdir /home/nisch/Desktop/Satsangfetcher/downloads
+2025-10-29 17:32:39: [done] path: /home/nisch/Desktop/Satsangfetcher/downloads/North American Youth Activities/North American Youth Activities_469.jpg size: 117112
+2025-10-29 17:32:39: [upload] sending North American Youth Activities_469.jpg to chat 1173474906
+2025-10-29 17:32:39: [process close] 0
+2025-10-29 17:32:39: [progress] 100% 0.1MB/0.1MB

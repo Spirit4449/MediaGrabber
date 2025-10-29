@@ -1,0 +1,45 @@
+2025-10-29 17:05:53: (node:15271) [DEP0060] DeprecationWarning: The `util._extend` API is deprecated. Please use Object.assign() instead.
+2025-10-29 17:05:53: (Use `node --trace-deprecation ...` to show where the warning was created)
+2025-10-29 17:05:53: (node:15271) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2025-10-29 17:07:04: [downloader stderr] Traceback (most recent call last):
+2025-10-29 17:07:04: 
+2025-10-29 17:07:04: [downloader stderr]   File "/home/nisch/Desktop/Satsangfetcher/downloader.py", line 3, in <module>
+2025-10-29 17:07:04:     from telethon import TelegramClient, types, functions
+2025-10-29 17:07:04: ModuleNotFoundError: No module named 'telethon'
+2025-10-29 17:07:04: 
+2025-10-29 17:09:29: TelegramError: 409: Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+2025-10-29 17:09:29:     at Telegram.callApi (/home/nisch/Desktop/Satsangfetcher/node_modules/telegraf/lib/core/network/client.js:315:19)
+2025-10-29 17:09:29:     at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+2025-10-29 17:09:29:     at async [Symbol.asyncIterator] (/home/nisch/Desktop/Satsangfetcher/node_modules/telegraf/lib/core/network/polling.js:30:33)
+2025-10-29 17:09:29:     at async Polling.loop (/home/nisch/Desktop/Satsangfetcher/node_modules/telegraf/lib/core/network/polling.js:73:30)
+2025-10-29 17:09:29:     at async Telegraf.launch (/home/nisch/Desktop/Satsangfetcher/node_modules/telegraf/lib/telegraf.js:194:13) {
+2025-10-29 17:09:29:   response: {
+2025-10-29 17:09:29:     ok: false,
+2025-10-29 17:09:29:     error_code: 409,
+2025-10-29 17:09:29:     description: 'Conflict: terminated by other getUpdates request; make sure that only one bot instance is running'
+2025-10-29 17:09:29:   },
+2025-10-29 17:09:29:   on: {
+2025-10-29 17:09:29:     method: 'getUpdates',
+2025-10-29 17:09:29:     payload: { timeout: 50, offset: 993656685, allowed_updates: [] }
+2025-10-29 17:09:29:   }
+2025-10-29 17:09:29: }
+2025-10-29 17:27:12: (node:50171) [DEP0060] DeprecationWarning: The `util._extend` API is deprecated. Please use Object.assign() instead.
+2025-10-29 17:27:12: (Use `node --trace-deprecation ...` to show where the warning was created)
+2025-10-29 17:27:12: (node:50171) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2025-10-29 17:27:42: [downloader stderr] Traceback (most recent call last):
+2025-10-29 17:27:42:   File "/home/nisch/Desktop/Satsangfetcher/downloader.py", line 3, in <module>
+2025-10-29 17:27:42: 
+2025-10-29 17:27:42: [downloader stderr]     from telethon import TelegramClient, types, functions, utils  # <-- utils helps with extensions
+2025-10-29 17:27:42:     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2025-10-29 17:27:42: ModuleNotFoundError: No module named 'telethon'
+2025-10-29 17:27:42: 
+2025-10-29 17:28:38: [downloader stderr] Traceback (most recent call last):
+2025-10-29 17:28:38:   File "/home/nisch/Desktop/Satsangfetcher/downloader.py", line 3, in <module>
+2025-10-29 17:28:38: 
+2025-10-29 17:28:38: [downloader stderr]     from telethon import TelegramClient, types, functions, utils  # <-- utils helps with extensions
+2025-10-29 17:28:38:     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2025-10-29 17:28:38: ModuleNotFoundError: No module named 'telethon'
+2025-10-29 17:28:38: 
+2025-10-29 17:32:05: (node:58172) [DEP0060] DeprecationWarning: The `util._extend` API is deprecated. Please use Object.assign() instead.
+2025-10-29 17:32:05: (Use `node --trace-deprecation ...` to show where the warning was created)
+2025-10-29 17:32:05: (node:58172) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
