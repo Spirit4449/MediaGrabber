@@ -29,3 +29,49 @@
 2025-10-29 17:32:39: [upload] sending North American Youth Activities_469.jpg to chat 1173474906
 2025-10-29 17:32:39: [process close] 0
 2025-10-29 17:32:39: [progress] 100% 0.1MB/0.1MB
+2025-10-29 17:36:13: [bot] preflight for https://t.me/c/1843778443/469
+2025-10-29 17:36:13: [spawn] python downloader.py --link https://t.me/c/1843778443/469 --outdir /home/nisch/Desktop/Satsangfetcher/downloads --preflight
+2025-10-29 17:36:15: [bot] starting download for https://t.me/c/1843778443/469
+2025-10-29 17:36:15: [spawn] python downloader.py --link https://t.me/c/1843778443/469 --outdir /home/nisch/Desktop/Satsangfetcher/downloads
+2025-10-29 17:36:17: [done] path: /home/nisch/Desktop/Satsangfetcher/downloads/North American Youth Activities/North American Youth Activities_469.jpg size: 117112
+2025-10-29 17:36:17: [upload] sending North American Youth Activities_469.jpg to chat 1173474906
+2025-10-29 17:36:17: [progress] 100% 0.1MB/0.1MB
+2025-10-29 17:36:17: [process close] 0
+2025-10-29 17:43:52: [bot] preflight for https://t.me/BhajanGanga1/420
+2025-10-29 17:43:52: [spawn] python downloader.py --link https://t.me/BhajanGanga1/420 --outdir /home/nisch/Desktop/Satsangfetcher/downloads --preflight
+2025-10-29 17:43:54: [bot] starting download for https://t.me/BhajanGanga1/420
+2025-10-29 17:43:54: [spawn] python downloader.py --link https://t.me/BhajanGanga1/420 --outdir /home/nisch/Desktop/Satsangfetcher/downloads
+2025-10-29 17:43:55: [progress] 2.2% 0.5MB/22.2MB
+2025-10-29 17:43:57: [progress] 13.5% 3.0MB/22.2MB
+2025-10-29 17:43:59: [progress] 24.7% 5.5MB/22.2MB
+2025-10-29 17:44:00: [progress] 36% 8.0MB/22.2MB
+2025-10-29 17:44:02: [progress] 47.2% 10.5MB/22.2MB
+2025-10-29 17:44:04: [progress] 58.4% 13.0MB/22.2MB
+2025-10-29 17:44:05: [progress] 69.7% 15.5MB/22.2MB
+2025-10-29 17:44:07: [progress] 80.9% 18.0MB/22.2MB
+2025-10-29 17:44:08: [progress] 92.1% 20.5MB/22.2MB
+2025-10-29 17:44:09: [done] path: /home/nisch/Desktop/Satsangfetcher/downloads/BhajanGanga1/Hilode Chade re.mp3 size: 23327902
+2025-10-29 17:44:09: [upload] sending Hilode Chade re.mp3 to chat 958994194
+2025-10-29 17:44:10: [process close] 0
+2025-10-29 17:44:10: [progress] 100% 22.2MB/22.2MB
+2025-10-29 17:46:44: [bot] preflight for https://t.me/c/1773081661/4380
+2025-10-29 17:46:44: [spawn] python downloader.py --link https://t.me/c/1773081661/4380 --outdir /home/nisch/Desktop/Satsangfetcher/downloads --preflight
+2025-10-29 17:46:46: [bot] starting download for https://t.me/c/1773081661/4380
+2025-10-29 17:46:46: [spawn] python downloader.py --link https://t.me/c/1773081661/4380 --outdir /home/nisch/Desktop/Satsangfetcher/downloads
+2025-10-29 17:46:47: [progress] 4.7% 0.5MB/10.6MB
+2025-10-29 17:46:48: [progress] 18.9% 2.0MB/10.6MB
+2025-10-29 17:46:49: [progress] 33.1% 3.5MB/10.6MB
+2025-10-29 17:46:50: [progress] 47.3% 5.0MB/10.6MB
+2025-10-29 17:46:51: [progress] 61.5% 6.5MB/10.6MB
+2025-10-29 17:46:52: [progress] 75.7% 8.0MB/10.6MB
+2025-10-29 17:46:53: [progress] 89.9% 9.5MB/10.6MB
+2025-10-29 17:46:54: [done] path: /home/nisch/Desktop/Satsangfetcher/downloads/Brahma naa sange/record.ogg size: 11080685
+2025-10-29 17:46:54: [upload] sending record.ogg to chat 1173474906
+2025-10-29 17:46:54: [progress] 100% 10.6MB/10.6MB
+2025-10-29 17:46:54: [process close] 0
+2025-10-31 23:30:52: Bot polling started
+2025-10-31 23:30:54: [dotenv@17.2.3] injecting env (0) from .env -- tip: ⚙️  write to custom object with { processEnv: myObject }
+2025-10-31 23:30:54: Server listening on http://127.0.0.1:4000
+2025-10-31 23:31:13: Bot polling started
+2025-10-31 23:31:15: [dotenv@17.2.3] injecting env (0) from .env -- tip: ⚙️  specify custom .env file path with { path: '/custom/path/.env' }
+2025-10-31 23:31:16: Server listening on http://127.0.0.1:4000

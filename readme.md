@@ -149,3 +149,13 @@ Make sure your session is active:
 source .venv/bin/activate // Activate env
 export $(grep -v '^#' .env | xargs)
 python downloader.py --link https://t.me/c/123/456 --preflight
+
+
+
+How to run temporary daily_bns_sync.py
+1. Set env variables
+export TELEGRAM_API_ID=27434653
+export TELEGRAM_API_HASH=41a4175c8c019f5b61b6484af9d02c64
+export TELEGRAM_SESSION=/home/nisch/Desktop/Satsangfetcher/media_grabber_session.session
+2. Run 
+./.venv/bin/python daily_bns_sync.py
