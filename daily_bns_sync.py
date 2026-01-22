@@ -22,7 +22,14 @@ import asyncio
 import tempfile
 import contextlib
 from pathlib import Path
-from telethon import TelegramClient, types, errors, utils as tutils
+from telethon import TelegramClient, types, errors, utils as tutils # type: ignore
+
+# Load environment variables from .env file (for automated runs)
+try:
+    from dotenv import load_dotenv
+    load_dotenv()
+except ImportError:
+    pass  # dotenv not installed, rely on environment variables
 
 # Minimal MIME -> ext fallback
 MIME_EXT_FALLBACK = {

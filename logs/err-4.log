@@ -49,3 +49,138 @@
 2025-10-31 23:31:16: (node:883439) [DEP0060] DeprecationWarning: The `util._extend` API is deprecated. Please use Object.assign() instead.
 2025-10-31 23:31:16: (Use `node --trace-deprecation ...` to show where the warning was created)
 2025-10-31 23:31:16: (node:883439) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2025-11-18 20:16:26: [error] exception OperationalError: database is locked
+2025-11-18 20:16:31: [downloader stderr] Traceback (most recent call last):
+2025-11-18 20:16:31:   File "/home/nisch/Desktop/Satsangfetcher/downloader.py", line 269, in <module>
+2025-11-18 20:16:31:     asyncio.run(main())
+2025-11-18 20:16:31:   File "/usr/lib/python3.11/asyncio/runners.py", line 190, in run
+2025-11-18 20:16:31: 
+2025-11-18 20:16:31: [downloader stderr]     return runner.run(main)
+2025-11-18 20:16:31:            ^^^^^^^^^^^^^^^^
+2025-11-18 20:16:31: 
+2025-11-18 20:16:32: [downloader stderr]   File "/usr/lib/python3.11/asyncio/runners.py", line 118, in run
+2025-11-18 20:16:32:     return self._loop.run_until_complete(task)
+2025-11-18 20:16:32:            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2025-11-18 20:16:32:   File "/usr/lib/python3.11/asyncio/base_events.py", line 653, in run_until_complete
+2025-11-18 20:16:32: 
+2025-11-18 20:16:32: [downloader stderr]     return future.result()
+2025-11-18 20:16:32:            ^^^^^^^^^^^^^^^
+2025-11-18 20:16:32:   File "/home/nisch/Desktop/Satsangfetcher/downloader.py", line 266, in main
+2025-11-18 20:16:32: 
+2025-11-18 20:16:32: [downloader stderr]     await client.disconnect()
+2025-11-18 20:16:32:   File "/home/nisch/Desktop/Satsangfetcher/.venv/lib/python3.11/site-packages/telethon/client/telegrambaseclient.py", line 735, in _disconnect_coro
+2025-11-18 20:16:32: 
+2025-11-18 20:16:32: [downloader stderr]     self._save_states_and_entities()
+2025-11-18 20:16:32: 
+2025-11-18 20:16:32: [downloader stderr]   File "/home/nisch/Desktop/Satsangfetcher/.venv/lib/python3.11/site-packages/telethon/client/telegrambaseclient.py", line 700, in _save_states_and_entities
+2025-11-18 20:16:32: 
+2025-11-18 20:16:32: [downloader stderr]     self.session.set_update_state(0, types.updates.State(**ss, unread_count=0))
+2025-11-18 20:16:32: 
+2025-11-18 20:16:32: [downloader stderr]   File "/home/nisch/Desktop/Satsangfetcher/.venv/lib/python3.11/site-packages/telethon/sessions/sqlite.py", line 214, in set_update_state
+2025-11-18 20:16:32: 
+2025-11-18 20:16:32: [downloader stderr]     self._execute('insert or replace into update_state values (?,?,?,?,?)',
+2025-11-18 20:16:32:   File "/home/nisch/Desktop/Satsangfetcher/.venv/lib/python3.11/site-packages/telethon/sessions/sqlite.py", line 253, in _execute
+2025-11-18 20:16:32:     return c.execute(stmt, values).fetchone()
+2025-11-18 20:16:32: 
+2025-11-18 20:16:32: [downloader stderr]            ^^^^^^^^^^^^^^^^^^^^^^^
+2025-11-18 20:16:32: sqlite3.OperationalError: database is locked
+2025-11-18 20:16:32: 
+2025-11-18 20:16:38: [error] exception OperationalError: database is locked
+2025-11-18 20:16:43: [downloader stderr] Traceback (most recent call last):
+2025-11-18 20:16:43:   File "/home/nisch/Desktop/Satsangfetcher/downloader.py", line 269, in <module>
+2025-11-18 20:16:43: 
+2025-11-18 20:16:43: [downloader stderr]     asyncio.run(main())
+2025-11-18 20:16:43:   File "/usr/lib/python3.11/asyncio/runners.py", line 190, in run
+2025-11-18 20:16:43: 
+2025-11-18 20:16:43: [downloader stderr]     return runner.run(main)
+2025-11-18 20:16:43: 
+2025-11-18 20:16:43: [downloader stderr]            ^^^^^^^^^^^^^^^^
+2025-11-18 20:16:43:   File "/usr/lib/python3.11/asyncio/runners.py", line 118, in run
+2025-11-18 20:16:43: 
+2025-11-18 20:16:43: [downloader stderr]     return self._loop.run_until_complete(task)
+2025-11-18 20:16:43:            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2025-11-18 20:16:43:   File "/usr/lib/python3.11/asyncio/base_events.py", line 653, in run_until_complete
+2025-11-18 20:16:43: 
+2025-11-18 20:16:43: [downloader stderr]     return future.result()
+2025-11-18 20:16:43:            ^^^^^^^^^^^^^^^
+2025-11-18 20:16:43:   File "/home/nisch/Desktop/Satsangfetcher/downloader.py", line 266, in main
+2025-11-18 20:16:43:     await client.disconnect()
+2025-11-18 20:16:43:   File "/home/nisch/Desktop/Satsangfetcher/.venv/lib/python3.11/site-packages/telethon/client/telegrambaseclient.py", line 735, in _disconnect_coro
+2025-11-18 20:16:43: 
+2025-11-18 20:16:43: [downloader stderr]     self._save_states_and_entities()
+2025-11-18 20:16:43:   File "/home/nisch/Desktop/Satsangfetcher/.venv/lib/python3.11/site-packages/telethon/client/telegrambaseclient.py", line 700, in _save_states_and_entities
+2025-11-18 20:16:43: 
+2025-11-18 20:16:43: [downloader stderr]     self.session.set_update_state(0, types.updates.State(**ss, unread_count=0))
+2025-11-18 20:16:43: 
+2025-11-18 20:16:43: [downloader stderr]   File "/home/nisch/Desktop/Satsangfetcher/.venv/lib/python3.11/site-packages/telethon/sessions/sqlite.py", line 214, in set_update_state
+2025-11-18 20:16:43: 
+2025-11-18 20:16:43: [downloader stderr]     self._execute('insert or replace into update_state values (?,?,?,?,?)',
+2025-11-18 20:16:43:   File "/home/nisch/Desktop/Satsangfetcher/.venv/lib/python3.11/site-packages/telethon/sessions/sqlite.py", line 253, in _execute
+2025-11-18 20:16:43:     return c.execute(stmt, values).fetchone()
+2025-11-18 20:16:43:            ^^^^^^^^^^^^^^^^^^^^^^^
+2025-11-18 20:16:43: sqlite3.OperationalError: database is locked
+2025-11-18 20:16:43: 
+2025-11-18 20:16:50: [error] exception OperationalError: database is locked
+2025-11-18 20:16:55: [downloader stderr] Traceback (most recent call last):
+2025-11-18 20:16:55: 
+2025-11-18 20:16:55: [downloader stderr]   File "/home/nisch/Desktop/Satsangfetcher/downloader.py", line 269, in <module>
+2025-11-18 20:16:55:     asyncio.run(main())
+2025-11-18 20:16:55:   File "/usr/lib/python3.11/asyncio/runners.py", line 190, in run
+2025-11-18 20:16:55:     return runner.run(main)
+2025-11-18 20:16:55:            ^^^^^^^^^^^^^^^^
+2025-11-18 20:16:55:   File "/usr/lib/python3.11/asyncio/runners.py", line 118, in run
+2025-11-18 20:16:55:     return self._loop.run_until_complete(task)
+2025-11-18 20:16:55:            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2025-11-18 20:16:55:   File "/usr/lib/python3.11/asyncio/base_events.py", line 653, in run_until_complete
+2025-11-18 20:16:55:     return future.result()
+2025-11-18 20:16:55:            ^^^^^^^^^^^^^^^
+2025-11-18 20:16:55:   File "/home/nisch/Desktop/Satsangfetcher/downloader.py", line 266, in main
+2025-11-18 20:16:55:     await client.disconnect()
+2025-11-18 20:16:55:   File "/home/nisch/Desktop/Satsangfetcher/.venv/lib/python3.11/site-packages/telethon/client/telegrambaseclient.py", line 735, in _disconnect_coro
+2025-11-18 20:16:55:     self._save_states_and_entities()
+2025-11-18 20:16:55:   File "/home/nisch/Desktop/Satsangfetcher/.venv/lib/python3.11/site-packages/telethon/client/telegrambaseclient.py", line 700, in _save_states_and_entities
+2025-11-18 20:16:55:     self.session.set_update_state(0, types.updates.State(**ss, unread_count=0))
+2025-11-18 20:16:55:   File "/home/nisch/Desktop/Satsangfetcher/.venv/lib/python3.11/site-packages/telethon/sessions/sqlite.py", line 214, in set_update_state
+2025-11-18 20:16:55:     self._execute('insert or replace into update_state values (?,?,?,?,?)',
+2025-11-18 20:16:55:   File "/home/nisch/Desktop/Satsangfetcher/.venv/lib/python3.11/site-packages/telethon/sessions/sqlite.py", line 253, in _execute
+2025-11-18 20:16:55:     return c.execute(stmt, values).fetchone()
+2025-11-18 20:16:55:            ^^^^^^^^^^^^^^^^^^^^^^^
+2025-11-18 20:16:55: sqlite3.OperationalError: database is locked
+2025-11-18 20:16:55: 
+2025-11-18 20:18:35: [error] exception OperationalError: database is locked
+2025-11-18 20:18:40: [downloader stderr] Traceback (most recent call last):
+2025-11-18 20:18:40:   File "/home/nisch/Desktop/Satsangfetcher/downloader.py", line 269, in <module>
+2025-11-18 20:18:40: 
+2025-11-18 20:18:40: [downloader stderr]     asyncio.run(main())
+2025-11-18 20:18:40:   File "/usr/lib/python3.11/asyncio/runners.py", line 190, in run
+2025-11-18 20:18:40: 
+2025-11-18 20:18:40: [downloader stderr]     return runner.run(main)
+2025-11-18 20:18:40: 
+2025-11-18 20:18:40: [downloader stderr]            ^^^^^^^^^^^^^^^^
+2025-11-18 20:18:40:   File "/usr/lib/python3.11/asyncio/runners.py", line 118, in run
+2025-11-18 20:18:40: 
+2025-11-18 20:18:40: [downloader stderr]     return self._loop.run_until_complete(task)
+2025-11-18 20:18:40:            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2025-11-18 20:18:40:   File "/usr/lib/python3.11/asyncio/base_events.py", line 653, in run_until_complete
+2025-11-18 20:18:40: 
+2025-11-18 20:18:40: [downloader stderr]     return future.result()
+2025-11-18 20:18:40:            ^^^^^^^^^^^^^^^
+2025-11-18 20:18:40:   File "/home/nisch/Desktop/Satsangfetcher/downloader.py", line 266, in main
+2025-11-18 20:18:40:     await client.disconnect()
+2025-11-18 20:18:40:   File "/home/nisch/Desktop/Satsangfetcher/.venv/lib/python3.11/site-packages/telethon/client/telegrambaseclient.py", line 735, in _disconnect_coro
+2025-11-18 20:18:40:     self._save_states_and_entities()
+2025-11-18 20:18:40: 
+2025-11-18 20:18:40: [downloader stderr]   File "/home/nisch/Desktop/Satsangfetcher/.venv/lib/python3.11/site-packages/telethon/client/telegrambaseclient.py", line 700, in _save_states_and_entities
+2025-11-18 20:18:40: 
+2025-11-18 20:18:40: [downloader stderr]     self.session.set_update_state(0, types.updates.State(**ss, unread_count=0))
+2025-11-18 20:18:40:   File "/home/nisch/Desktop/Satsangfetcher/.venv/lib/python3.11/site-packages/telethon/sessions/sqlite.py", line 214, in set_update_state
+2025-11-18 20:18:40: 
+2025-11-18 20:18:40: [downloader stderr]     self._execute('insert or replace into update_state values (?,?,?,?,?)',
+2025-11-18 20:18:40:   File "/home/nisch/Desktop/Satsangfetcher/.venv/lib/python3.11/site-packages/telethon/sessions/sqlite.py", line 253, in _execute
+2025-11-18 20:18:40: 
+2025-11-18 20:18:40: [downloader stderr]     return c.execute(stmt, values).fetchone()
+2025-11-18 20:18:40: 
+2025-11-18 20:18:40: [downloader stderr]            ^^^^^^^^^^^^^^^^^^^^^^^
+2025-11-18 20:18:40: sqlite3.OperationalError: database is locked
+2025-11-18 20:18:40: 
+2025-11-18 20:18:46: [error] exception OperationalError: database is locked
