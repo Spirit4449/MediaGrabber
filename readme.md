@@ -3,7 +3,7 @@
 **A secure, production-grade Telegram media synchronization and downloader** with three modes:
 
 1. **On-Demand Downloads** - POST `/api/download` with HMAC-signed requests to download any Telegram post
-2. **Scheduled Daily Sync** - Automatically monitors a source channel and uploads new media to target channel (runs daily at 5 PM via PM2)
+2. **Scheduled Daily Sync** - Automatically monitors a source channel and uploads new media to target channel (runs daily at 12 PM via PM2)
 3. **Bot Commands** - Telegraf bot interface for interactive use
 
 **Features:**
@@ -32,7 +32,7 @@ Telegram (Public & Private Channels)
     │   Downloads immediately, uploads to chat
     │
     └─→ [Daily Scheduler] daily_bns_sync.py via PM2
-        Runs at 5 PM daily
+        Runs at 12 PM daily
         Monitors source channel, syncs new media
         Maintains .state/bns_state.json
 ```
@@ -43,7 +43,7 @@ Telegram (Public & Private Channels)
 | --------------------- | ------- | -------------------------- | -------------------------------- |
 | **server.js**         | Node.js | Express API + Telegraf bot | 24/7 (PM2 managed)               |
 | **downloader.py**     | Python  | Media download worker      | On-demand (spawned by server.js) |
-| **daily_bns_sync.py** | Python  | Daily sync monitor         | Daily at 5 PM (PM2 cron)         |
+| **daily_bns_sync.py** | Python  | Daily sync monitor         | Daily at 12 PM (PM2 cron)        |
 
 **Tech Stack:**
 
@@ -210,7 +210,7 @@ const sig = crypto
 
 ```bash
 pm2 start ecosystem.config.cjs
-# daily_bns_sync.py runs automatically at 17:00 (5 PM) daily
+# daily_bns_sync.py runs automatically at 12:00 (12 PM) daily
 ```
 
 **Manual trigger:**

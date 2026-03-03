@@ -1,0 +1,164 @@
+2026-01-22 21:53:06: (node:2493) [DEP0060] DeprecationWarning: The `util._extend` API is deprecated. Please use Object.assign() instead.
+2026-01-22 21:53:06: (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-01-22 21:53:06: (node:2493) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-01-25 12:48:47: (node:1560) [DEP0060] DeprecationWarning: The `util._extend` API is deprecated. Please use Object.assign() instead.
+2026-01-25 12:48:47: (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-01-25 12:48:47: (node:1560) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-01-25 12:48:54: FetchError: request to https://api.telegram.org/bot7873936965:[REDACTED]/getMe failed, reason: getaddrinfo EAI_AGAIN api.telegram.org
+2026-01-25 12:48:54:     at ClientRequest.<anonymous> (/home/nisch/Desktop/MediaGrabber/node_modules/node-fetch/lib/index.js:1501:11)
+2026-01-25 12:48:54:     at ClientRequest.emit (node:events:513:28)
+2026-01-25 12:48:54:     at emitErrorEvent (node:_http_client:104:11)
+2026-01-25 12:48:54:     at TLSSocket.socketErrorListener (node:_http_client:512:5)
+2026-01-25 12:48:54:     at TLSSocket.emit (node:events:513:28)
+2026-01-25 12:48:54:     at emitErrorNT (node:internal/streams/destroy:170:8)
+2026-01-25 12:48:54:     at emitErrorCloseNT (node:internal/streams/destroy:129:3)
+2026-01-25 12:48:54:     at process.processTicksAndRejections (node:internal/process/task_queues:90:21) {
+2026-01-25 12:48:54:   type: 'system',
+2026-01-25 12:48:54:   errno: 'EAI_AGAIN',
+2026-01-25 12:48:54:   code: 'EAI_AGAIN'
+2026-01-25 12:48:54: }
+2026-01-25 19:11:27: (node:1561) [DEP0060] DeprecationWarning: The `util._extend` API is deprecated. Please use Object.assign() instead.
+2026-01-25 19:11:27: (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-01-25 19:11:27: (node:1561) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-01-25 19:11:33: FetchError: request to https://api.telegram.org/bot7873936965:[REDACTED]/getMe failed, reason: getaddrinfo EAI_AGAIN api.telegram.org
+2026-01-25 19:11:33:     at ClientRequest.<anonymous> (/home/nisch/Desktop/MediaGrabber/node_modules/node-fetch/lib/index.js:1501:11)
+2026-01-25 19:11:33:     at ClientRequest.emit (node:events:513:28)
+2026-01-25 19:11:33:     at emitErrorEvent (node:_http_client:104:11)
+2026-01-25 19:11:33:     at TLSSocket.socketErrorListener (node:_http_client:512:5)
+2026-01-25 19:11:33:     at TLSSocket.emit (node:events:513:28)
+2026-01-25 19:11:33:     at emitErrorNT (node:internal/streams/destroy:170:8)
+2026-01-25 19:11:33:     at emitErrorCloseNT (node:internal/streams/destroy:129:3)
+2026-01-25 19:11:33:     at process.processTicksAndRejections (node:internal/process/task_queues:90:21) {
+2026-01-25 19:11:33:   type: 'system',
+2026-01-25 19:11:33:   errno: 'EAI_AGAIN',
+2026-01-25 19:11:33:   code: 'EAI_AGAIN'
+2026-01-25 19:11:33: }
+2026-01-27 17:08:25: Error: Bot is not running!
+2026-01-27 17:08:25:     at Telegraf.stop (/home/nisch/Desktop/MediaGrabber/node_modules/telegraf/lib/telegraf.js:218:19)
+2026-01-27 17:08:25:     at process.<anonymous> (/home/nisch/Desktop/MediaGrabber/server.js:348:34)
+2026-01-27 17:08:25:     at Object.onceWrapper (node:events:628:26)
+2026-01-27 17:08:25:     at process.emit (node:events:513:28)
+2026-01-27 17:08:26: (node:76327) [DEP0060] DeprecationWarning: The `util._extend` API is deprecated. Please use Object.assign() instead.
+2026-01-27 17:08:26: (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-01-27 17:08:26: (node:76327) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-01-27 17:08:30: (node:76450) [DEP0060] DeprecationWarning: The `util._extend` API is deprecated. Please use Object.assign() instead.
+2026-01-27 17:08:30: (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-01-27 17:08:30: (node:76450) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-01-27 17:08:41: [error] exception OperationalError: database is locked
+2026-01-27 17:08:46: [downloader stderr] Traceback (most recent call last):
+2026-01-27 17:08:46:   File "/home/nisch/Desktop/MediaGrabber/downloader.py", line 269, in <module>
+2026-01-27 17:08:46: 
+2026-01-27 17:08:46: [downloader stderr]     asyncio.run(main())
+2026-01-27 17:08:46:   File "/usr/lib/python3.11/asyncio/runners.py", line 190, in run
+2026-01-27 17:08:46: 
+2026-01-27 17:08:46: [downloader stderr]     return runner.run(main)
+2026-01-27 17:08:46: 
+2026-01-27 17:08:46: [downloader stderr]            ^^^^^^^^^^^^^^^^
+2026-01-27 17:08:46:   File "/usr/lib/python3.11/asyncio/runners.py", line 118, in run
+2026-01-27 17:08:46:     return self._loop.run_until_complete(task)
+2026-01-27 17:08:46:            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-01-27 17:08:46:   File "/usr/lib/python3.11/asyncio/base_events.py", line 653, in run_until_complete
+2026-01-27 17:08:46: 
+2026-01-27 17:08:46: [downloader stderr]     return future.result()
+2026-01-27 17:08:46: 
+2026-01-27 17:08:46: [downloader stderr]            ^^^^^^^^^^^^^^^
+2026-01-27 17:08:46:   File "/home/nisch/Desktop/MediaGrabber/downloader.py", line 266, in main
+2026-01-27 17:08:46:     await client.disconnect()
+2026-01-27 17:08:46:   File "/home/nisch/Desktop/MediaGrabber/.venv/lib/python3.11/site-packages/telethon/client/telegrambaseclient.py", line 735, in _disconnect_coro
+2026-01-27 17:08:46: 
+2026-01-27 17:08:46: [downloader stderr]     self._save_states_and_entities()
+2026-01-27 17:08:46: 
+2026-01-27 17:08:46: [downloader stderr]   File "/home/nisch/Desktop/MediaGrabber/.venv/lib/python3.11/site-packages/telethon/client/telegrambaseclient.py", line 692, in _save_states_and_entities
+2026-01-27 17:08:46:     self.session.process_entities(types.contacts.ResolvedPeer(None, [e._as_input_peer() for e in entities], []))
+2026-01-27 17:08:46:   File "/home/nisch/Desktop/MediaGrabber/.venv/lib/python3.11/site-packages/telethon/sessions/sqlite.py", line 301, in process_entities
+2026-01-27 17:08:46: 
+2026-01-27 17:08:47: [downloader stderr]     c.executemany(
+2026-01-27 17:08:47: sqlite3.OperationalError: database is locked
+2026-01-27 17:08:47: 
+2026-01-29 14:16:03: (node:1540) [DEP0060] DeprecationWarning: The `util._extend` API is deprecated. Please use Object.assign() instead.
+2026-01-29 14:16:03: (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-01-29 14:16:03: (node:1540) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-01-29 14:16:09: FetchError: request to https://api.telegram.org/bot7873936965:[REDACTED]/getMe failed, reason: getaddrinfo EAI_AGAIN api.telegram.org
+2026-01-29 14:16:09:     at ClientRequest.<anonymous> (/home/nisch/Desktop/MediaGrabber/node_modules/node-fetch/lib/index.js:1501:11)
+2026-01-29 14:16:09:     at ClientRequest.emit (node:events:513:28)
+2026-01-29 14:16:09:     at emitErrorEvent (node:_http_client:104:11)
+2026-01-29 14:16:09:     at TLSSocket.socketErrorListener (node:_http_client:512:5)
+2026-01-29 14:16:09:     at TLSSocket.emit (node:events:513:28)
+2026-01-29 14:16:09:     at emitErrorNT (node:internal/streams/destroy:170:8)
+2026-01-29 14:16:09:     at emitErrorCloseNT (node:internal/streams/destroy:129:3)
+2026-01-29 14:16:09:     at process.processTicksAndRejections (node:internal/process/task_queues:90:21) {
+2026-01-29 14:16:09:   type: 'system',
+2026-01-29 14:16:09:   errno: 'EAI_AGAIN',
+2026-01-29 14:16:09:   code: 'EAI_AGAIN'
+2026-01-29 14:16:09: }
+2026-02-12 22:51:10: Error: Bot is not running!
+2026-02-12 22:51:10:     at Telegraf.stop (/home/nisch/Desktop/MediaGrabber/node_modules/telegraf/lib/telegraf.js:218:19)
+2026-02-12 22:51:10:     at process.<anonymous> (/home/nisch/Desktop/MediaGrabber/server.js:348:34)
+2026-02-12 22:51:10:     at Object.onceWrapper (node:events:628:26)
+2026-02-12 22:51:10:     at process.emit (node:events:513:28)
+2026-02-12 22:53:27: (node:2648030) [DEP0060] DeprecationWarning: The `util._extend` API is deprecated. Please use Object.assign() instead.
+2026-02-12 22:53:27: (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-02-12 22:53:27: (node:2648030) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-02-12 22:55:06: [error] not_found Message not found or no access
+2026-02-14 00:41:02: [downloader stderr] Unhandled exception from keepalive_handle after cancelling <class '_asyncio.Task'> (<Task finished name='Task-8' coro=<UpdateMethods._keepalive_loop() done, defined at /home/nisch/Desktop/MediaGrabber/.venv/lib/python3.11/site-packages/telethon/client/updates.py:481> exception=OperationalError('database is locked')>)
+2026-02-14 00:41:02: Traceback (most recent call last):
+2026-02-14 00:41:02:   File "/home/nisch/Desktop/MediaGrabber/.venv/lib/python3.11/site-packages/telethon/helpers.py", line 176, in _cancel
+2026-02-14 00:41:02:     await task
+2026-02-14 00:41:02:   File "/home/nisch/Desktop/MediaGrabber/.venv/lib/python3.11/site-packages/telethon/client/updates.py", line 517, in _keepalive_loop
+2026-02-14 00:41:02:     self._save_states_and_entities()
+2026-02-14 00:41:02:   File "/home/nisch/Desktop/MediaGrabber/.venv/lib/python3.11/site-packages/telethon/client/telegrambaseclient.py", line 692, in _save_states_and_entities
+2026-02-14 00:41:02:     self.session.process_entities(types.contacts.ResolvedPeer(None, [e._as_input_peer() for e in entities], []))
+2026-02-14 00:41:02:   File "/home/nisch/Desktop/MediaGrabber/.venv/lib/python3.11/site-packages/telethon/sessions/sqlite.py", line 301, in process_entities
+2026-02-14 00:41:02:     c.executemany(
+2026-02-14 00:41:02: sqlite3.OperationalError: database is locked
+2026-02-14 00:41:02: 
+2026-02-14 00:41:05: [upload fail] 413: Request Entity Too Large
+2026-02-14 00:41:07: [downloader stderr] Traceback (most recent call last):
+2026-02-14 00:41:07:   File "/home/nisch/Desktop/MediaGrabber/downloader.py", line 269, in <module>
+2026-02-14 00:41:07:     asyncio.run(main())
+2026-02-14 00:41:07:   File "/usr/lib/python3.11/asyncio/runners.py", line 190, in run
+2026-02-14 00:41:07: 
+2026-02-14 00:41:07: [downloader stderr]     return runner.run(main)
+2026-02-14 00:41:07:            ^^^^^^^^^^^^^^^^
+2026-02-14 00:41:07:   File "/usr/lib/python3.11/asyncio/runners.py", line 118, in run
+2026-02-14 00:41:07:     return self._loop.run_until_complete(task)
+2026-02-14 00:41:07:            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-02-14 00:41:07:   File "/usr/lib/python3.11/asyncio/base_events.py", line 653, in run_until_complete
+2026-02-14 00:41:07: 
+2026-02-14 00:41:07: [downloader stderr]     return future.result()
+2026-02-14 00:41:07: 
+2026-02-14 00:41:07: [downloader stderr]            ^^^^^^^^^^^^^^^
+2026-02-14 00:41:07:   File "/home/nisch/Desktop/MediaGrabber/downloader.py", line 266, in main
+2026-02-14 00:41:07: 
+2026-02-14 00:41:07: [downloader stderr]     await client.disconnect()
+2026-02-14 00:41:07:   File "/home/nisch/Desktop/MediaGrabber/.venv/lib/python3.11/site-packages/telethon/client/telegrambaseclient.py", line 735, in _disconnect_coro
+2026-02-14 00:41:07: 
+2026-02-14 00:41:07: [downloader stderr]     self._save_states_and_entities()
+2026-02-14 00:41:07: 
+2026-02-14 00:41:07: [downloader stderr]   File "/home/nisch/Desktop/MediaGrabber/.venv/lib/python3.11/site-packages/telethon/client/telegrambaseclient.py", line 692, in _save_states_and_entities
+2026-02-14 00:41:07: 
+2026-02-14 00:41:08: [downloader stderr]     self.session.process_entities(types.contacts.ResolvedPeer(None, [e._as_input_peer() for e in entities], []))
+2026-02-14 00:41:08: 
+2026-02-14 00:41:08: [downloader stderr]   File "/home/nisch/Desktop/MediaGrabber/.venv/lib/python3.11/site-packages/telethon/sessions/sqlite.py", line 301, in process_entities
+2026-02-14 00:41:08: 
+2026-02-14 00:41:08: [downloader stderr]     c.executemany(
+2026-02-14 00:41:08: sqlite3.OperationalError: database is locked
+2026-02-14 00:41:08: 
+2026-02-14 00:41:56: [downloader stderr] Unhandled exception from keepalive_handle after cancelling <class '_asyncio.Task'> (<Task finished name='Task-8' coro=<UpdateMethods._keepalive_loop() done, defined at /home/nisch/Desktop/MediaGrabber/.venv/lib/python3.11/site-packages/telethon/client/updates.py:481> exception=OperationalError('database is locked')>)
+2026-02-14 00:41:56: Traceback (most recent call last):
+2026-02-14 00:41:56:   File "/home/nisch/Desktop/MediaGrabber/.venv/lib/python3.11/site-packages/telethon/helpers.py", line 176, in _cancel
+2026-02-14 00:41:56:     await task
+2026-02-14 00:41:56:   File "/home/nisch/Desktop/MediaGrabber/.venv/lib/python3.11/site-packages/telethon/client/updates.py", line 517, in _keepalive_loop
+2026-02-14 00:41:56:     self._save_states_and_entities()
+2026-02-14 00:41:56:   File "/home/nisch/Desktop/MediaGrabber/.venv/lib/python3.11/site-packages/telethon/client/telegrambaseclient.py", line 692, in _save_states_and_entities
+2026-02-14 00:41:56:     self.session.process_entities(types.contacts.ResolvedPeer(None, [e._as_input_peer() for e in entities], []))
+2026-02-14 00:41:56:   File "/home/nisch/Desktop/MediaGrabber/.venv/lib/python3.11/site-packages/telethon/sessions/sqlite.py", line 301, in process_entities
+2026-02-14 00:41:56:     c.executemany(
+2026-02-14 00:41:56: sqlite3.OperationalError: database is locked
+2026-02-14 00:41:56: 
+2026-02-14 00:42:00: [upload fail] 413: Request Entity Too Large
+2026-02-14 00:42:08: [upload fail] 429: Too Many Requests: retry after 409
+2026-02-28 22:11:11: [error] exception TypeError: stat: path should be string, bytes, os.PathLike or integer, not NoneType
+2026-03-03 12:40:02: (node:2155072) [DEP0060] DeprecationWarning: The `util._extend` API is deprecated. Please use Object.assign() instead.
+2026-03-03 12:40:02: (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-03-03 12:40:02: (node:2155072) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.

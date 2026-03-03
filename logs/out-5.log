@@ -1,0 +1,190 @@
+2026-01-22 21:52:59: [dotenv@17.2.3] injecting env (0) from .env -- tip: 👥 sync secrets across teammates & machines: https://dotenvx.com/ops
+2026-01-22 21:53:06: Server listening on http://127.0.0.1:4000
+2026-01-25 12:48:42: [dotenv@17.2.3] injecting env (0) from .env -- tip: ⚙️  override existing env vars with { override: true }
+2026-01-25 12:48:47: Server listening on http://127.0.0.1:4000
+2026-01-25 19:11:22: [dotenv@17.2.3] injecting env (0) from .env -- tip: ⚙️  suppress all logs with { quiet: true }
+2026-01-25 19:11:27: Server listening on http://127.0.0.1:4000
+2026-01-27 17:08:26: [dotenv@17.2.3] injecting env (0) from .env -- tip: ✅ audit secrets and track compliance: https://dotenvx.com/ops
+2026-01-27 17:08:26: Server listening on http://127.0.0.1:4000
+2026-01-27 17:08:27: [bot] preflight for https://t.me/c/1773081661/4801
+2026-01-27 17:08:27: [bot] preflight for https://t.me/c/1773081661/4801
+2026-01-27 17:08:28: [spawn] python downloader.py --link https://t.me/c/1773081661/4801 --outdir /home/nisch/Desktop/MediaGrabber/downloads --preflight
+2026-01-27 17:08:28: [spawn] python downloader.py --link https://t.me/c/1773081661/4801 --outdir /home/nisch/Desktop/MediaGrabber/downloads --preflight
+2026-01-27 17:08:30: [dotenv@17.2.3] injecting env (0) from .env -- tip: ⚙️  suppress all logs with { quiet: true }
+2026-01-27 17:08:30: Server listening on http://127.0.0.1:4000
+2026-01-27 17:08:31: [bot] preflight for https://t.me/c/1773081661/4801
+2026-01-27 17:08:31: [bot] preflight for https://t.me/c/1773081661/4801
+2026-01-27 17:08:31: [spawn] python downloader.py --link https://t.me/c/1773081661/4801 --outdir /home/nisch/Desktop/MediaGrabber/downloads --preflight
+2026-01-27 17:08:31: [spawn] python downloader.py --link https://t.me/c/1773081661/4801 --outdir /home/nisch/Desktop/MediaGrabber/downloads --preflight
+2026-01-27 17:08:35: [bot] starting download for https://t.me/c/1773081661/4801
+2026-01-27 17:08:35: [spawn] python downloader.py --link https://t.me/c/1773081661/4801 --outdir /home/nisch/Desktop/MediaGrabber/downloads
+2026-01-27 17:08:35: [bot] starting download for https://t.me/c/1773081661/4801
+2026-01-27 17:08:35: [spawn] python downloader.py --link https://t.me/c/1773081661/4801 --outdir /home/nisch/Desktop/MediaGrabber/downloads
+2026-01-27 17:08:38: [progress] 5.5% 0.5MB/9.1MB
+2026-01-27 17:08:39: [progress] 16.4% 1.5MB/9.1MB
+2026-01-27 17:08:41: [progress] 27.4% 2.5MB/9.1MB
+2026-01-27 17:08:43: [progress] 38.3% 3.5MB/9.1MB
+2026-01-27 17:08:45: [progress] 49.3% 4.5MB/9.1MB
+2026-01-27 17:08:47: [process close] 1
+2026-01-27 17:08:47: [progress] 60.2% 5.5MB/9.1MB
+2026-01-27 17:08:49: [progress] 71.2% 6.5MB/9.1MB
+2026-01-27 17:08:51: [progress] 82.1% 7.5MB/9.1MB
+2026-01-27 17:08:53: [progress] 93.1% 8.5MB/9.1MB
+2026-01-27 17:08:54: [done] path: /home/nisch/Desktop/MediaGrabber/downloads/Brahma naa sange/record.ogg size: 9573728
+2026-01-27 17:08:54: [upload] sending record.ogg to chat 1173474906
+2026-01-27 17:08:54: [progress] 100% 9.1MB/9.1MB
+2026-01-27 17:08:54: [process close] 0
+2026-01-29 14:15:59: [dotenv@17.2.3] injecting env (0) from .env -- tip: ✅ audit secrets and track compliance: https://dotenvx.com/ops
+2026-01-29 14:16:03: Server listening on http://127.0.0.1:4000
+2026-02-12 22:53:26: [dotenv@17.2.3] injecting env (0) from .env -- tip: 👥 sync secrets across teammates & machines: https://dotenvx.com/ops
+2026-02-12 22:53:27: Server listening on http://127.0.0.1:4000
+2026-02-12 22:54:52: [bot] preflight for https://t.me/c/1773081661/4859
+2026-02-12 22:54:52: [spawn] python downloader.py --link https://t.me/c/1773081661/4859 --outdir /home/nisch/Desktop/MediaGrabber/downloads --preflight
+2026-02-12 22:55:04: [bot] starting download for https://t.me/c/1773081661/4859
+2026-02-12 22:55:04: [spawn] python downloader.py --link https://t.me/c/1773081661/4859 --outdir /home/nisch/Desktop/MediaGrabber/downloads
+2026-02-12 22:55:06: [process close] 0
+2026-02-12 22:55:19: [bot] preflight for https://t.me/c/1773081661/4882
+2026-02-12 22:55:19: [spawn] python downloader.py --link https://t.me/c/1773081661/4882 --outdir /home/nisch/Desktop/MediaGrabber/downloads --preflight
+2026-02-12 22:55:21: [bot] starting download for https://t.me/c/1773081661/4882
+2026-02-12 22:55:21: [spawn] python downloader.py --link https://t.me/c/1773081661/4882 --outdir /home/nisch/Desktop/MediaGrabber/downloads
+2026-02-12 22:55:22: [progress] 3.4% 0.5MB/14.9MB
+2026-02-12 22:55:23: [progress] 13.4% 2.0MB/14.9MB
+2026-02-12 22:55:24: [progress] 23.5% 3.5MB/14.9MB
+2026-02-12 22:55:25: [progress] 33.6% 5.0MB/14.9MB
+2026-02-12 22:55:26: [progress] 43.7% 6.5MB/14.9MB
+2026-02-12 22:55:27: [progress] 53.8% 8.0MB/14.9MB
+2026-02-12 22:55:28: [progress] 63.8% 9.5MB/14.9MB
+2026-02-12 22:55:29: [progress] 73.9% 11.0MB/14.9MB
+2026-02-12 22:55:29: [bot] preflight for https://t.me/c/1773081661/4891
+2026-02-12 22:55:29: [spawn] python downloader.py --link https://t.me/c/1773081661/4891 --outdir /home/nisch/Desktop/MediaGrabber/downloads --preflight
+2026-02-12 22:55:30: [progress] 84% 12.5MB/14.9MB
+2026-02-12 22:55:31: [progress] 94.1% 14.0MB/14.9MB
+2026-02-12 22:55:31: [done] path: /home/nisch/Desktop/MediaGrabber/downloads/Brahma naa sange/Pujya Uttamyogi Swami.m4a size: 15606666
+2026-02-12 22:55:31: [upload] sending Pujya Uttamyogi Swami.m4a to chat 1173474906
+2026-02-12 22:55:32: [progress] 100% 14.9MB/14.9MB
+2026-02-12 22:55:32: [process close] 0
+2026-02-12 22:55:33: [bot] starting download for https://t.me/c/1773081661/4891
+2026-02-12 22:55:33: [spawn] python downloader.py --link https://t.me/c/1773081661/4891 --outdir /home/nisch/Desktop/MediaGrabber/downloads
+2026-02-12 22:55:35: [progress] 5.4% 0.5MB/9.2MB
+2026-02-12 22:55:35: [progress] 16.3% 1.5MB/9.2MB
+2026-02-12 22:55:36: [progress] 27.1% 2.5MB/9.2MB
+2026-02-12 22:55:37: [progress] 38% 3.5MB/9.2MB
+2026-02-12 22:55:38: [progress] 48.8% 4.5MB/9.2MB
+2026-02-12 22:55:38: [progress] 59.7% 5.5MB/9.2MB
+2026-02-12 22:55:39: [progress] 70.5% 6.5MB/9.2MB
+2026-02-12 22:55:40: [progress] 81.3% 7.5MB/9.2MB
+2026-02-12 22:55:41: [progress] 92.2% 8.5MB/9.2MB
+2026-02-12 22:55:41: [done] path: /home/nisch/Desktop/MediaGrabber/downloads/Brahma naa sange/record.ogg size: 9667852
+2026-02-12 22:55:41: [upload] sending record.ogg to chat 1173474906
+2026-02-12 22:55:42: [progress] 100% 9.2MB/9.2MB
+2026-02-12 22:55:42: [process close] 0
+2026-02-12 22:55:45: [bot] preflight for https://t.me/c/1773081661/4896
+2026-02-12 22:55:45: [spawn] python downloader.py --link https://t.me/c/1773081661/4896 --outdir /home/nisch/Desktop/MediaGrabber/downloads --preflight
+2026-02-12 22:55:47: [bot] starting download for https://t.me/c/1773081661/4896
+2026-02-12 22:55:47: [spawn] python downloader.py --link https://t.me/c/1773081661/4896 --outdir /home/nisch/Desktop/MediaGrabber/downloads
+2026-02-12 22:55:49: [progress] 5.7% 0.5MB/8.8MB
+2026-02-12 22:55:49: [progress] 17.1% 1.5MB/8.8MB
+2026-02-12 22:55:50: [progress] 28.5% 2.5MB/8.8MB
+2026-02-12 22:55:51: [progress] 39.9% 3.5MB/8.8MB
+2026-02-12 22:55:51: [progress] 51.4% 4.5MB/8.8MB
+2026-02-12 22:55:52: [progress] 62.8% 5.5MB/8.8MB
+2026-02-12 22:55:53: [progress] 74.2% 6.5MB/8.8MB
+2026-02-12 22:55:53: [progress] 85.6% 7.5MB/8.8MB
+2026-02-12 22:55:54: [done] path: /home/nisch/Desktop/MediaGrabber/downloads/Brahma naa sange/record.ogg size: 9187368
+2026-02-12 22:55:54: [upload] sending record.ogg to chat 1173474906
+2026-02-12 22:55:54: [progress] 97% 8.5MB/8.8MB
+2026-02-12 22:55:54: [progress] 100% 8.8MB/8.8MB
+2026-02-12 22:55:54: [process close] 0
+2026-02-12 22:57:37: [bot] preflight for https://t.me/c/1392422163/1173
+2026-02-12 22:57:37: [spawn] python downloader.py --link https://t.me/c/1392422163/1173 --outdir /home/nisch/Desktop/MediaGrabber/downloads --preflight
+2026-02-12 22:58:17: [invite] cleared for chat 1173474906
+2026-02-12 22:58:18: [bot] preflight for https://t.me/BAPSbroadcast/1568
+2026-02-12 22:58:18: [spawn] python downloader.py --link https://t.me/BAPSbroadcast/1568 --outdir /home/nisch/Desktop/MediaGrabber/downloads --preflight
+2026-02-12 22:58:20: [bot] starting download for https://t.me/BAPSbroadcast/1568
+2026-02-12 22:58:20: [spawn] python downloader.py --link https://t.me/BAPSbroadcast/1568 --outdir /home/nisch/Desktop/MediaGrabber/downloads
+2026-02-12 22:58:24: [done] path: /home/nisch/Desktop/MediaGrabber/downloads/BAPSbroadcast/BAPSbroadcast_1568.jpg size: 229406
+2026-02-12 22:58:24: [upload] sending BAPSbroadcast_1568.jpg to chat 1173474906
+2026-02-12 22:58:24: [progress] 100% 0.2MB/0.2MB
+2026-02-12 22:58:24: [process close] 0
+2026-02-14 00:33:54: [bot] preflight for https://t.me/sleep_and_music/1634
+2026-02-14 00:33:55: [spawn] python downloader.py --link https://t.me/sleep_and_music/1634 --outdir /home/nisch/Desktop/MediaGrabber/downloads --preflight
+2026-02-14 00:33:56: [bot] starting download for https://t.me/sleep_and_music/1634
+2026-02-14 00:33:56: [spawn] python downloader.py --link https://t.me/sleep_and_music/1634 --outdir /home/nisch/Desktop/MediaGrabber/downloads
+2026-02-14 00:34:01: [progress] 0.1% 0.5MB/412.0MB
+2026-02-14 00:34:47: [progress] 10.1% 41.5MB/412.0MB
+2026-02-14 00:35:35: [progress] 20.1% 83.0MB/412.0MB
+2026-02-14 00:36:21: [progress] 30.1% 124.0MB/412.0MB
+2026-02-14 00:37:10: [progress] 40.2% 165.5MB/412.0MB
+2026-02-14 00:37:57: [progress] 50.2% 207.0MB/412.0MB
+2026-02-14 00:38:46: [progress] 60.2% 248.0MB/412.0MB
+2026-02-14 00:38:52: [bot] preflight for https://t.me/sleep_and_music/1618
+2026-02-14 00:38:52: [spawn] python downloader.py --link https://t.me/sleep_and_music/1618 --outdir /home/nisch/Desktop/MediaGrabber/downloads --preflight
+2026-02-14 00:38:55: [bot] starting download for https://t.me/sleep_and_music/1618
+2026-02-14 00:38:55: [spawn] python downloader.py --link https://t.me/sleep_and_music/1618 --outdir /home/nisch/Desktop/MediaGrabber/downloads
+2026-02-14 00:38:59: [progress] 0.7% 0.5MB/67.0MB
+2026-02-14 00:39:11: [progress] 11.2% 7.5MB/67.0MB
+2026-02-14 00:39:24: [progress] 21.6% 14.5MB/67.0MB
+2026-02-14 00:39:36: [progress] 32.1% 21.5MB/67.0MB
+2026-02-14 00:39:38: [progress] 70.3% 289.5MB/412.0MB
+2026-02-14 00:39:48: [progress] 42.5% 28.5MB/67.0MB
+2026-02-14 00:40:01: [progress] 53% 35.5MB/67.0MB
+2026-02-14 00:40:14: [progress] 63.4% 42.5MB/67.0MB
+2026-02-14 00:40:24: [progress] 80.3% 331.0MB/412.0MB
+2026-02-14 00:40:26: [progress] 73.9% 49.5MB/67.0MB
+2026-02-14 00:40:38: [progress] 84.3% 56.5MB/67.0MB
+2026-02-14 00:40:42: [bot] preflight for https://t.me/sleep_and_music/1570
+2026-02-14 00:40:43: [spawn] python downloader.py --link https://t.me/sleep_and_music/1570 --outdir /home/nisch/Desktop/MediaGrabber/downloads --preflight
+2026-02-14 00:40:44: [bot] starting download for https://t.me/sleep_and_music/1570
+2026-02-14 00:40:44: [spawn] python downloader.py --link https://t.me/sleep_and_music/1570 --outdir /home/nisch/Desktop/MediaGrabber/downloads
+2026-02-14 00:40:49: [progress] 1.2% 0.5MB/40.7MB
+2026-02-14 00:40:51: [progress] 94.7% 63.5MB/67.0MB
+2026-02-14 00:40:57: [progress] 12.3% 5.0MB/40.7MB
+2026-02-14 00:41:02: [done] path: /home/nisch/Desktop/MediaGrabber/downloads/sleep_and_music/9_Control_Your_Dreams_432Hz_Deep_Sleeping_Music_For_Lucid_Dreaming.mp3 size: 70276266
+2026-02-14 00:41:02: [upload] sending 9_Control_Your_Dreams_432Hz_Deep_Sleeping_Music_For_Lucid_Dreaming.mp3 to chat 1173474906
+2026-02-14 00:41:02: [progress] 100% 67.0MB/67.0MB
+2026-02-14 00:41:03: [progress] 100% 67.0MB/67.0MB
+2026-02-14 00:41:05: [progress] 23.3% 9.5MB/40.7MB
+2026-02-14 00:41:08: [process close] 1
+2026-02-14 00:41:11: [progress] 90.3% 372.0MB/412.0MB
+2026-02-14 00:41:13: [progress] 34.4% 14.0MB/40.7MB
+2026-02-14 00:41:21: [progress] 45.4% 18.5MB/40.7MB
+2026-02-14 00:41:29: [progress] 56.4% 23.0MB/40.7MB
+2026-02-14 00:41:38: [progress] 67.5% 27.5MB/40.7MB
+2026-02-14 00:41:46: [progress] 78.5% 32.0MB/40.7MB
+2026-02-14 00:41:55: [progress] 89.6% 36.5MB/40.7MB
+2026-02-14 00:41:56: [done] path: /home/nisch/Desktop/MediaGrabber/downloads/sleep_and_music/16_432_Hz_Soothing_Music_For_Sleep_JOURNEY_TO_MAGICAL_DREAMSCAPES.mp3 size: 432001758
+2026-02-14 00:41:56: [upload] sending 16_432_Hz_Soothing_Music_For_Sleep_JOURNEY_TO_MAGICAL_DREAMSCAPES.mp3 to chat 1173474906
+2026-02-14 00:41:57: [progress] 100% 412.0MB/412.0MB
+2026-02-14 00:41:57: [process close] 0
+2026-02-14 00:42:02: [done] path: /home/nisch/Desktop/MediaGrabber/downloads/sleep_and_music/a_ambient_playli _SQM38DJdaeU_.mp3 size: 42726530
+2026-02-14 00:42:02: [upload] sending a_ambient_playli _SQM38DJdaeU_.mp3 to chat 1173474906
+2026-02-14 00:42:02: [progress] 100% 40.7MB/40.7MB
+2026-02-14 00:42:02: [process close] 0
+2026-02-28 22:09:40: [bot] preflight for https://t.me/c/3343356200/66
+2026-02-28 22:09:40: [spawn] python downloader.py --link https://t.me/c/3343356200/66 --outdir /home/nisch/Desktop/MediaGrabber/downloads --preflight
+2026-02-28 22:11:09: [invite] cleared for chat 1173474906
+2026-02-28 22:11:09: [bot] preflight for https://t.me/c/3343356200/66
+2026-02-28 22:11:09: [spawn] python downloader.py --link https://t.me/c/3343356200/66 --outdir /home/nisch/Desktop/MediaGrabber/downloads --preflight --invite https://t.me/+z8cGEgxU7Os3Mjhh
+2026-02-28 22:11:10: [bot] starting download for https://t.me/c/3343356200/66
+2026-02-28 22:11:10: [spawn] python downloader.py --link https://t.me/c/3343356200/66 --outdir /home/nisch/Desktop/MediaGrabber/downloads --invite https://t.me/+z8cGEgxU7Os3Mjhh
+2026-02-28 22:11:12: [process close] 0
+2026-03-03 12:33:25: [bot] preflight for https://t.me/c/1773081661/4975
+2026-03-03 12:33:25: [spawn] python downloader.py --link https://t.me/c/1773081661/4975 --outdir /home/nisch/Desktop/MediaGrabber/downloads --preflight
+2026-03-03 12:33:27: [bot] starting download for https://t.me/c/1773081661/4975
+2026-03-03 12:33:27: [spawn] python downloader.py --link https://t.me/c/1773081661/4975 --outdir /home/nisch/Desktop/MediaGrabber/downloads
+2026-03-03 12:33:29: [progress] 3.6% 0.5MB/13.8MB
+2026-03-03 12:33:30: [progress] 14.5% 2.0MB/13.8MB
+2026-03-03 12:33:31: [progress] 25.4% 3.5MB/13.8MB
+2026-03-03 12:33:32: [progress] 36.3% 5.0MB/13.8MB
+2026-03-03 12:33:33: [progress] 47.1% 6.5MB/13.8MB
+2026-03-03 12:33:34: [progress] 58% 8.0MB/13.8MB
+2026-03-03 12:33:35: [progress] 68.9% 9.5MB/13.8MB
+2026-03-03 12:33:36: [progress] 79.8% 11.0MB/13.8MB
+2026-03-03 12:33:37: [progress] 90.7% 12.5MB/13.8MB
+2026-03-03 12:33:38: [done] path: /home/nisch/Desktop/MediaGrabber/downloads/Brahma naa sange/700 _3_.m4a size: 14455899
+2026-03-03 12:33:38: [upload] sending 700 _3_.m4a to chat 1173474906
+2026-03-03 12:33:38: [progress] 100% 13.8MB/13.8MB
+2026-03-03 12:33:38: [process close] 0
+2026-03-03 12:39:59: Bot polling started
+2026-03-03 12:40:02: [dotenv@17.2.3] injecting env (0) from .env -- tip: ⚙️  load multiple .env files with { path: ['.env.local', '.env'] }
+2026-03-03 12:40:02: Server listening on http://127.0.0.1:4000

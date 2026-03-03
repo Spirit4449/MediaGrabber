@@ -1,0 +1,20 @@
+2026-01-21 21:13:28: [dotenv@17.2.3] injecting env (0) from .env -- tip: ⚙️  load multiple .env files with { path: ['.env.local', '.env'] }
+2026-01-21 21:13:30: Server listening on http://127.0.0.1:4000
+2026-01-21 21:14:17: [bot] preflight for https://t.me/c/1773081661/4769
+2026-01-21 21:14:18: [spawn] python downloader.py --link https://t.me/c/1773081661/4769 --outdir /home/nisch/Desktop/MediaGrabber/downloads --preflight
+2026-01-21 21:14:19: [bot] starting download for https://t.me/c/1773081661/4769
+2026-01-21 21:14:19: [spawn] python downloader.py --link https://t.me/c/1773081661/4769 --outdir /home/nisch/Desktop/MediaGrabber/downloads
+2026-01-21 21:14:22: [progress] 5.2% 0.5MB/9.7MB
+2026-01-21 21:14:23: [progress] 15.5% 1.5MB/9.7MB
+2026-01-21 21:14:25: [progress] 25.8% 2.5MB/9.7MB
+2026-01-21 21:14:27: [progress] 36.1% 3.5MB/9.7MB
+2026-01-21 21:14:29: [progress] 46.4% 4.5MB/9.7MB
+2026-01-21 21:14:31: [progress] 56.8% 5.5MB/9.7MB
+2026-01-21 21:14:32: [progress] 67.1% 6.5MB/9.7MB
+2026-01-21 21:14:34: [progress] 77.4% 7.5MB/9.7MB
+2026-01-21 21:14:36: [progress] 87.7% 8.5MB/9.7MB
+2026-01-21 21:14:38: [progress] 98% 9.5MB/9.7MB
+2026-01-21 21:14:39: [done] path: /home/nisch/Desktop/MediaGrabber/downloads/Brahma naa sange/record.ogg size: 10161284
+2026-01-21 21:14:39: [upload] sending record.ogg to chat 1173474906
+2026-01-21 21:14:39: [progress] 100% 9.7MB/9.7MB
+2026-01-21 21:14:39: [process close] 0
