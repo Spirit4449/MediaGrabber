@@ -162,3 +162,162 @@
 2026-03-03 12:40:02: (node:2155072) [DEP0060] DeprecationWarning: The `util._extend` API is deprecated. Please use Object.assign() instead.
 2026-03-03 12:40:02: (Use `node --trace-deprecation ...` to show where the warning was created)
 2026-03-03 12:40:02: (node:2155072) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-03-04 14:36:07: (node:2357) [DEP0060] DeprecationWarning: The `util._extend` API is deprecated. Please use Object.assign() instead.
+2026-03-04 14:36:07: (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-03-04 14:36:07: (node:2357) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-03-19 23:57:36: (node:2503) [DEP0060] DeprecationWarning: The `util._extend` API is deprecated. Please use Object.assign() instead.
+2026-03-19 23:57:36: (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-03-19 23:57:36: (node:2503) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-03-21 09:17:03: [upload fail] 413: Request Entity Too Large
+2026-03-26 19:37:56: (node:2654) [DEP0060] DeprecationWarning: The `util._extend` API is deprecated. Please use Object.assign() instead.
+2026-03-26 19:37:56: (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-03-26 19:37:56: (node:2654) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-04-08 09:02:21: [upload fail] 413: Request Entity Too Large
+2026-04-08 09:03:15: [upload fail] 413: Request Entity Too Large
+2026-04-09 09:20:20: [upload fail] 413: Request Entity Too Large
+2026-04-22 08:42:20: [upload fail] 413: Request Entity Too Large
+2026-04-22 08:43:13: [upload fail] 413: Request Entity Too Large
+2026-04-23 08:50:28: [upload fail] 413: Request Entity Too Large
+2026-04-23 08:53:40: [upload fail] 413: Request Entity Too Large
+2026-04-23 09:02:43: [upload fail] 413: Request Entity Too Large
+2026-04-23 09:09:25: [upload fail] 413: Request Entity Too Large
+2026-04-23 09:11:50: [upload fail] 413: Request Entity Too Large
+2026-04-23 09:14:05: [upload fail] 413: Request Entity Too Large
+2026-05-03 19:53:13: [upload fail] 413: Request Entity Too Large
+2026-05-09 11:23:24: Unhandled error while processing {
+2026-05-09 11:23:24:   update_id: 993657240,
+2026-05-09 11:23:24:   message: {
+2026-05-09 11:23:24:     message_id: 591,
+2026-05-09 11:23:24:     from: {
+2026-05-09 11:23:24:       id: 1173474906,
+2026-05-09 11:23:24:       is_bot: false,
+2026-05-09 11:23:24:       first_name: 'Nischay',
+2026-05-09 11:23:24:       last_name: 'Patel',
+2026-05-09 11:23:24:       username: 'Nischayp',
+2026-05-09 11:23:24:       language_code: 'en',
+2026-05-09 11:23:24:       is_premium: true
+2026-05-09 11:23:24:     },
+2026-05-09 11:23:24:     chat: {
+2026-05-09 11:23:24:       id: 1173474906,
+2026-05-09 11:23:24:       first_name: 'Nischay',
+2026-05-09 11:23:24:       last_name: 'Patel',
+2026-05-09 11:23:24:       username: 'Nischayp',
+2026-05-09 11:23:24:       type: 'private'
+2026-05-09 11:23:24:     },
+2026-05-09 11:23:24:     date: 1778340097,
+2026-05-09 11:23:24:     text: 'https://t.me/c/3130614830/390',
+2026-05-09 11:23:24:     entities: [ [Object] ],
+2026-05-09 11:23:24:     link_preview_options: { url: 'https://t.me/c/3130614830/390' }
+2026-05-09 11:23:24:   }
+2026-05-09 11:23:24: }
+2026-05-09 11:23:27: TimeoutError: Promise timed out after 90000 milliseconds
+2026-05-09 11:23:27:     at Timeout._onTimeout (/home/nisch/Desktop/MediaGrabber/node_modules/p-timeout/index.js:39:64)
+2026-05-09 11:23:27:     at listOnTimeout (node:internal/timers:614:17)
+2026-05-09 11:23:27:     at process.processTimers (node:internal/timers:549:7)
+2026-05-09 11:26:28: [downloader stderr] Server closed the connection: 0 bytes read on a total of 8 expected bytes
+2026-05-09 11:26:28: 
+2026-05-09 11:26:28: [downloader stderr] Server resent the older message 7637913810088672257, ignoring
+2026-05-09 11:26:28: 
+2026-05-09 12:23:51: (node:2658) [DEP0060] DeprecationWarning: The `util._extend` API is deprecated. Please use Object.assign() instead.
+2026-05-09 12:23:51: (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-05-09 12:23:51: (node:2658) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-05-09 12:24:11: [error] exception OperationalError: database is locked
+2026-05-09 12:24:11: [error] exception OperationalError: database is locked
+2026-05-09 12:24:12: [error] exception OperationalError: database is locked
+2026-05-09 12:24:16: [downloader stderr] Traceback (most recent call last):
+2026-05-09 12:24:16:   File "/home/nisch/Desktop/MediaGrabber/downloader.py", line 269, in <module>
+2026-05-09 12:24:16:     asyncio.run(main())
+2026-05-09 12:24:16:   File "/usr/lib/python3.11/asyncio/runners.py", line 190, in run
+2026-05-09 12:24:16: 
+2026-05-09 12:24:16: [downloader stderr]     return runner.run(main)
+2026-05-09 12:24:16:            ^^^^^^^^^^^^^^^^
+2026-05-09 12:24:16:   File "/usr/lib/python3.11/asyncio/runners.py", line 118, in run
+2026-05-09 12:24:16:     return self._loop.run_until_complete(task)
+2026-05-09 12:24:16:            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-05-09 12:24:16:   File "/usr/lib/python3.11/asyncio/base_events.py", line 653, in run_until_complete
+2026-05-09 12:24:16: 
+2026-05-09 12:24:16: [downloader stderr]     return future.result()
+2026-05-09 12:24:16:            ^^^^^^^^^^^^^^^
+2026-05-09 12:24:16:   File "/home/nisch/Desktop/MediaGrabber/downloader.py", line 266, in main
+2026-05-09 12:24:16:     await client.disconnect()
+2026-05-09 12:24:16:   File "/home/nisch/Desktop/MediaGrabber/.venv/lib/python3.11/site-packages/telethon/client/telegrambaseclient.py", line 735, in _disconnect_coro
+2026-05-09 12:24:16: 
+2026-05-09 12:24:16: [downloader stderr]     self._save_states_and_entities()
+2026-05-09 12:24:16: 
+2026-05-09 12:24:16: [downloader stderr]   File "/home/nisch/Desktop/MediaGrabber/.venv/lib/python3.11/site-packages/telethon/client/telegrambaseclient.py", line 700, in _save_states_and_entities
+2026-05-09 12:24:16:     self.session.set_update_state(0, types.updates.State(**ss, unread_count=0))
+2026-05-09 12:24:16:   File "/home/nisch/Desktop/MediaGrabber/.venv/lib/python3.11/site-packages/telethon/sessions/sqlite.py", line 214, in set_update_state
+2026-05-09 12:24:16:     self._execute('insert or replace into update_state values (?,?,?,?,?)',
+2026-05-09 12:24:16:   File "/home/nisch/Desktop/MediaGrabber/.venv/lib/python3.11/site-packages/telethon/sessions/sqlite.py", line 253, in _execute
+2026-05-09 12:24:16:     return c.execute(stmt, values).fetchone()
+2026-05-09 12:24:16:            ^^^^^^^^^^^^^^^^^^^^^^^
+2026-05-09 12:24:16: sqlite3.OperationalError: database is locked
+2026-05-09 12:24:16: 
+2026-05-09 12:24:16: [downloader stderr] Traceback (most recent call last):
+2026-05-09 12:24:16:   File "/home/nisch/Desktop/MediaGrabber/downloader.py", line 269, in <module>
+2026-05-09 12:24:16: 
+2026-05-09 12:24:16: [downloader stderr]     asyncio.run(main())
+2026-05-09 12:24:16:   File "/usr/lib/python3.11/asyncio/runners.py", line 190, in run
+2026-05-09 12:24:16: 
+2026-05-09 12:24:16: [downloader stderr]     return runner.run(main)
+2026-05-09 12:24:16:            ^^^^^^^^^^^^^^^^
+2026-05-09 12:24:16:   File "/usr/lib/python3.11/asyncio/runners.py", line 118, in run
+2026-05-09 12:24:16: 
+2026-05-09 12:24:16: [downloader stderr]     return self._loop.run_until_complete(task)
+2026-05-09 12:24:16:            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-05-09 12:24:16:   File "/usr/lib/python3.11/asyncio/base_events.py", line 653, in run_until_complete
+2026-05-09 12:24:16: 
+2026-05-09 12:24:16: [downloader stderr]     return future.result()
+2026-05-09 12:24:16:            ^^^^^^^^^^^^^^^
+2026-05-09 12:24:16:   File "/home/nisch/Desktop/MediaGrabber/downloader.py", line 266, in main
+2026-05-09 12:24:16:     await client.disconnect()
+2026-05-09 12:24:16:   File "/home/nisch/Desktop/MediaGrabber/.venv/lib/python3.11/site-packages/telethon/client/telegrambaseclient.py", line 735, in _disconnect_coro
+2026-05-09 12:24:16:     self._save_states_and_entities()
+2026-05-09 12:24:16:   File "/home/nisch/Desktop/MediaGrabber/.venv/lib/python3.11/site-packages/telethon/client/telegrambaseclient.py", line 700, in _save_states_and_entities
+2026-05-09 12:24:16:     self.session.set_update_state(0, types.updates.State(**ss, unread_count=0))
+2026-05-09 12:24:16:   File "/home/nisch/Desktop/MediaGrabber/.venv/lib/python3.11/site-packages/telethon/sessions/sqlite.py", line 214, in set_update_state
+2026-05-09 12:24:16:     self._execute('insert or replace into update_state values (?,?,?,?,?)',
+2026-05-09 12:24:16:   File "/home/nisch/Desktop/MediaGrabber/.venv/lib/python3.11/site-packages/telethon/sessions/sqlite.py", line 253, in _execute
+2026-05-09 12:24:16:     return c.execute(stmt, values).fetchone()
+2026-05-09 12:24:16:            ^^^^^^^^^^^^^^^^^^^^^^^
+2026-05-09 12:24:16: sqlite3.OperationalError: database is locked
+2026-05-09 12:24:16: 
+2026-05-09 12:24:17: [downloader stderr] Traceback (most recent call last):
+2026-05-09 12:24:17:   File "/home/nisch/Desktop/MediaGrabber/downloader.py", line 269, in <module>
+2026-05-09 12:24:17:     asyncio.run(main())
+2026-05-09 12:24:17:   File "/usr/lib/python3.11/asyncio/runners.py", line 190, in run
+2026-05-09 12:24:17:     return runner.run(main)
+2026-05-09 12:24:17:            ^^^^^^^^^^^^^^^^
+2026-05-09 12:24:17:   File "/usr/lib/python3.11/asyncio/runners.py", line 118, in run
+2026-05-09 12:24:17:     return self._loop.run_until_complete(task)
+2026-05-09 12:24:17:            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-05-09 12:24:17:   File "/usr/lib/python3.11/asyncio/base_events.py", line 653, in run_until_complete
+2026-05-09 12:24:17:     return future.result()
+2026-05-09 12:24:17:            ^^^^^^^^^^^^^^^
+2026-05-09 12:24:17:   File "/home/nisch/Desktop/MediaGrabber/downloader.py", line 266, in main
+2026-05-09 12:24:17:     await client.disconnect()
+2026-05-09 12:24:17:   File "/home/nisch/Desktop/MediaGrabber/.venv/lib/python3.11/site-packages/telethon/client/telegrambaseclient.py", line 735, in _disconnect_coro
+2026-05-09 12:24:17:     self._save_states_and_entities()
+2026-05-09 12:24:17:   File "/home/nisch/Desktop/MediaGrabber/.venv/lib/python3.11/site-packages/telethon/client/telegrambaseclient.py", line 700, in _save_states_and_entities
+2026-05-09 12:24:17:     self.session.set_update_state(0, types.updates.State(**ss, unread_count=0))
+2026-05-09 12:24:17:   File "/home/nisch/Desktop/MediaGrabber/.venv/lib/python3.11/site-packages/telethon/sessions/sqlite.py", line 214, in set_update_state
+2026-05-09 12:24:17:     self._execute('insert or replace into update_state values (?,?,?,?,?)',
+2026-05-09 12:24:17:   File "/home/nisch/Desktop/MediaGrabber/.venv/lib/python3.11/site-packages/telethon/sessions/sqlite.py", line 253, in _execute
+2026-05-09 12:24:17: 
+2026-05-09 12:24:17: [downloader stderr]     return c.execute(stmt, values).fetchone()
+2026-05-09 12:24:17: 
+2026-05-09 12:24:17: [downloader stderr]            ^^^^^^^^^^^^^^^^^^^^^^^
+2026-05-09 12:24:17: 
+2026-05-09 12:24:17: [downloader stderr] sqlite3.OperationalError: database is locked
+2026-05-09 12:24:17: 
+2026-05-09 12:25:01: [upload fail] 413: Request Entity Too Large
+2026-05-09 12:28:02: [upload fail] 413: Request Entity Too Large
+2026-05-09 12:28:14: (node:11296) [DEP0060] DeprecationWarning: The `util._extend` API is deprecated. Please use Object.assign() instead.
+2026-05-09 12:28:14: (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-05-09 12:28:14: (node:11296) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-05-09 12:50:17: (node:47325) [DEP0060] DeprecationWarning: The `util._extend` API is deprecated. Please use Object.assign() instead.
+2026-05-09 12:50:17: (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-05-09 12:50:17: (node:47325) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-05-09 12:56:15: (node:57401) [DEP0060] DeprecationWarning: The `util._extend` API is deprecated. Please use Object.assign() instead.
+2026-05-09 12:56:15: (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-05-09 12:56:15: (node:57401) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.

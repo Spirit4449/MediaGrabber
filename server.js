@@ -1,26 +1,39 @@
-require('dotenv').config();
-const express = require('express');
-const rateLimit = require('express-rate-limit');
-const crypto = require('crypto');
-const path = require('path');
-const fs = require('fs');
-const { spawn } = require('child_process');
-const { Telegraf } = require('telegraf');
+require("dotenv").config();
+const express = require("express");
+const rateLimit = require("express-rate-limit");
+const crypto = require("crypto");
+const path = require("path");
+const fs = require("fs");
+const { spawn } = require("child_process");
+const { Telegraf } = require("telegraf");
 
 const {
   PORT = 4000,
-  BIND_HOST = '127.0.0.1',
+  BIND_HOST = "127.0.0.1",
   SHARED_SECRET,
   BOT_TOKEN,
-  PYTHON_BIN = 'python'
+  PYTHON_BIN = "python",
 } = process.env;
 
-if (!SHARED_SECRET) throw new Error('SHARED_SECRET missing in env');
-if (!BOT_TOKEN) throw new Error('BOT_TOKEN missing in env');
+if (!SHARED_SECRET) throw new Error("SHARED_SECRET missing in env");
+if (!BOT_TOKEN) throw new Error("BOT_TOKEN missing in env");
 
 const app = express();
-app.use(express.json({ limit: '256kb' }));
+app.use(express.json({ limit: "256kb" }));
 const bot = new Telegraf(BOT_TOKEN);
+const MAX_BOT_UPLOAD_MB = Number(process.env.BOT_MAX_UPLOAD_MB || 30);
+const COMPRESS_TARGET_MB = Number(
+  process.env.BOT_COMPRESS_TARGET_MB || Math.max(1, MAX_BOT_UPLOAD_MB - 2),
+);
+const COMPRESS_AUDIO_KBPS = Number(process.env.BOT_COMPRESS_AUDIO_KBPS || 96);
+const COMPRESS_MIN_VIDEO_KBPS = Number(
+  process.env.BOT_COMPRESS_MIN_VIDEO_KBPS || 300,
+);
+const COMPRESS_MAX_VIDEO_KBPS = Number(
+  process.env.BOT_COMPRESS_MAX_VIDEO_KBPS || 2500,
+);
+const FFMPEG_PATH = process.env.FFMPEG_PATH || "ffmpeg";
+const FFPROBE_PATH = process.env.FFPROBE_PATH || "ffprobe";
 
 // ---------- settings ----------
 const INVITE_WAIT_MS = 5 * 60 * 1000; // 5 minutes to send invite before expiring
@@ -30,46 +43,288 @@ function isAllowedTelegramLink(link) {
   return /^https?:\/\/t\.me\/(?:c\/\d+\/\d+|[A-Za-z0-9_]+\/\d+)$/.test(link);
 }
 function isInviteLink(text) {
-  return /t\.me\/(?:\+|joinchat\/)[A-Za-z0-9_-]+$/.test(text.trim()) || /^[A-Za-z0-9_-]{16,}$/.test(text.trim());
+  return (
+    /t\.me\/(?:\+|joinchat\/)[A-Za-z0-9_-]+$/.test(text.trim()) ||
+    /^[A-Za-z0-9_-]{16,}$/.test(text.trim())
+  );
 }
 function spawnDownloader(args) {
-  console.log('[spawn] python downloader.py', args.join(' '));
-  return spawn(process.env.PYTHON_BIN || PYTHON_BIN, [
-    path.join(process.cwd(), 'downloader.py'),
-    ...args
-  ], { cwd: process.cwd() });
+  console.log("[spawn] python downloader.py", args.join(" "));
+  return spawn(
+    process.env.PYTHON_BIN || PYTHON_BIN,
+    [path.join(process.cwd(), "downloader.py"), ...args],
+    { cwd: process.cwd() },
+  );
 }
-async function safeUploadAndDelete(telegram, chatId, filePath, { caption, forceVideo } = {}) {
-  const base = path.basename(filePath);
-  console.log('[upload] sending', base, 'to chat', chatId);
+function runProcess(cmd, args) {
+  return new Promise((resolve, reject) => {
+    const child = spawn(cmd, args, { stdio: ["ignore", "pipe", "pipe"] });
+    let stdout = "";
+    let stderr = "";
+    child.stdout.on("data", (chunk) => {
+      stdout += chunk.toString("utf8");
+    });
+    child.stderr.on("data", (chunk) => {
+      stderr += chunk.toString("utf8");
+    });
+    child.on("error", reject);
+    child.on("close", (code) => {
+      if (code === 0) return resolve({ stdout, stderr });
+      return reject(new Error(`${cmd} failed (${code}): ${stderr || stdout}`));
+    });
+  });
+}
+async function canRunBinary(cmd) {
+  try {
+    await runProcess(cmd, ["-version"]);
+    return true;
+  } catch {
+    return false;
+  }
+}
+async function getDurationSeconds(filePath) {
+  const { stdout } = await runProcess(FFPROBE_PATH, [
+    "-v",
+    "error",
+    "-show_entries",
+    "format=duration",
+    "-of",
+    "default=nk=1:nw=1",
+    filePath,
+  ]);
+  const secs = Number.parseFloat(String(stdout || "").trim());
+  if (!Number.isFinite(secs) || secs <= 0) throw new Error("Invalid duration");
+  return secs;
+}
+function buildCompressedPath(filePath, ext) {
+  const dir = path.dirname(filePath);
+  const base = path.basename(filePath, path.extname(filePath));
+  return path.join(dir, `${base}.tmp${ext}`);
+}
+async function compressMediaToLimit(filePath, { isVideo, isAudio, maxBytes }) {
+  const targetBytes = Math.min(
+    maxBytes - 1024 * 1024,
+    Math.floor(COMPRESS_TARGET_MB * 1024 * 1024),
+  );
+  if (targetBytes <= 0) return { error: "target" };
 
-  const stream = fs.createReadStream(filePath);
-  const inputFile = { source: stream, filename: base };
+  const [hasFfmpeg, hasFfprobe] = await Promise.all([
+    canRunBinary(FFMPEG_PATH),
+    canRunBinary(FFPROBE_PATH),
+  ]);
+  if (!hasFfmpeg || !hasFfprobe) return { error: "missing" };
 
-  const ext = (path.extname(base) || '').toLowerCase();
-  const isVideo = forceVideo || ['.mp4', '.mov', '.mkv', '.webm'].includes(ext);
-  const isPhoto = ['.jpg', '.jpeg', '.png', '.gif', '.webp'].includes(ext);
+  let duration;
+  try {
+    duration = await getDurationSeconds(filePath);
+  } catch {
+    return { error: "duration" };
+  }
+
+  const totalKbps = Math.max(
+    64,
+    Math.floor((targetBytes * 8) / duration / 1000),
+  );
+  const outputExt = isVideo ? ".mp4" : ".mp3";
+  const outPath = buildCompressedPath(filePath, outputExt);
+  let args;
 
   if (isVideo) {
-    await telegram.sendVideo(chatId, inputFile, { caption: caption || '' });
-  } else if (isPhoto) {
-    await telegram.sendPhoto(chatId, inputFile, { caption: caption || '' });
+    const audioKbps = Math.max(64, Math.min(128, Math.floor(totalKbps * 0.1)));
+    let videoKbps = totalKbps - audioKbps;
+    videoKbps = Math.max(
+      COMPRESS_MIN_VIDEO_KBPS,
+      Math.min(COMPRESS_MAX_VIDEO_KBPS, videoKbps),
+    );
+    args = [
+      "-y",
+      "-i",
+      filePath,
+      "-c:v",
+      "libx264",
+      "-preset",
+      "veryfast",
+      "-b:v",
+      `${videoKbps}k`,
+      "-maxrate",
+      `${videoKbps}k`,
+      "-bufsize",
+      `${videoKbps * 2}k`,
+      "-vf",
+      "scale=min(1280\\,iw):-2",
+      "-c:a",
+      "aac",
+      "-b:a",
+      `${audioKbps}k`,
+      "-movflags",
+      "+faststart",
+      outPath,
+    ];
+  } else if (isAudio) {
+    const targetKbps = Math.floor((targetBytes * 8) / duration / 1000);
+    const audioKbps = Math.max(48, Math.min(COMPRESS_AUDIO_KBPS, targetKbps));
+    args = [
+      "-y",
+      "-i",
+      filePath,
+      "-vn",
+      "-c:a",
+      "libmp3lame",
+      "-b:a",
+      `${audioKbps}k`,
+      outPath,
+    ];
   } else {
-    await telegram.sendDocument(chatId, inputFile, { caption: caption || '' });
+    return { error: "type" };
   }
-  try { await fs.promises.rm(filePath, { force: true }); } catch {}
+
+  try {
+    await runProcess(FFMPEG_PATH, args);
+  } catch (e) {
+    try {
+      await fs.promises.rm(outPath, { force: true });
+    } catch {}
+    return { error: "ffmpeg", detail: e.message };
+  }
+
+  try {
+    const stat = await fs.promises.stat(outPath);
+    if (stat.size > maxBytes) {
+      await fs.promises.rm(outPath, { force: true });
+      return { error: "still_too_large", size: stat.size };
+    }
+  } catch {
+    return { error: "stat" };
+  }
+
+  return { path: outPath, ext: outputExt };
+}
+
+const VIDEO_EXTS = new Set([
+  ".mp4",
+  ".mov",
+  ".mkv",
+  ".webm",
+  ".avi",
+  ".m4v",
+  ".flv",
+  ".wmv",
+]);
+const PHOTO_EXTS = new Set([".jpg", ".jpeg", ".png", ".gif", ".webp"]);
+const AUDIO_EXTS = new Set([
+  ".mp3",
+  ".m4a",
+  ".ogg",
+  ".oga",
+  ".wav",
+  ".flac",
+  ".aac",
+  ".opus",
+  ".m4b",
+]);
+async function safeUploadAndDelete(
+  telegram,
+  chatId,
+  filePath,
+  { caption, forceVideo } = {},
+) {
+  let currentPath = filePath;
+  const originalBase = path.basename(currentPath);
+  const originalStem = path.basename(currentPath, path.extname(currentPath));
+  let base = originalBase;
+  console.log("[upload] sending", base, "to chat", chatId);
+
+  const ext = (path.extname(base) || "").toLowerCase();
+  const isVideo = forceVideo || VIDEO_EXTS.has(ext);
+  const isPhoto = PHOTO_EXTS.has(ext);
+  const isAudio = AUDIO_EXTS.has(ext);
+
+  const maxBytes = MAX_BOT_UPLOAD_MB * 1024 * 1024;
+  try {
+    const stat = await fs.promises.stat(currentPath);
+    if (stat.size > maxBytes) {
+      if (!isVideo && !isAudio) {
+        const sizeMb = fmtMB(stat.size);
+        await telegram.sendMessage(
+          chatId,
+          `⚠️ File too large for bot upload (${sizeMb} MB). Limit is ${MAX_BOT_UPLOAD_MB} MB.`,
+        );
+        try {
+          await fs.promises.rm(currentPath, { force: true });
+        } catch {}
+        return;
+      }
+
+      const compressed = await compressMediaToLimit(currentPath, {
+        isVideo,
+        isAudio,
+        maxBytes,
+      });
+      if (!compressed.path) {
+        const sizeMb = fmtMB(stat.size);
+        if (compressed.error === "missing") {
+          await telegram.sendMessage(
+            chatId,
+            `⚠️ File too large (${sizeMb} MB). ffmpeg/ffprobe not installed, cannot compress.`,
+          );
+        } else if (compressed.error === "still_too_large") {
+          await telegram.sendMessage(
+            chatId,
+            `⚠️ File too large (${sizeMb} MB) even after compression.`,
+          );
+        } else {
+          await telegram.sendMessage(
+            chatId,
+            `⚠️ File too large (${sizeMb} MB) and could not be compressed.`,
+          );
+        }
+        try {
+          await fs.promises.rm(currentPath, { force: true });
+        } catch {}
+        return;
+      }
+
+      try {
+        await fs.promises.rm(currentPath, { force: true });
+      } catch {}
+      currentPath = compressed.path;
+      const nextExt = compressed.ext || path.extname(currentPath);
+      base = `${originalStem}${nextExt}`;
+    }
+  } catch (e) {
+    console.error("[upload] stat failed", e.message);
+  }
+
+  const stream = fs.createReadStream(currentPath);
+  const inputFile = { source: stream, filename: base };
+
+  const sendExt = (path.extname(base) || "").toLowerCase();
+  const sendIsVideo = forceVideo || VIDEO_EXTS.has(sendExt);
+  const sendIsPhoto = PHOTO_EXTS.has(sendExt);
+
+  if (sendIsVideo) {
+    await telegram.sendVideo(chatId, inputFile, { caption: caption || "" });
+  } else if (sendIsPhoto) {
+    await telegram.sendPhoto(chatId, inputFile, { caption: caption || "" });
+  } else {
+    await telegram.sendDocument(chatId, inputFile, { caption: caption || "" });
+  }
+  try {
+    await fs.promises.rm(currentPath, { force: true });
+  } catch {}
 }
 function fmtMB(bytes) {
-  if (!bytes && bytes !== 0) return '??';
+  if (!bytes && bytes !== 0) return "??";
   return (bytes / (1024 * 1024)).toFixed(1);
 }
 function progressBar(pct) {
   const total = 20;
   const filled = Math.max(0, Math.min(total, Math.round((pct / 100) * total)));
-  return '█'.repeat(filled) + '░'.repeat(total - filled);
+  return "█".repeat(filled) + "░".repeat(total - filled);
 }
 function progressText(downloaded, total, pct) {
-  const d = fmtMB(downloaded), t = fmtMB(total);
+  const d = fmtMB(downloaded),
+    t = fmtMB(total);
   const bar = progressBar(Math.max(0, Math.min(100, pct || 0)));
   return `📥 ${Math.round(pct || 0)}% [${bar}] ${d} MB / ${t} MB`;
 }
@@ -85,36 +340,44 @@ function inviteWaitActive(st) {
 }
 function clearInviteWait(chatId) {
   state.delete(chatId);
-  console.log('[invite] cleared for chat', chatId);
+  console.log("[invite] cleared for chat", chatId);
 }
 
 // ---------- bot commands ----------
 bot.start(async (ctx) => {
-  await ctx.reply('👋 Send a Telegram post link. I will fetch the media and upload it here.\nIf it’s private and I’m not a member, I’ll ask for an invite link.\nType /stop or "stop" to cancel when asked for an invite.');
+  await ctx.reply(
+    '👋 Send a Telegram post link. I will fetch the media and upload it here.\nIf it’s private and I’m not a member, I’ll ask for an invite link.\nType /stop or "stop" to cancel when asked for an invite.',
+  );
 });
 
-bot.command(['stop', 'cancel'], async (ctx) => {
+bot.command(["stop", "cancel"], async (ctx) => {
   const chatId = ctx.chat.id;
   const st = state.get(chatId);
   if (inviteWaitActive(st)) {
     clearInviteWait(chatId);
-    await ctx.reply('🛑 Canceled. You can now send a new Telegram post link anytime.');
+    await ctx.reply(
+      "🛑 Canceled. You can now send a new Telegram post link anytime.",
+    );
   } else {
-    await ctx.reply('Nothing to cancel. Send me a Telegram post link to begin.');
+    await ctx.reply(
+      "Nothing to cancel. Send me a Telegram post link to begin.",
+    );
   }
 });
 
 // ---------- bot text handler ----------
-bot.on('text', async (ctx) => {
+bot.on("text", async (ctx) => {
   const chatId = ctx.chat.id;
-  const text = (ctx.message.text || '').trim();
+  const text = (ctx.message.text || "").trim();
 
   // allow plain "stop"/"cancel" during invite wait
   if (/^(stop|cancel)$/i.test(text)) {
     const st = state.get(chatId);
     if (inviteWaitActive(st)) {
       clearInviteWait(chatId);
-      return ctx.reply('🛑 Canceled. You can now send a new Telegram post link.');
+      return ctx.reply(
+        "🛑 Canceled. You can now send a new Telegram post link.",
+      );
     }
   }
 
@@ -122,7 +385,10 @@ bot.on('text', async (ctx) => {
   // If awaiting invite, handle invite or allow stop
   if (inviteWaitActive(st)) {
     if (!isInviteLink(text)) {
-      return ctx.reply('🔑 Please send a valid invite link (e.g., `https://t.me/+INVITEHASH`) or type `stop` to cancel.', { parse_mode: 'Markdown' });
+      return ctx.reply(
+        "🔑 Please send a valid invite link (e.g., `https://t.me/+INVITEHASH`) or type `stop` to cancel.",
+        { parse_mode: "Markdown" },
+      );
     }
     const invite = text;
     const link = st.awaitingInviteFor;
@@ -136,7 +402,7 @@ bot.on('text', async (ctx) => {
 
   // Otherwise expect a post link
   if (!isAllowedTelegramLink(text)) {
-    return ctx.reply('🔗 Please send a valid Telegram post link.');
+    return ctx.reply("🔗 Please send a valid Telegram post link.");
   }
   await handleDownloadFlow(ctx, text);
 });
@@ -144,206 +410,301 @@ bot.on('text', async (ctx) => {
 // ---------- main bot flow ----------
 async function handleDownloadFlow(ctx, link, opts = {}) {
   const chatId = ctx.chat.id;
-  const DOWNLOAD_ROOT = path.join(process.cwd(), 'downloads');
+  const DOWNLOAD_ROOT = path.join(process.cwd(), "downloads");
   await fs.promises.mkdir(DOWNLOAD_ROOT, { recursive: true });
 
-  console.log('[bot] preflight for', link);
+  console.log("[bot] preflight for", link);
   await ctx.reply(`🟢 Received link:\n${link}`);
 
   // Preflight
-  const preArgs = ['--link', link, '--outdir', DOWNLOAD_ROOT, '--preflight'];
-  if (opts.invite) preArgs.push('--invite', opts.invite);
+  const preArgs = ["--link", link, "--outdir", DOWNLOAD_ROOT, "--preflight"];
+  if (opts.invite) preArgs.push("--invite", opts.invite);
 
-  let needInvite = false; let expected = null; let hasMedia = null;
+  let needInvite = false;
+  let expected = null;
+  let hasMedia = null;
 
   await new Promise((resolve) => {
     const py = spawnDownloader(preArgs);
-    let buffer = '';
-    py.stdout.on('data', chunk => {
-      buffer += chunk.toString('utf8');
+    let buffer = "";
+    py.stdout.on("data", (chunk) => {
+      buffer += chunk.toString("utf8");
       let idx;
-      while ((idx = buffer.indexOf('\n')) >= 0) {
+      while ((idx = buffer.indexOf("\n")) >= 0) {
         const line = buffer.slice(0, idx).trim();
         buffer = buffer.slice(idx + 1);
         if (!line) continue;
-        let ev; try { ev = JSON.parse(line); } catch { console.log('[preflight log]', line); continue; }
-        if (ev.type === 'need_invite') needInvite = true;
-        if (ev.type === 'ok') { expected = ev.expected; hasMedia = ev.has_media; }
+        let ev;
+        try {
+          ev = JSON.parse(line);
+        } catch {
+          console.log("[preflight log]", line);
+          continue;
+        }
+        if (ev.type === "need_invite") needInvite = true;
+        if (ev.type === "ok") {
+          expected = ev.expected;
+          hasMedia = ev.has_media;
+        }
       }
     });
-    py.on('close', () => resolve());
+    py.on("close", () => resolve());
   });
 
   if (needInvite && !opts.invite) {
     // set wait state with expiry
-    state.set(chatId, { awaitingInviteFor: link, expiresAt: Date.now() + INVITE_WAIT_MS });
+    state.set(chatId, {
+      awaitingInviteFor: link,
+      expiresAt: Date.now() + INVITE_WAIT_MS,
+    });
     await ctx.reply(
-      '🔐 I need an invite link to join that channel/group.\n' +
-      'Please send: `https://t.me/+INVITEHASH`\n' +
-      'Type `stop` to cancel. (This request auto-expires in 5 minutes.)',
-      { parse_mode: 'Markdown' }
+      "🔐 I need an invite link to join that channel/group.\n" +
+        "Please send: `https://t.me/+INVITEHASH`\n" +
+        "Type `stop` to cancel. (This request auto-expires in 5 minutes.)",
+      { parse_mode: "Markdown" },
     );
     return;
   }
 
   if (hasMedia === false) {
-    await ctx.reply('⚠️ That post has no media to download.');
+    await ctx.reply("⚠️ That post has no media to download.");
     return;
   }
 
-  const preTxt = expected ? `Expected: ${fmtMB(expected)} MB` : 'Starting…';
-  const m = await ctx.reply(`📥 0% [░░░░░░░░░░░░░░░░░░] 0.0 MB / ${expected ? fmtMB(expected) : '??'} MB\n${preTxt}`);
+  const preTxt = expected ? `Expected: ${fmtMB(expected)} MB` : "Starting…";
+  const m = await ctx.reply(
+    `📥 0% [░░░░░░░░░░░░░░░░░░] 0.0 MB / ${expected ? fmtMB(expected) : "??"} MB\n${preTxt}`,
+  );
   const progressMsgId = m.message_id;
-  console.log('[bot] starting download for', link);
+  console.log("[bot] starting download for", link);
 
   startBackgroundDownload(ctx, link, progressMsgId, { invite: opts.invite });
 }
 
 function startBackgroundDownload(ctx, link, progressMsgId, opts = {}) {
   const chatId = ctx.chat.id;
-  const DOWNLOAD_ROOT = path.join(process.cwd(), 'downloads');
-  const args = ['--link', link, '--outdir', DOWNLOAD_ROOT];
-  if (opts.invite) args.push('--invite', opts.invite);
+  const DOWNLOAD_ROOT = path.join(process.cwd(), "downloads");
+  const args = ["--link", link, "--outdir", DOWNLOAD_ROOT];
+  if (opts.invite) args.push("--invite", opts.invite);
 
   const py = spawnDownloader(args);
-  let buffer = '';
+  let buffer = "";
   let lastPctLogged = -10;
 
-  py.stdout.on('data', async chunk => {
-    buffer += chunk.toString('utf8');
+  py.stdout.on("data", async (chunk) => {
+    buffer += chunk.toString("utf8");
     let idx;
-    while ((idx = buffer.indexOf('\n')) >= 0) {
+    while ((idx = buffer.indexOf("\n")) >= 0) {
       const line = buffer.slice(0, idx).trim();
       buffer = buffer.slice(idx + 1);
       if (!line) continue;
 
-      let ev; try { ev = JSON.parse(line); } catch { console.log('[dl log]', line); continue; }
+      let ev;
+      try {
+        ev = JSON.parse(line);
+      } catch {
+        console.log("[dl log]", line);
+        continue;
+      }
 
-      if (ev.type === 'progress') {
-        const pct = typeof ev.pct === 'number' ? ev.pct : 0;
+      if (ev.type === "progress") {
+        const pct = typeof ev.pct === "number" ? ev.pct : 0;
         const txt = progressText(ev.downloaded, ev.total, pct);
         try {
-          await ctx.telegram.editMessageText(chatId, progressMsgId, undefined, txt);
+          await ctx.telegram.editMessageText(
+            chatId,
+            progressMsgId,
+            undefined,
+            txt,
+          );
         } catch {}
         if (pct - lastPctLogged >= 10 || pct === 100) {
           lastPctLogged = pct;
-          console.log(`[progress] ${pct}% ${fmtMB(ev.downloaded)}MB/${fmtMB(ev.total)}MB`);
+          console.log(
+            `[progress] ${pct}% ${fmtMB(ev.downloaded)}MB/${fmtMB(ev.total)}MB`,
+          );
         }
-      } else if (ev.type === 'error') {
-        console.error('[error]', ev.code || '', ev.text || '');
-        await ctx.telegram.editMessageText(chatId, progressMsgId, undefined, `❌ ${ev.text || 'Failed'}`).catch(()=>{});
-      } else if (ev.type === 'done' && ev.path) {
-        console.log('[done] path:', ev.path, 'size:', ev.size);
+      } else if (ev.type === "error") {
+        console.error("[error]", ev.code || "", ev.text || "");
+        await ctx.telegram
+          .editMessageText(
+            chatId,
+            progressMsgId,
+            undefined,
+            `❌ ${ev.text || "Failed"}`,
+          )
+          .catch(() => {});
+      } else if (ev.type === "done" && ev.path) {
+        console.log("[done] path:", ev.path, "size:", ev.size);
         try {
-          await safeUploadAndDelete(ctx.telegram, chatId, ev.path, { caption: '' });
-          await ctx.telegram.deleteMessage(chatId, progressMsgId).catch(()=>{}); // success: delete progress
+          await safeUploadAndDelete(ctx.telegram, chatId, ev.path, {
+            caption: "",
+          });
+          await ctx.telegram
+            .deleteMessage(chatId, progressMsgId)
+            .catch(() => {}); // success: delete progress
         } catch (e) {
-          console.error('[upload fail]', e.message);
-          await ctx.telegram.editMessageText(chatId, progressMsgId, undefined, `❌ Upload failed: ${e.message}`).catch(()=>{});
+          console.error("[upload fail]", e.message);
+          await ctx.telegram
+            .editMessageText(
+              chatId,
+              progressMsgId,
+              undefined,
+              `❌ Upload failed: ${e.message}`,
+            )
+            .catch(() => {});
         }
       }
     }
   });
 
-  py.stderr.on('data', chunk => console.error('[downloader stderr]', chunk.toString('utf8')));
-  py.on('close', code => console.log('[process close]', code));
+  py.stderr.on("data", (chunk) =>
+    console.error("[downloader stderr]", chunk.toString("utf8")),
+  );
+  py.on("close", (code) => console.log("[process close]", code));
 }
 
 // ---------- express (optional secure API) ----------
 const limiter = rateLimit({ windowMs: 60_000, max: 30 });
-app.use('/api/download', limiter);
+app.use("/api/download", limiter);
 
 function verifyHmac(req, res, next) {
-  const sig = req.get('x-signature') || '';
+  const sig = req.get("x-signature") || "";
   const body = JSON.stringify(req.body || {});
-  const mac = crypto.createHmac('sha256', SHARED_SECRET).update(body).digest('hex');
+  const mac = crypto
+    .createHmac("sha256", SHARED_SECRET)
+    .update(body)
+    .digest("hex");
   try {
-    if (crypto.timingSafeEqual(Buffer.from(mac), Buffer.from(sig))) return next();
+    if (crypto.timingSafeEqual(Buffer.from(mac), Buffer.from(sig)))
+      return next();
   } catch {}
-  return res.status(401).json({ error: 'Invalid signature' });
+  return res.status(401).json({ error: "Invalid signature" });
 }
 
-app.post('/api/download', verifyHmac, async (req, res) => {
+app.post("/api/download", verifyHmac, async (req, res) => {
   try {
     const { link, chat_id, caption, forceVideo } = req.body || {};
-    if (!link || !chat_id) return res.status(400).json({ error: 'link and chat_id required' });
-    if (!isAllowedTelegramLink(link)) return res.status(400).json({ error: 'Invalid link format' });
+    if (!link || !chat_id)
+      return res.status(400).json({ error: "link and chat_id required" });
+    if (!isAllowedTelegramLink(link))
+      return res.status(400).json({ error: "Invalid link format" });
 
-    console.log('[api] request', { link, chat_id });
+    console.log("[api] request", { link, chat_id });
 
-    const DOWNLOAD_ROOT = path.join(process.cwd(), 'downloads');
+    const DOWNLOAD_ROOT = path.join(process.cwd(), "downloads");
     await fs.promises.mkdir(DOWNLOAD_ROOT, { recursive: true });
-    try { await fs.promises.chmod(DOWNLOAD_ROOT, 0o700); } catch {}
+    try {
+      await fs.promises.chmod(DOWNLOAD_ROOT, 0o700);
+    } catch {}
 
-    const pmsg = await bot.telegram.sendMessage(chat_id, '📥 0% [░░░░░░░░░░░░░░░░░░] 0.0 MB / ?? MB');
+    const pmsg = await bot.telegram.sendMessage(
+      chat_id,
+      "📥 0% [░░░░░░░░░░░░░░░░░░] 0.0 MB / ?? MB",
+    );
     let progressMsgId = pmsg.message_id;
 
-    const py = spawnDownloader(['--link', link, '--outdir', DOWNLOAD_ROOT]);
+    const py = spawnDownloader(["--link", link, "--outdir", DOWNLOAD_ROOT]);
 
-    let buffer = '';
+    let buffer = "";
     let lastPctLogged = -10;
 
-    py.stdout.on('data', async chunk => {
-      buffer += chunk.toString('utf8');
+    py.stdout.on("data", async (chunk) => {
+      buffer += chunk.toString("utf8");
       let idx;
-      while ((idx = buffer.indexOf('\n')) >= 0) {
+      while ((idx = buffer.indexOf("\n")) >= 0) {
         const line = buffer.slice(0, idx).trim();
         buffer = buffer.slice(idx + 1);
         if (!line) continue;
 
-        let ev; try { ev = JSON.parse(line); } catch { console.log('[downloader log]', line); continue; }
+        let ev;
+        try {
+          ev = JSON.parse(line);
+        } catch {
+          console.log("[downloader log]", line);
+          continue;
+        }
 
-        if (ev.type === 'progress') {
-          const pct = typeof ev.pct === 'number' ? ev.pct : 0;
+        if (ev.type === "progress") {
+          const pct = typeof ev.pct === "number" ? ev.pct : 0;
           const txt = progressText(ev.downloaded, ev.total, pct);
           try {
-            await bot.telegram.editMessageText(chat_id, progressMsgId, undefined, txt);
+            await bot.telegram.editMessageText(
+              chat_id,
+              progressMsgId,
+              undefined,
+              txt,
+            );
           } catch (e) {
-            console.warn('[edit fail]', e.message);
+            console.warn("[edit fail]", e.message);
             const np = await bot.telegram.sendMessage(chat_id, txt);
             progressMsgId = np.message_id;
           }
           if (pct - lastPctLogged >= 10 || pct === 100) {
             lastPctLogged = pct;
-            console.log(`[progress] ${pct}% ${fmtMB(ev.downloaded)}MB/${fmtMB(ev.total)}MB`);
+            console.log(
+              `[progress] ${pct}% ${fmtMB(ev.downloaded)}MB/${fmtMB(ev.total)}MB`,
+            );
           }
-        } else if (ev.type === 'error') {
-          console.error('[error]', ev.code || '', ev.text || '');
-          await bot.telegram.editMessageText(chat_id, progressMsgId, undefined, `❌ ${ev.text || 'Failed'}`).catch(()=>{});
-        } else if (ev.type === 'done' && ev.path) {
-          console.log('[done] path:', ev.path, 'size:', ev.size);
+        } else if (ev.type === "error") {
+          console.error("[error]", ev.code || "", ev.text || "");
+          await bot.telegram
+            .editMessageText(
+              chat_id,
+              progressMsgId,
+              undefined,
+              `❌ ${ev.text || "Failed"}`,
+            )
+            .catch(() => {});
+        } else if (ev.type === "done" && ev.path) {
+          console.log("[done] path:", ev.path, "size:", ev.size);
           try {
-            await safeUploadAndDelete(bot.telegram, chat_id, ev.path, { caption: '', forceVideo: !!forceVideo });
-            await bot.telegram.deleteMessage(chat_id, progressMsgId).catch(()=>{});
+            await safeUploadAndDelete(bot.telegram, chat_id, ev.path, {
+              caption: "",
+              forceVideo: !!forceVideo,
+            });
+            await bot.telegram
+              .deleteMessage(chat_id, progressMsgId)
+              .catch(() => {});
           } catch (e) {
-            console.error('[upload fail]', e.message);
-            await bot.telegram.editMessageText(chat_id, progressMsgId, undefined, `❌ Upload failed: ${e.message}`).catch(()=>{});
+            console.error("[upload fail]", e.message);
+            await bot.telegram
+              .editMessageText(
+                chat_id,
+                progressMsgId,
+                undefined,
+                `❌ Upload failed: ${e.message}`,
+              )
+              .catch(() => {});
           }
         }
       }
     });
 
-    py.stderr.on('data', chunk => {
-      console.error('[downloader stderr]', chunk.toString('utf8'));
+    py.stderr.on("data", (chunk) => {
+      console.error("[downloader stderr]", chunk.toString("utf8"));
     });
 
-    py.on('close', (code) => {
-      console.log('[process close] code:', code);
+    py.on("close", (code) => {
+      console.log("[process close] code:", code);
     });
 
     res.json({ ok: true });
   } catch (e) {
-    console.error('[api error]', e);
+    console.error("[api error]", e);
     return res.status(500).json({ error: e.message });
   }
 });
 
 // ---------- health & start ----------
-app.get('/healthz', (_req, res) => res.json({ ok: true }));
+app.get("/healthz", (_req, res) => res.json({ ok: true }));
 
 app.listen(Number(PORT), BIND_HOST, () => {
   console.log(`Server listening on http://${BIND_HOST}:${PORT}`);
 });
-bot.launch().then(() => console.log('Bot polling started')).catch(console.error);
-process.once('SIGINT', () => bot.stop('SIGINT'));
-process.once('SIGTERM', () => bot.stop('SIGTERM'));
+bot
+  .launch()
+  .then(() => console.log("Bot polling started"))
+  .catch(console.error);
+process.once("SIGINT", () => bot.stop("SIGINT"));
+process.once("SIGTERM", () => bot.stop("SIGTERM"));

@@ -188,3 +188,571 @@
 2026-03-03 12:39:59: Bot polling started
 2026-03-03 12:40:02: [dotenv@17.2.3] injecting env (0) from .env -- tip: ⚙️  load multiple .env files with { path: ['.env.local', '.env'] }
 2026-03-03 12:40:02: Server listening on http://127.0.0.1:4000
+2026-03-04 14:34:35: [dotenv@17.2.3] injecting env (0) from .env -- tip: 🔐 prevent building .env in docker: https://dotenvx.com/prebuild
+2026-03-04 14:36:07: Server listening on http://127.0.0.1:4000
+2026-03-19 23:57:29: [dotenv@17.2.3] injecting env (0) from .env -- tip: 🔐 prevent committing .env to code: https://dotenvx.com/precommit
+2026-03-19 23:57:36: Server listening on http://127.0.0.1:4000
+2026-03-21 09:16:20: [bot] preflight for https://t.me/c/1773081661/5034
+2026-03-21 09:16:21: [spawn] python downloader.py --link https://t.me/c/1773081661/5034 --outdir /home/nisch/Desktop/MediaGrabber/downloads --preflight
+2026-03-21 09:16:22: [bot] starting download for https://t.me/c/1773081661/5034
+2026-03-21 09:16:22: [spawn] python downloader.py --link https://t.me/c/1773081661/5034 --outdir /home/nisch/Desktop/MediaGrabber/downloads
+2026-03-21 09:16:24: [progress] 0.9% 0.5MB/53.5MB
+2026-03-21 09:16:27: [progress] 11.2% 6.0MB/53.5MB
+2026-03-21 09:16:31: [progress] 21.5% 11.5MB/53.5MB
+2026-03-21 09:16:34: [progress] 31.8% 17.0MB/53.5MB
+2026-03-21 09:16:38: [progress] 42.1% 22.5MB/53.5MB
+2026-03-21 09:16:41: [progress] 52.4% 28.0MB/53.5MB
+2026-03-21 09:16:45: [progress] 62.7% 33.5MB/53.5MB
+2026-03-21 09:16:48: [progress] 73% 39.0MB/53.5MB
+2026-03-21 09:16:52: [progress] 83.3% 44.5MB/53.5MB
+2026-03-21 09:16:55: [progress] 93.5% 50.0MB/53.5MB
+2026-03-21 09:17:00: [done] path: /home/nisch/Desktop/MediaGrabber/downloads/Brahma naa sange/715.m4a size: 56049238
+2026-03-21 09:17:00: [upload] sending 715.m4a to chat 1173474906
+2026-03-21 09:17:01: [progress] 100% 53.5MB/53.5MB
+2026-03-21 09:17:09: [process close] 0
+2026-03-26 19:37:48: [dotenv@17.2.3] injecting env (0) from .env -- tip: 👥 sync secrets across teammates & machines: https://dotenvx.com/ops
+2026-03-26 19:37:56: Server listening on http://127.0.0.1:4000
+2026-03-29 13:30:31: [bot] preflight for https://t.me/c/2074676830/1102
+2026-03-29 13:30:31: [spawn] python downloader.py --link https://t.me/c/2074676830/1102 --outdir /home/nisch/Desktop/MediaGrabber/downloads --preflight
+2026-03-29 13:30:33: [bot] starting download for https://t.me/c/2074676830/1102
+2026-03-29 13:30:33: [spawn] python downloader.py --link https://t.me/c/2074676830/1102 --outdir /home/nisch/Desktop/MediaGrabber/downloads
+2026-03-29 13:30:34: [done] path: /home/nisch/Desktop/MediaGrabber/downloads/Moments with Mahant Swami/Moments with Mahant Swami_1102.jpg size: 142361
+2026-03-29 13:30:34: [upload] sending Moments with Mahant Swami_1102.jpg to chat 1173474906
+2026-03-29 13:30:35: [process close] 0
+2026-03-29 13:30:35: [progress] 100% 0.1MB/0.1MB
+2026-03-29 13:34:19: [bot] preflight for https://t.me/c/2074676830/220
+2026-03-29 13:34:19: [spawn] python downloader.py --link https://t.me/c/2074676830/220 --outdir /home/nisch/Desktop/MediaGrabber/downloads --preflight
+2026-03-29 13:34:21: [bot] starting download for https://t.me/c/2074676830/220
+2026-03-29 13:34:21: [spawn] python downloader.py --link https://t.me/c/2074676830/220 --outdir /home/nisch/Desktop/MediaGrabber/downloads
+2026-03-29 13:34:25: [done] path: /home/nisch/Desktop/MediaGrabber/downloads/Moments with Mahant Swami/Moments with Mahant Swami_220.jpg size: 77287
+2026-03-29 13:34:25: [upload] sending Moments with Mahant Swami_220.jpg to chat 1173474906
+2026-03-29 13:34:25: [process close] 0
+2026-03-29 13:34:25: [progress] 100% 0.1MB/0.1MB
+2026-03-30 09:05:02: [bot] preflight for https://t.me/c/1773081661/5058
+2026-03-30 09:05:02: [spawn] python downloader.py --link https://t.me/c/1773081661/5058 --outdir /home/nisch/Desktop/MediaGrabber/downloads --preflight
+2026-03-30 09:05:04: [bot] starting download for https://t.me/c/1773081661/5058
+2026-03-30 09:05:04: [spawn] python downloader.py --link https://t.me/c/1773081661/5058 --outdir /home/nisch/Desktop/MediaGrabber/downloads
+2026-03-30 09:05:05: [progress] 3.4% 0.5MB/14.8MB
+2026-03-30 09:05:06: [progress] 13.5% 2.0MB/14.8MB
+2026-03-30 09:05:07: [progress] 23.7% 3.5MB/14.8MB
+2026-03-30 09:05:08: [progress] 33.8% 5.0MB/14.8MB
+2026-03-30 09:05:09: [progress] 44% 6.5MB/14.8MB
+2026-03-30 09:05:10: [progress] 54.1% 8.0MB/14.8MB
+2026-03-30 09:05:11: [progress] 64.2% 9.5MB/14.8MB
+2026-03-30 09:05:12: [progress] 74.4% 11.0MB/14.8MB
+2026-03-30 09:05:13: [progress] 84.5% 12.5MB/14.8MB
+2026-03-30 09:05:14: [progress] 94.7% 14.0MB/14.8MB
+2026-03-30 09:05:14: [done] path: /home/nisch/Desktop/MediaGrabber/downloads/Brahma naa sange/Pujya Uttamyogi Swami.m4a size: 15505774
+2026-03-30 09:05:14: [upload] sending Pujya Uttamyogi Swami.m4a to chat 511833461
+2026-03-30 09:05:14: [progress] 100% 14.8MB/14.8MB
+2026-03-30 09:05:14: [process close] 0
+2026-03-30 22:29:06: [bot] preflight for https://t.me/c/1773081661/5058
+2026-03-30 22:29:06: [spawn] python downloader.py --link https://t.me/c/1773081661/5058 --outdir /home/nisch/Desktop/MediaGrabber/downloads --preflight
+2026-03-30 22:29:08: [bot] starting download for https://t.me/c/1773081661/5058
+2026-03-30 22:29:08: [spawn] python downloader.py --link https://t.me/c/1773081661/5058 --outdir /home/nisch/Desktop/MediaGrabber/downloads
+2026-03-30 22:29:10: [progress] 3.4% 0.5MB/14.8MB
+2026-03-30 22:29:10: [progress] 13.5% 2.0MB/14.8MB
+2026-03-30 22:29:12: [progress] 23.7% 3.5MB/14.8MB
+2026-03-30 22:29:13: [progress] 33.8% 5.0MB/14.8MB
+2026-03-30 22:29:14: [progress] 44% 6.5MB/14.8MB
+2026-03-30 22:29:15: [progress] 54.1% 8.0MB/14.8MB
+2026-03-30 22:29:16: [progress] 64.2% 9.5MB/14.8MB
+2026-03-30 22:29:17: [progress] 74.4% 11.0MB/14.8MB
+2026-03-30 22:29:18: [progress] 84.5% 12.5MB/14.8MB
+2026-03-30 22:29:19: [progress] 94.7% 14.0MB/14.8MB
+2026-03-30 22:29:20: [done] path: /home/nisch/Desktop/MediaGrabber/downloads/Brahma naa sange/Pujya Uttamyogi Swami.m4a size: 15505774
+2026-03-30 22:29:20: [upload] sending Pujya Uttamyogi Swami.m4a to chat 943896424
+2026-03-30 22:29:20: [progress] 100% 14.8MB/14.8MB
+2026-03-30 22:29:20: [process close] 0
+2026-04-08 09:01:25: [bot] preflight for https://t.me/c/1773081661/5099
+2026-04-08 09:01:25: [spawn] python downloader.py --link https://t.me/c/1773081661/5099 --outdir /home/nisch/Desktop/MediaGrabber/downloads --preflight
+2026-04-08 09:01:27: [bot] starting download for https://t.me/c/1773081661/5099
+2026-04-08 09:01:27: [spawn] python downloader.py --link https://t.me/c/1773081661/5099 --outdir /home/nisch/Desktop/MediaGrabber/downloads
+2026-04-08 09:01:28: [progress] 0.8% 0.5MB/59.8MB
+2026-04-08 09:01:32: [progress] 10.9% 6.5MB/59.8MB
+2026-04-08 09:01:36: [progress] 21.7% 13.0MB/59.8MB
+2026-04-08 09:01:41: [progress] 31.8% 19.0MB/59.8MB
+2026-04-08 09:01:46: [progress] 42.6% 25.5MB/59.8MB
+2026-04-08 09:01:50: [progress] 52.7% 31.5MB/59.8MB
+2026-04-08 09:02:00: [progress] 62.7% 37.5MB/59.8MB
+2026-04-08 09:02:03: [progress] 72.7% 43.5MB/59.8MB
+2026-04-08 09:02:07: [progress] 82.8% 49.5MB/59.8MB
+2026-04-08 09:02:15: [progress] 92.8% 55.5MB/59.8MB
+2026-04-08 09:02:18: [done] path: /home/nisch/Desktop/MediaGrabber/downloads/Brahma naa sange/731.m4a size: 62721219
+2026-04-08 09:02:18: [upload] sending 731.m4a to chat 1173474906
+2026-04-08 09:02:18: [progress] 100% 59.8MB/59.8MB
+2026-04-08 09:02:18: [process close] 0
+2026-04-08 09:02:26: [bot] preflight for https://t.me/c/1773081661/5099
+2026-04-08 09:02:27: [spawn] python downloader.py --link https://t.me/c/1773081661/5099 --outdir /home/nisch/Desktop/MediaGrabber/downloads --preflight
+2026-04-08 09:02:28: [bot] starting download for https://t.me/c/1773081661/5099
+2026-04-08 09:02:28: [spawn] python downloader.py --link https://t.me/c/1773081661/5099 --outdir /home/nisch/Desktop/MediaGrabber/downloads
+2026-04-08 09:02:30: [progress] 0.8% 0.5MB/59.8MB
+2026-04-08 09:02:34: [progress] 10.9% 6.5MB/59.8MB
+2026-04-08 09:02:38: [progress] 21.7% 13.0MB/59.8MB
+2026-04-08 09:02:42: [progress] 31.8% 19.0MB/59.8MB
+2026-04-08 09:02:46: [progress] 42.6% 25.5MB/59.8MB
+2026-04-08 09:02:53: [progress] 52.7% 31.5MB/59.8MB
+2026-04-08 09:02:57: [progress] 62.7% 37.5MB/59.8MB
+2026-04-08 09:03:02: [progress] 72.7% 43.5MB/59.8MB
+2026-04-08 09:03:06: [progress] 82.8% 49.5MB/59.8MB
+2026-04-08 09:03:10: [progress] 92.8% 55.5MB/59.8MB
+2026-04-08 09:03:12: [done] path: /home/nisch/Desktop/MediaGrabber/downloads/Brahma naa sange/731 (1).m4a size: 62721219
+2026-04-08 09:03:12: [upload] sending 731 (1).m4a to chat 1173474906
+2026-04-08 09:03:12: [progress] 100% 59.8MB/59.8MB
+2026-04-08 09:03:13: [process close] 0
+2026-04-08 13:48:03: [bot] preflight for https://t.me/c/1843778443/295
+2026-04-08 13:48:03: [spawn] python downloader.py --link https://t.me/c/1843778443/295 --outdir /home/nisch/Desktop/MediaGrabber/downloads --preflight
+2026-04-08 13:48:04: [bot] starting download for https://t.me/c/1843778443/295
+2026-04-08 13:48:04: [spawn] python downloader.py --link https://t.me/c/1843778443/295 --outdir /home/nisch/Desktop/MediaGrabber/downloads
+2026-04-08 13:48:05: [done] path: /home/nisch/Desktop/MediaGrabber/downloads/North American Youth Activities/North American Youth Activities_295.jpg size: 100544
+2026-04-08 13:48:05: [upload] sending North American Youth Activities_295.jpg to chat 1173474906
+2026-04-08 13:48:06: [process close] 0
+2026-04-08 13:48:06: [progress] 100% 0.1MB/0.1MB
+2026-04-09 09:19:40: [bot] preflight for https://t.me/c/1773081661/5103
+2026-04-09 09:19:41: [spawn] python downloader.py --link https://t.me/c/1773081661/5103 --outdir /home/nisch/Desktop/MediaGrabber/downloads --preflight
+2026-04-09 09:19:42: [bot] starting download for https://t.me/c/1773081661/5103
+2026-04-09 09:19:42: [spawn] python downloader.py --link https://t.me/c/1773081661/5103 --outdir /home/nisch/Desktop/MediaGrabber/downloads
+2026-04-09 09:19:44: [progress] 1% 0.5MB/50.6MB
+2026-04-09 09:19:47: [progress] 11.9% 6.0MB/50.6MB
+2026-04-09 09:19:51: [progress] 22.7% 11.5MB/50.6MB
+2026-04-09 09:19:54: [progress] 33.6% 17.0MB/50.6MB
+2026-04-09 09:19:58: [progress] 44.4% 22.5MB/50.6MB
+2026-04-09 09:20:01: [progress] 55.3% 28.0MB/50.6MB
+2026-04-09 09:20:05: [progress] 66.2% 33.5MB/50.6MB
+2026-04-09 09:20:08: [progress] 77% 39.0MB/50.6MB
+2026-04-09 09:20:12: [progress] 87.9% 44.5MB/50.6MB
+2026-04-09 09:20:16: [progress] 98.8% 50.0MB/50.6MB
+2026-04-09 09:20:16: [done] path: /home/nisch/Desktop/MediaGrabber/downloads/Brahma naa sange/732.m4a size: 53079709
+2026-04-09 09:20:16: [upload] sending 732.m4a to chat 1173474906
+2026-04-09 09:20:16: [progress] 100% 50.6MB/50.6MB
+2026-04-09 09:20:16: [process close] 0
+2026-04-13 12:29:31: [bot] preflight for https://t.me/c/1773081661/5113
+2026-04-13 12:29:31: [spawn] python downloader.py --link https://t.me/c/1773081661/5113 --outdir /home/nisch/Desktop/MediaGrabber/downloads --preflight
+2026-04-13 12:29:32: [bot] starting download for https://t.me/c/1773081661/5113
+2026-04-13 12:29:32: [spawn] python downloader.py --link https://t.me/c/1773081661/5113 --outdir /home/nisch/Desktop/MediaGrabber/downloads
+2026-04-13 12:29:34: [progress] 3.4% 0.5MB/14.9MB
+2026-04-13 12:29:35: [progress] 13.4% 2.0MB/14.9MB
+2026-04-13 12:29:36: [progress] 23.5% 3.5MB/14.9MB
+2026-04-13 12:29:37: [progress] 33.5% 5.0MB/14.9MB
+2026-04-13 12:29:38: [progress] 43.6% 6.5MB/14.9MB
+2026-04-13 12:29:39: [progress] 53.7% 8.0MB/14.9MB
+2026-04-13 12:29:40: [progress] 63.7% 9.5MB/14.9MB
+2026-04-13 12:29:41: [progress] 73.8% 11.0MB/14.9MB
+2026-04-13 12:29:42: [progress] 83.8% 12.5MB/14.9MB
+2026-04-13 12:29:43: [progress] 93.9% 14.0MB/14.9MB
+2026-04-13 12:29:45: [done] path: /home/nisch/Desktop/MediaGrabber/downloads/Brahma naa sange/Pujya Uttamyogi Swami.m4a size: 15633917
+2026-04-13 12:29:45: [upload] sending Pujya Uttamyogi Swami.m4a to chat 943896424
+2026-04-13 12:29:45: [progress] 100% 14.9MB/14.9MB
+2026-04-13 12:29:45: [process close] 0
+2026-04-18 10:58:01: [bot] preflight for https://t.me/c/2074676830/1021
+2026-04-18 10:58:01: [spawn] python downloader.py --link https://t.me/c/2074676830/1021 --outdir /home/nisch/Desktop/MediaGrabber/downloads --preflight
+2026-04-18 10:58:03: [bot] starting download for https://t.me/c/2074676830/1021
+2026-04-18 10:58:03: [spawn] python downloader.py --link https://t.me/c/2074676830/1021 --outdir /home/nisch/Desktop/MediaGrabber/downloads
+2026-04-18 10:58:04: [process close] 0
+2026-04-18 10:58:05: [progress] 100% 0.1MB/0.1MB
+2026-04-18 10:58:05: [done] path: /home/nisch/Desktop/MediaGrabber/downloads/Moments with Mahant Swami/Moments with Mahant Swami_1021.jpg size: 148131
+2026-04-18 10:58:05: [upload] sending Moments with Mahant Swami_1021.jpg to chat 1173474906
+2026-04-20 12:46:21: [bot] preflight for https://t.me/c/1773081661/5135
+2026-04-20 12:46:21: [spawn] python downloader.py --link https://t.me/c/1773081661/5135 --outdir /home/nisch/Desktop/MediaGrabber/downloads --preflight
+2026-04-20 12:46:23: [bot] starting download for https://t.me/c/1773081661/5135
+2026-04-20 12:46:23: [spawn] python downloader.py --link https://t.me/c/1773081661/5135 --outdir /home/nisch/Desktop/MediaGrabber/downloads
+2026-04-20 12:46:29: [progress] 3.3% 0.5MB/15.1MB
+2026-04-20 12:46:33: [progress] 16.5% 2.5MB/15.1MB
+2026-04-20 12:46:38: [progress] 29.7% 4.5MB/15.1MB
+2026-04-20 12:46:42: [progress] 42.9% 6.5MB/15.1MB
+2026-04-20 12:46:46: [progress] 52.9% 8.0MB/15.1MB
+2026-04-20 12:46:51: [progress] 66.1% 10.0MB/15.1MB
+2026-04-20 12:46:55: [progress] 79.3% 12.0MB/15.1MB
+2026-04-20 12:47:00: [progress] 92.5% 14.0MB/15.1MB
+2026-04-20 12:47:03: [done] path: /home/nisch/Desktop/MediaGrabber/downloads/Brahma naa sange/Olpad 94.m4a size: 15869818
+2026-04-20 12:47:03: [upload] sending Olpad 94.m4a to chat 1173474906
+2026-04-20 12:47:03: [process close] 0
+2026-04-20 12:47:03: [progress] 100% 15.1MB/15.1MB
+2026-04-20 22:43:18: [bot] preflight for https://t.me/c/1773081661/5135
+2026-04-20 22:43:19: [spawn] python downloader.py --link https://t.me/c/1773081661/5135 --outdir /home/nisch/Desktop/MediaGrabber/downloads --preflight
+2026-04-20 22:43:20: [bot] starting download for https://t.me/c/1773081661/5135
+2026-04-20 22:43:20: [spawn] python downloader.py --link https://t.me/c/1773081661/5135 --outdir /home/nisch/Desktop/MediaGrabber/downloads
+2026-04-20 22:43:27: [progress] 3.3% 0.5MB/15.1MB
+2026-04-20 22:43:34: [progress] 16.5% 2.5MB/15.1MB
+2026-04-20 22:43:44: [progress] 29.7% 4.5MB/15.1MB
+2026-04-20 22:43:54: [progress] 42.9% 6.5MB/15.1MB
+2026-04-20 22:44:00: [progress] 52.9% 8.0MB/15.1MB
+2026-04-20 22:44:10: [progress] 66.1% 10.0MB/15.1MB
+2026-04-20 22:44:22: [progress] 79.3% 12.0MB/15.1MB
+2026-04-20 22:44:35: [progress] 92.5% 14.0MB/15.1MB
+2026-04-20 22:44:42: [done] path: /home/nisch/Desktop/MediaGrabber/downloads/Brahma naa sange/Olpad 94.m4a size: 15869818
+2026-04-20 22:44:42: [upload] sending Olpad 94.m4a to chat 943896424
+2026-04-20 22:44:43: [progress] 100% 15.1MB/15.1MB
+2026-04-20 22:44:43: [process close] 0
+2026-04-22 08:41:29: [bot] preflight for https://t.me/c/1773081661/5141
+2026-04-22 08:41:29: [spawn] python downloader.py --link https://t.me/c/1773081661/5141 --outdir /home/nisch/Desktop/MediaGrabber/downloads --preflight
+2026-04-22 08:41:31: [bot] starting download for https://t.me/c/1773081661/5141
+2026-04-22 08:41:31: [spawn] python downloader.py --link https://t.me/c/1773081661/5141 --outdir /home/nisch/Desktop/MediaGrabber/downloads
+2026-04-22 08:41:33: [progress] 0.9% 0.5MB/58.7MB
+2026-04-22 08:41:37: [progress] 11.1% 6.5MB/58.7MB
+2026-04-22 08:41:41: [progress] 21.3% 12.5MB/58.7MB
+2026-04-22 08:41:45: [progress] 31.5% 18.5MB/58.7MB
+2026-04-22 08:41:50: [progress] 41.8% 24.5MB/58.7MB
+2026-04-22 08:41:54: [progress] 52% 30.5MB/58.7MB
+2026-04-22 08:41:59: [progress] 62.2% 36.5MB/58.7MB
+2026-04-22 08:42:03: [progress] 72.4% 42.5MB/58.7MB
+2026-04-22 08:42:09: [progress] 82.7% 48.5MB/58.7MB
+2026-04-22 08:42:14: [progress] 92.9% 54.5MB/58.7MB
+2026-04-22 08:42:16: [done] path: /home/nisch/Desktop/MediaGrabber/downloads/Brahma naa sange/742.m4a size: 61526356
+2026-04-22 08:42:16: [upload] sending 742.m4a to chat 943896424
+2026-04-22 08:42:17: [process close] 0
+2026-04-22 08:42:17: [progress] 100% 58.7MB/58.7MB
+2026-04-22 08:42:29: [bot] preflight for https://t.me/c/1773081661/5141
+2026-04-22 08:42:29: [spawn] python downloader.py --link https://t.me/c/1773081661/5141 --outdir /home/nisch/Desktop/MediaGrabber/downloads --preflight
+2026-04-22 08:42:30: [bot] starting download for https://t.me/c/1773081661/5141
+2026-04-22 08:42:30: [spawn] python downloader.py --link https://t.me/c/1773081661/5141 --outdir /home/nisch/Desktop/MediaGrabber/downloads
+2026-04-22 08:42:32: [progress] 0.9% 0.5MB/58.7MB
+2026-04-22 08:42:36: [progress] 11.1% 6.5MB/58.7MB
+2026-04-22 08:42:40: [progress] 21.3% 12.5MB/58.7MB
+2026-04-22 08:42:44: [progress] 31.5% 18.5MB/58.7MB
+2026-04-22 08:42:48: [progress] 41.8% 24.5MB/58.7MB
+2026-04-22 08:42:52: [progress] 52% 30.5MB/58.7MB
+2026-04-22 08:42:56: [progress] 62.2% 36.5MB/58.7MB
+2026-04-22 08:43:00: [progress] 72.4% 42.5MB/58.7MB
+2026-04-22 08:43:03: [progress] 82.7% 48.5MB/58.7MB
+2026-04-22 08:43:07: [progress] 92.9% 54.5MB/58.7MB
+2026-04-22 08:43:10: [done] path: /home/nisch/Desktop/MediaGrabber/downloads/Brahma naa sange/742 (1).m4a size: 61526356
+2026-04-22 08:43:10: [upload] sending 742 (1).m4a to chat 943896424
+2026-04-22 08:43:10: [process close] 0
+2026-04-22 08:43:10: [progress] 100% 58.7MB/58.7MB
+2026-04-23 08:49:40: [bot] preflight for https://t.me/c/1773081661/5145
+2026-04-23 08:49:40: [spawn] python downloader.py --link https://t.me/c/1773081661/5145 --outdir /home/nisch/Desktop/MediaGrabber/downloads --preflight
+2026-04-23 08:49:42: [bot] starting download for https://t.me/c/1773081661/5145
+2026-04-23 08:49:42: [spawn] python downloader.py --link https://t.me/c/1773081661/5145 --outdir /home/nisch/Desktop/MediaGrabber/downloads
+2026-04-23 08:49:44: [progress] 0.8% 0.5MB/65.2MB
+2026-04-23 08:49:48: [progress] 11.5% 7.5MB/65.2MB
+2026-04-23 08:49:52: [progress] 21.5% 14.0MB/65.2MB
+2026-04-23 08:49:56: [progress] 32.2% 21.0MB/65.2MB
+2026-04-23 08:50:01: [progress] 42.2% 27.5MB/65.2MB
+2026-04-23 08:50:05: [progress] 52.2% 34.0MB/65.2MB
+2026-04-23 08:50:09: [progress] 62.9% 41.0MB/65.2MB
+2026-04-23 08:50:13: [progress] 72.9% 47.5MB/65.2MB
+2026-04-23 08:50:18: [progress] 83.6% 54.5MB/65.2MB
+2026-04-23 08:50:22: [progress] 93.6% 61.0MB/65.2MB
+2026-04-23 08:50:24: [done] path: /home/nisch/Desktop/MediaGrabber/downloads/Brahma naa sange/744.m4a size: 68361083
+2026-04-23 08:50:24: [upload] sending 744.m4a to chat 511833461
+2026-04-23 08:50:25: [progress] 100% 65.2MB/65.2MB
+2026-04-23 08:50:25: [process close] 0
+2026-04-23 08:52:46: [bot] preflight for https://t.me/c/1773081661/5145
+2026-04-23 08:52:46: [spawn] python downloader.py --link https://t.me/c/1773081661/5145 --outdir /home/nisch/Desktop/MediaGrabber/downloads --preflight
+2026-04-23 08:52:47: [bot] starting download for https://t.me/c/1773081661/5145
+2026-04-23 08:52:47: [spawn] python downloader.py --link https://t.me/c/1773081661/5145 --outdir /home/nisch/Desktop/MediaGrabber/downloads
+2026-04-23 08:52:49: [progress] 0.8% 0.5MB/65.2MB
+2026-04-23 08:52:55: [progress] 11.5% 7.5MB/65.2MB
+2026-04-23 08:52:59: [progress] 21.5% 14.0MB/65.2MB
+2026-04-23 08:53:04: [progress] 32.2% 21.0MB/65.2MB
+2026-04-23 08:53:09: [progress] 42.2% 27.5MB/65.2MB
+2026-04-23 08:53:13: [progress] 52.2% 34.0MB/65.2MB
+2026-04-23 08:53:18: [progress] 62.9% 41.0MB/65.2MB
+2026-04-23 08:53:23: [progress] 72.9% 47.5MB/65.2MB
+2026-04-23 08:53:28: [progress] 83.6% 54.5MB/65.2MB
+2026-04-23 08:53:33: [progress] 93.6% 61.0MB/65.2MB
+2026-04-23 08:53:35: [done] path: /home/nisch/Desktop/MediaGrabber/downloads/Brahma naa sange/744 (1).m4a size: 68361083
+2026-04-23 08:53:35: [upload] sending 744 (1).m4a to chat 511833461
+2026-04-23 08:53:36: [progress] 100% 65.2MB/65.2MB
+2026-04-23 08:53:36: [process close] 0
+2026-04-23 09:01:54: [bot] preflight for https://t.me/c/1773081661/5145
+2026-04-23 09:01:54: [spawn] python downloader.py --link https://t.me/c/1773081661/5145 --outdir /home/nisch/Desktop/MediaGrabber/downloads --preflight
+2026-04-23 09:01:56: [bot] starting download for https://t.me/c/1773081661/5145
+2026-04-23 09:01:56: [spawn] python downloader.py --link https://t.me/c/1773081661/5145 --outdir /home/nisch/Desktop/MediaGrabber/downloads
+2026-04-23 09:01:57: [progress] 0.8% 0.5MB/65.2MB
+2026-04-23 09:02:02: [progress] 11.5% 7.5MB/65.2MB
+2026-04-23 09:02:06: [progress] 21.5% 14.0MB/65.2MB
+2026-04-23 09:02:11: [progress] 32.2% 21.0MB/65.2MB
+2026-04-23 09:02:15: [progress] 42.2% 27.5MB/65.2MB
+2026-04-23 09:02:19: [progress] 52.2% 34.0MB/65.2MB
+2026-04-23 09:02:24: [progress] 62.9% 41.0MB/65.2MB
+2026-04-23 09:02:28: [progress] 72.9% 47.5MB/65.2MB
+2026-04-23 09:02:33: [progress] 83.6% 54.5MB/65.2MB
+2026-04-23 09:02:37: [progress] 93.6% 61.0MB/65.2MB
+2026-04-23 09:02:40: [done] path: /home/nisch/Desktop/MediaGrabber/downloads/Brahma naa sange/744 (2).m4a size: 68361083
+2026-04-23 09:02:40: [upload] sending 744 (2).m4a to chat 1173474906
+2026-04-23 09:02:40: [progress] 100% 65.2MB/65.2MB
+2026-04-23 09:02:40: [process close] 0
+2026-04-23 09:03:55: [bot] preflight for https://t.me/c/3130614830/355
+2026-04-23 09:03:56: [spawn] python downloader.py --link https://t.me/c/3130614830/355 --outdir /home/nisch/Desktop/MediaGrabber/downloads --preflight
+2026-04-23 09:03:57: [bot] starting download for https://t.me/c/3130614830/355
+2026-04-23 09:03:57: [spawn] python downloader.py --link https://t.me/c/3130614830/355 --outdir /home/nisch/Desktop/MediaGrabber/downloads
+2026-04-23 09:03:59: [progress] 1% 0.5MB/49.3MB
+2026-04-23 09:04:03: [progress] 11.1% 5.5MB/49.3MB
+2026-04-23 09:04:07: [progress] 21.3% 10.5MB/49.3MB
+2026-04-23 09:04:11: [progress] 31.4% 15.5MB/49.3MB
+2026-04-23 09:04:16: [progress] 41.6% 20.5MB/49.3MB
+2026-04-23 09:04:20: [progress] 51.7% 25.5MB/49.3MB
+2026-04-23 09:04:24: [progress] 61.8% 30.5MB/49.3MB
+2026-04-23 09:04:28: [progress] 72% 35.5MB/49.3MB
+2026-04-23 09:04:32: [progress] 82.1% 40.5MB/49.3MB
+2026-04-23 09:04:36: [progress] 92.2% 45.5MB/49.3MB
+2026-04-23 09:04:39: [done] path: /home/nisch/Desktop/MediaGrabber/downloads/Downloaded Brahma Naa Sange/2026-04-22.m4a size: 51729743
+2026-04-23 09:04:39: [upload] sending 2026-04-22.m4a to chat 1173474906
+2026-04-23 09:04:39: [progress] 100% 49.3MB/49.3MB
+2026-04-23 09:04:39: [process close] 0
+2026-04-23 09:08:23: [bot] preflight for https://t.me/c/3130614830/356
+2026-04-23 09:08:23: [spawn] python downloader.py --link https://t.me/c/3130614830/356 --outdir /home/nisch/Desktop/MediaGrabber/downloads --preflight
+2026-04-23 09:08:25: [bot] starting download for https://t.me/c/3130614830/356
+2026-04-23 09:08:25: [spawn] python downloader.py --link https://t.me/c/3130614830/356 --outdir /home/nisch/Desktop/MediaGrabber/downloads
+2026-04-23 09:08:26: [progress] 0.8% 0.5MB/65.2MB
+2026-04-23 09:08:32: [progress] 11.5% 7.5MB/65.2MB
+2026-04-23 09:08:38: [progress] 21.5% 14.0MB/65.2MB
+2026-04-23 09:08:43: [progress] 32.2% 21.0MB/65.2MB
+2026-04-23 09:08:49: [progress] 42.2% 27.5MB/65.2MB
+2026-04-23 09:08:54: [progress] 52.2% 34.0MB/65.2MB
+2026-04-23 09:09:00: [progress] 62.9% 41.0MB/65.2MB
+2026-04-23 09:09:06: [progress] 72.9% 47.5MB/65.2MB
+2026-04-23 09:09:12: [progress] 83.6% 54.5MB/65.2MB
+2026-04-23 09:09:17: [progress] 93.6% 61.0MB/65.2MB
+2026-04-23 09:09:20: [done] path: /home/nisch/Desktop/MediaGrabber/downloads/Downloaded Brahma Naa Sange/2026-04-23.m4a size: 68361083
+2026-04-23 09:09:20: [upload] sending 2026-04-23.m4a to chat 1173474906
+2026-04-23 09:09:20: [progress] 100% 65.2MB/65.2MB
+2026-04-23 09:09:20: [process close] 0
+2026-04-23 09:11:01: [bot] preflight for https://t.me/c/1773081661/5145
+2026-04-23 09:11:02: [spawn] python downloader.py --link https://t.me/c/1773081661/5145 --outdir /home/nisch/Desktop/MediaGrabber/downloads --preflight
+2026-04-23 09:11:03: [bot] starting download for https://t.me/c/1773081661/5145
+2026-04-23 09:11:03: [spawn] python downloader.py --link https://t.me/c/1773081661/5145 --outdir /home/nisch/Desktop/MediaGrabber/downloads
+2026-04-23 09:11:05: [progress] 0.8% 0.5MB/65.2MB
+2026-04-23 09:11:09: [progress] 11.5% 7.5MB/65.2MB
+2026-04-23 09:11:13: [progress] 21.5% 14.0MB/65.2MB
+2026-04-23 09:11:18: [progress] 32.2% 21.0MB/65.2MB
+2026-04-23 09:11:22: [progress] 42.2% 27.5MB/65.2MB
+2026-04-23 09:11:26: [progress] 52.2% 34.0MB/65.2MB
+2026-04-23 09:11:31: [progress] 62.9% 41.0MB/65.2MB
+2026-04-23 09:11:35: [progress] 72.9% 47.5MB/65.2MB
+2026-04-23 09:11:40: [progress] 83.6% 54.5MB/65.2MB
+2026-04-23 09:11:44: [progress] 93.6% 61.0MB/65.2MB
+2026-04-23 09:11:47: [done] path: /home/nisch/Desktop/MediaGrabber/downloads/Brahma naa sange/744 (3).m4a size: 68361083
+2026-04-23 09:11:47: [upload] sending 744 (3).m4a to chat 943896424
+2026-04-23 09:11:47: [process close] 0
+2026-04-23 09:11:47: [progress] 100% 65.2MB/65.2MB
+2026-04-23 09:13:17: [bot] preflight for https://t.me/c/1773081661/5145
+2026-04-23 09:13:17: [spawn] python downloader.py --link https://t.me/c/1773081661/5145 --outdir /home/nisch/Desktop/MediaGrabber/downloads --preflight
+2026-04-23 09:13:19: [bot] starting download for https://t.me/c/1773081661/5145
+2026-04-23 09:13:19: [spawn] python downloader.py --link https://t.me/c/1773081661/5145 --outdir /home/nisch/Desktop/MediaGrabber/downloads
+2026-04-23 09:13:21: [progress] 0.8% 0.5MB/65.2MB
+2026-04-23 09:13:25: [progress] 11.5% 7.5MB/65.2MB
+2026-04-23 09:13:29: [progress] 21.5% 14.0MB/65.2MB
+2026-04-23 09:13:33: [progress] 32.2% 21.0MB/65.2MB
+2026-04-23 09:13:37: [progress] 42.2% 27.5MB/65.2MB
+2026-04-23 09:13:42: [progress] 52.2% 34.0MB/65.2MB
+2026-04-23 09:13:46: [progress] 62.9% 41.0MB/65.2MB
+2026-04-23 09:13:50: [progress] 72.9% 47.5MB/65.2MB
+2026-04-23 09:13:55: [progress] 83.6% 54.5MB/65.2MB
+2026-04-23 09:13:59: [progress] 93.6% 61.0MB/65.2MB
+2026-04-23 09:14:01: [done] path: /home/nisch/Desktop/MediaGrabber/downloads/Brahma naa sange/744 (4).m4a size: 68361083
+2026-04-23 09:14:01: [upload] sending 744 (4).m4a to chat 943896424
+2026-04-23 09:14:02: [process close] 0
+2026-04-23 09:14:02: [progress] 100% 65.2MB/65.2MB
+2026-04-23 19:26:53: [bot] preflight for https://t.me/c/1773081661/1287
+2026-04-23 19:26:53: [spawn] python downloader.py --link https://t.me/c/1773081661/1287 --outdir /home/nisch/Desktop/MediaGrabber/downloads --preflight
+2026-04-23 19:26:55: [bot] starting download for https://t.me/c/1773081661/1287
+2026-04-23 19:26:55: [spawn] python downloader.py --link https://t.me/c/1773081661/1287 --outdir /home/nisch/Desktop/MediaGrabber/downloads
+2026-04-23 19:26:56: [done] path: /home/nisch/Desktop/MediaGrabber/downloads/Brahma naa sange/Brahma naa sange_1287.jpg size: 102726
+2026-04-23 19:26:56: [upload] sending Brahma naa sange_1287.jpg to chat 943896424
+2026-04-23 19:26:56: [process close] 0
+2026-04-23 19:26:57: [progress] 100% 0.1MB/0.1MB
+2026-04-23 19:27:06: [bot] preflight for https://t.me/c/1773081661/1288
+2026-04-23 19:27:06: [spawn] python downloader.py --link https://t.me/c/1773081661/1288 --outdir /home/nisch/Desktop/MediaGrabber/downloads --preflight
+2026-04-23 19:27:08: [bot] starting download for https://t.me/c/1773081661/1288
+2026-04-23 19:27:08: [spawn] python downloader.py --link https://t.me/c/1773081661/1288 --outdir /home/nisch/Desktop/MediaGrabber/downloads
+2026-04-23 19:27:09: [done] path: /home/nisch/Desktop/MediaGrabber/downloads/Brahma naa sange/Brahma naa sange_1288.jpg size: 96470
+2026-04-23 19:27:09: [upload] sending Brahma naa sange_1288.jpg to chat 943896424
+2026-04-23 19:27:09: [process close] 0
+2026-04-23 19:27:09: [progress] 100% 0.1MB/0.1MB
+2026-04-23 19:27:39: [bot] preflight for https://t.me/c/1773081661/1289
+2026-04-23 19:27:40: [spawn] python downloader.py --link https://t.me/c/1773081661/1289 --outdir /home/nisch/Desktop/MediaGrabber/downloads --preflight
+2026-04-23 19:27:41: [bot] starting download for https://t.me/c/1773081661/1289
+2026-04-23 19:27:41: [spawn] python downloader.py --link https://t.me/c/1773081661/1289 --outdir /home/nisch/Desktop/MediaGrabber/downloads
+2026-04-23 19:27:42: [done] path: /home/nisch/Desktop/MediaGrabber/downloads/Brahma naa sange/Brahma naa sange_1289.jpg size: 96093
+2026-04-23 19:27:42: [upload] sending Brahma naa sange_1289.jpg to chat 943896424
+2026-04-23 19:27:43: [process close] 0
+2026-04-23 19:27:43: [progress] 100% 0.1MB/0.1MB
+2026-05-03 19:52:17: [bot] preflight for https://t.me/c/1773081661/5183
+2026-05-03 19:52:18: [spawn] python downloader.py --link https://t.me/c/1773081661/5183 --outdir /home/nisch/Desktop/MediaGrabber/downloads --preflight
+2026-05-03 19:52:19: [bot] starting download for https://t.me/c/1773081661/5183
+2026-05-03 19:52:19: [spawn] python downloader.py --link https://t.me/c/1773081661/5183 --outdir /home/nisch/Desktop/MediaGrabber/downloads
+2026-05-03 19:52:21: [progress] 0.9% 0.5MB/56.1MB
+2026-05-03 19:52:26: [progress] 11.6% 6.5MB/56.1MB
+2026-05-03 19:52:30: [progress] 22.3% 12.5MB/56.1MB
+2026-05-03 19:52:35: [progress] 33% 18.5MB/56.1MB
+2026-05-03 19:52:40: [progress] 43.7% 24.5MB/56.1MB
+2026-05-03 19:52:45: [progress] 54.4% 30.5MB/56.1MB
+2026-05-03 19:52:49: [progress] 65% 36.5MB/56.1MB
+2026-05-03 19:52:54: [progress] 75.7% 42.5MB/56.1MB
+2026-05-03 19:53:04: [progress] 86.4% 48.5MB/56.1MB
+2026-05-03 19:53:09: [progress] 97.1% 54.5MB/56.1MB
+2026-05-03 19:53:10: [done] path: /home/nisch/Desktop/MediaGrabber/downloads/Brahma naa sange/753 _1_.m4a size: 58842268
+2026-05-03 19:53:10: [upload] sending 753 _1_.m4a to chat 1173474906
+2026-05-03 19:53:10: [progress] 100% 56.1MB/56.1MB
+2026-05-03 19:53:10: [process close] 0
+2026-05-04 11:47:14: [bot] preflight for https://t.me/c/1773081661/5185
+2026-05-04 11:47:14: [spawn] python downloader.py --link https://t.me/c/1773081661/5185 --outdir /home/nisch/Desktop/MediaGrabber/downloads --preflight
+2026-05-04 11:47:16: [bot] starting download for https://t.me/c/1773081661/5185
+2026-05-04 11:47:16: [spawn] python downloader.py --link https://t.me/c/1773081661/5185 --outdir /home/nisch/Desktop/MediaGrabber/downloads
+2026-05-04 11:47:18: [progress] 3.3% 0.5MB/15.2MB
+2026-05-04 11:47:19: [progress] 16.4% 2.5MB/15.2MB
+2026-05-04 11:47:20: [progress] 29.5% 4.5MB/15.2MB
+2026-05-04 11:47:21: [progress] 42.7% 6.5MB/15.2MB
+2026-05-04 11:47:22: [progress] 55.8% 8.5MB/15.2MB
+2026-05-04 11:47:24: [progress] 68.9% 10.5MB/15.2MB
+2026-05-04 11:47:25: [progress] 82.1% 12.5MB/15.2MB
+2026-05-04 11:47:26: [progress] 95.2% 14.5MB/15.2MB
+2026-05-04 11:47:26: [done] path: /home/nisch/Desktop/MediaGrabber/downloads/Brahma naa sange/Pujya Uttamyogi Swami _1_.m4a size: 15968487
+2026-05-04 11:47:26: [upload] sending Pujya Uttamyogi Swami _1_.m4a to chat 943896424
+2026-05-04 11:47:27: [progress] 100% 15.2MB/15.2MB
+2026-05-04 11:47:27: [process close] 0
+2026-05-09 11:21:37: [bot] preflight for https://t.me/c/3130614830/390
+2026-05-09 11:21:37: [spawn] python downloader.py --link https://t.me/c/3130614830/390 --outdir /home/nisch/Desktop/MediaGrabber/downloads --preflight
+2026-05-09 11:24:27: [bot] starting download for https://t.me/c/3130614830/390
+2026-05-09 11:24:27: [spawn] python downloader.py --link https://t.me/c/3130614830/390 --outdir /home/nisch/Desktop/MediaGrabber/downloads
+2026-05-09 11:26:32: [progress] 1.7% 0.5MB/30.0MB
+2026-05-09 11:26:34: [progress] 11.7% 3.5MB/30.0MB
+2026-05-09 11:26:36: [progress] 21.7% 6.5MB/30.0MB
+2026-05-09 11:26:38: [progress] 31.7% 9.5MB/30.0MB
+2026-05-09 11:26:40: [progress] 41.7% 12.5MB/30.0MB
+2026-05-09 11:26:42: [progress] 51.7% 15.5MB/30.0MB
+2026-05-09 11:26:44: [progress] 61.7% 18.5MB/30.0MB
+2026-05-09 11:26:47: [progress] 71.7% 21.5MB/30.0MB
+2026-05-09 11:26:49: [progress] 81.7% 24.5MB/30.0MB
+2026-05-09 11:26:51: [progress] 91.8% 27.5MB/30.0MB
+2026-05-09 11:26:53: [done] path: /home/nisch/Desktop/MediaGrabber/downloads/Downloaded Brahma Naa Sange/2026-05-08.mp3 size: 31428562
+2026-05-09 11:26:53: [upload] sending 2026-05-08.mp3 to chat 1173474906
+2026-05-09 11:26:53: [progress] 100% 30.0MB/30.0MB
+2026-05-09 11:27:21: [process close] 0
+2026-05-09 12:23:43: [dotenv@17.2.3] injecting env (0) from .env -- tip: ⚙️  override existing env vars with { override: true }
+2026-05-09 12:23:51: Server listening on http://127.0.0.1:4000
+2026-05-09 12:23:52: [bot] preflight for https://t.me/c/1773081661/5206
+2026-05-09 12:23:52: [bot] preflight for https://t.me/c/1773081661/5206
+2026-05-09 12:23:52: [bot] preflight for https://t.me/c/1773081661/5206
+2026-05-09 12:23:52: [bot] preflight for https://t.me/c/3130614830/385
+2026-05-09 12:23:53: [spawn] python downloader.py --link https://t.me/c/1773081661/5206 --outdir /home/nisch/Desktop/MediaGrabber/downloads --preflight
+2026-05-09 12:23:53: [spawn] python downloader.py --link https://t.me/c/1773081661/5206 --outdir /home/nisch/Desktop/MediaGrabber/downloads --preflight
+2026-05-09 12:23:53: [spawn] python downloader.py --link https://t.me/c/1773081661/5206 --outdir /home/nisch/Desktop/MediaGrabber/downloads --preflight
+2026-05-09 12:23:53: [spawn] python downloader.py --link https://t.me/c/3130614830/385 --outdir /home/nisch/Desktop/MediaGrabber/downloads --preflight
+2026-05-09 12:24:01: [bot] starting download for https://t.me/c/3130614830/385
+2026-05-09 12:24:01: [spawn] python downloader.py --link https://t.me/c/3130614830/385 --outdir /home/nisch/Desktop/MediaGrabber/downloads
+2026-05-09 12:24:02: [bot] starting download for https://t.me/c/1773081661/5206
+2026-05-09 12:24:02: [spawn] python downloader.py --link https://t.me/c/1773081661/5206 --outdir /home/nisch/Desktop/MediaGrabber/downloads
+2026-05-09 12:24:02: [bot] starting download for https://t.me/c/1773081661/5206
+2026-05-09 12:24:02: [spawn] python downloader.py --link https://t.me/c/1773081661/5206 --outdir /home/nisch/Desktop/MediaGrabber/downloads
+2026-05-09 12:24:03: [bot] starting download for https://t.me/c/1773081661/5206
+2026-05-09 12:24:03: [spawn] python downloader.py --link https://t.me/c/1773081661/5206 --outdir /home/nisch/Desktop/MediaGrabber/downloads
+2026-05-09 12:24:06: [progress] 0.9% 0.5MB/53.1MB
+2026-05-09 12:24:13: [progress] 11.3% 6.0MB/53.1MB
+2026-05-09 12:24:16: [process close] 1
+2026-05-09 12:24:17: [process close] 1
+2026-05-09 12:24:17: [process close] 1
+2026-05-09 12:24:18: [progress] 21.6% 11.5MB/53.1MB
+2026-05-09 12:24:22: [progress] 32% 17.0MB/53.1MB
+2026-05-09 12:24:26: [progress] 42.4% 22.5MB/53.1MB
+2026-05-09 12:24:30: [progress] 52.7% 28.0MB/53.1MB
+2026-05-09 12:24:35: [progress] 63.1% 33.5MB/53.1MB
+2026-05-09 12:24:39: [progress] 73.4% 39.0MB/53.1MB
+2026-05-09 12:24:43: [progress] 83.8% 44.5MB/53.1MB
+2026-05-09 12:24:47: [progress] 94.1% 50.0MB/53.1MB
+2026-05-09 12:24:56: [done] path: /home/nisch/Desktop/MediaGrabber/downloads/Downloaded Brahma Naa Sange/2026-05-07.m4a size: 55704495
+2026-05-09 12:24:56: [upload] sending 2026-05-07.m4a to chat 1173474906
+2026-05-09 12:24:56: [progress] 100% 53.1MB/53.1MB
+2026-05-09 12:24:57: [process close] 0
+2026-05-09 12:25:09: [bot] preflight for https://t.me/c/1773081661/5206
+2026-05-09 12:25:09: [spawn] python downloader.py --link https://t.me/c/1773081661/5206 --outdir /home/nisch/Desktop/MediaGrabber/downloads --preflight
+2026-05-09 12:25:15: [bot] starting download for https://t.me/c/1773081661/5206
+2026-05-09 12:25:15: [spawn] python downloader.py --link https://t.me/c/1773081661/5206 --outdir /home/nisch/Desktop/MediaGrabber/downloads
+2026-05-09 12:25:24: [progress] 1.1% 0.5MB/46.1MB
+2026-05-09 12:25:34: [progress] 11.9% 5.5MB/46.1MB
+2026-05-09 12:25:37: [progress] 22.8% 10.5MB/46.1MB
+2026-05-09 12:25:41: [progress] 33.6% 15.5MB/46.1MB
+2026-05-09 12:25:45: [progress] 44.5% 20.5MB/46.1MB
+2026-05-09 12:25:50: [progress] 55.3% 25.5MB/46.1MB
+2026-05-09 12:25:59: [progress] 66.1% 30.5MB/46.1MB
+2026-05-09 12:26:04: [progress] 77% 35.5MB/46.1MB
+2026-05-09 12:26:08: [progress] 87.8% 40.5MB/46.1MB
+2026-05-09 12:26:13: [progress] 98.7% 45.5MB/46.1MB
+2026-05-09 12:26:13: [done] path: /home/nisch/Desktop/MediaGrabber/downloads/Brahma naa sange/758.m4a size: 48354809
+2026-05-09 12:26:13: [upload] sending 758.m4a to chat 1173474906
+2026-05-09 12:26:14: [progress] 100% 46.1MB/46.1MB
+2026-05-09 12:26:21: [process close] 0
+2026-05-09 12:26:53: [bot] preflight for https://t.me/c/3130614830/385
+2026-05-09 12:26:53: [spawn] python downloader.py --link https://t.me/c/3130614830/385 --outdir /home/nisch/Desktop/MediaGrabber/downloads --preflight
+2026-05-09 12:26:56: [bot] starting download for https://t.me/c/3130614830/385
+2026-05-09 12:26:56: [spawn] python downloader.py --link https://t.me/c/3130614830/385 --outdir /home/nisch/Desktop/MediaGrabber/downloads
+2026-05-09 12:26:58: [progress] 0.9% 0.5MB/53.1MB
+2026-05-09 12:27:02: [progress] 11.3% 6.0MB/53.1MB
+2026-05-09 12:27:06: [progress] 21.6% 11.5MB/53.1MB
+2026-05-09 12:27:10: [progress] 32% 17.0MB/53.1MB
+2026-05-09 12:27:13: [progress] 42.4% 22.5MB/53.1MB
+2026-05-09 12:27:17: [progress] 52.7% 28.0MB/53.1MB
+2026-05-09 12:27:21: [progress] 63.1% 33.5MB/53.1MB
+2026-05-09 12:27:27: [progress] 73.4% 39.0MB/53.1MB
+2026-05-09 12:27:34: [progress] 83.8% 44.5MB/53.1MB
+2026-05-09 12:27:55: [progress] 94.1% 50.0MB/53.1MB
+2026-05-09 12:27:58: [done] path: /home/nisch/Desktop/MediaGrabber/downloads/Downloaded Brahma Naa Sange/2026-05-07 (1).m4a size: 55704495
+2026-05-09 12:27:58: [upload] sending 2026-05-07 (1).m4a to chat 1173474906
+2026-05-09 12:27:58: [progress] 100% 53.1MB/53.1MB
+2026-05-09 12:27:58: [process close] 0
+2026-05-09 12:28:03: Bot polling started
+2026-05-09 12:28:10: [dotenv@17.2.3] injecting env (0) from .env -- tip: 📡 add observability to secrets: https://dotenvx.com/ops
+2026-05-09 12:28:14: Server listening on http://127.0.0.1:4000
+2026-05-09 12:50:14: Bot polling started
+2026-05-09 12:50:16: [dotenv@17.2.3] injecting env (0) from .env -- tip: 🛠️  run anywhere with `dotenvx run -- yourcommand`
+2026-05-09 12:50:17: Server listening on http://127.0.0.1:4000
+2026-05-09 12:51:37: [bot] preflight for https://t.me/c/3130614830/385
+2026-05-09 12:51:37: [spawn] python downloader.py --link https://t.me/c/3130614830/385 --outdir /home/nisch/Desktop/MediaGrabber/downloads --preflight
+2026-05-09 12:51:39: [bot] starting download for https://t.me/c/3130614830/385
+2026-05-09 12:51:39: [spawn] python downloader.py --link https://t.me/c/3130614830/385 --outdir /home/nisch/Desktop/MediaGrabber/downloads
+2026-05-09 12:51:41: [progress] 0.9% 0.5MB/53.1MB
+2026-05-09 12:51:44: [progress] 11.3% 6.0MB/53.1MB
+2026-05-09 12:51:48: [progress] 21.6% 11.5MB/53.1MB
+2026-05-09 12:51:51: [progress] 32% 17.0MB/53.1MB
+2026-05-09 12:51:55: [progress] 42.4% 22.5MB/53.1MB
+2026-05-09 12:51:58: [progress] 52.7% 28.0MB/53.1MB
+2026-05-09 12:52:02: [progress] 63.1% 33.5MB/53.1MB
+2026-05-09 12:52:06: [progress] 73.4% 39.0MB/53.1MB
+2026-05-09 12:52:09: [progress] 83.8% 44.5MB/53.1MB
+2026-05-09 12:52:13: [progress] 94.1% 50.0MB/53.1MB
+2026-05-09 12:52:15: [done] path: /home/nisch/Desktop/MediaGrabber/downloads/Downloaded Brahma Naa Sange/2026-05-07 (2).m4a size: 55704495
+2026-05-09 12:52:15: [upload] sending 2026-05-07 (2).m4a to chat 1173474906
+2026-05-09 12:52:19: [progress] 100% 53.1MB/53.1MB
+2026-05-09 12:52:21: [process close] 0
+2026-05-09 12:54:25: [bot] preflight for https://t.me/c/3130614830/385
+2026-05-09 12:54:25: [spawn] python downloader.py --link https://t.me/c/3130614830/385 --outdir /home/nisch/Desktop/MediaGrabber/downloads --preflight
+2026-05-09 12:54:28: [bot] starting download for https://t.me/c/3130614830/385
+2026-05-09 12:54:28: [spawn] python downloader.py --link https://t.me/c/3130614830/385 --outdir /home/nisch/Desktop/MediaGrabber/downloads
+2026-05-09 12:54:29: [progress] 0.9% 0.5MB/53.1MB
+2026-05-09 12:54:34: [progress] 11.3% 6.0MB/53.1MB
+2026-05-09 12:54:38: [progress] 21.6% 11.5MB/53.1MB
+2026-05-09 12:54:43: [progress] 32% 17.0MB/53.1MB
+2026-05-09 12:54:48: [progress] 42.4% 22.5MB/53.1MB
+2026-05-09 12:54:52: [progress] 52.7% 28.0MB/53.1MB
+2026-05-09 12:54:57: [progress] 63.1% 33.5MB/53.1MB
+2026-05-09 12:55:02: [progress] 73.4% 39.0MB/53.1MB
+2026-05-09 12:55:07: [progress] 83.8% 44.5MB/53.1MB
+2026-05-09 12:55:11: [progress] 94.1% 50.0MB/53.1MB
+2026-05-09 12:55:14: [done] path: /home/nisch/Desktop/MediaGrabber/downloads/Downloaded Brahma Naa Sange/2026-05-07 (2).m4a size: 55704495
+2026-05-09 12:55:14: [upload] sending 2026-05-07 (2).m4a to chat 1173474906
+2026-05-09 12:55:14: [progress] 100% 53.1MB/53.1MB
+2026-05-09 12:55:14: [process close] 0
+2026-05-09 12:56:13: Bot polling started
+2026-05-09 12:56:14: [dotenv@17.2.3] injecting env (0) from .env -- tip: 🔐 encrypt with Dotenvx: https://dotenvx.com
+2026-05-09 12:56:15: Server listening on http://127.0.0.1:4000
+2026-05-09 12:56:20: [bot] preflight for https://t.me/c/3130614830/385
+2026-05-09 12:56:20: [spawn] python downloader.py --link https://t.me/c/3130614830/385 --outdir /home/nisch/Desktop/MediaGrabber/downloads --preflight
+2026-05-09 12:56:22: [bot] starting download for https://t.me/c/3130614830/385
+2026-05-09 12:56:22: [spawn] python downloader.py --link https://t.me/c/3130614830/385 --outdir /home/nisch/Desktop/MediaGrabber/downloads
+2026-05-09 12:56:24: [progress] 0.9% 0.5MB/53.1MB
+2026-05-09 12:56:27: [progress] 11.3% 6.0MB/53.1MB
+2026-05-09 12:56:31: [progress] 21.6% 11.5MB/53.1MB
+2026-05-09 12:56:35: [progress] 32% 17.0MB/53.1MB
+2026-05-09 12:56:38: [progress] 42.4% 22.5MB/53.1MB
+2026-05-09 12:56:42: [progress] 52.7% 28.0MB/53.1MB
+2026-05-09 12:56:45: [progress] 63.1% 33.5MB/53.1MB
+2026-05-09 12:56:49: [progress] 73.4% 39.0MB/53.1MB
+2026-05-09 12:56:53: [progress] 83.8% 44.5MB/53.1MB
+2026-05-09 12:56:56: [progress] 94.1% 50.0MB/53.1MB
+2026-05-09 12:56:58: [done] path: /home/nisch/Desktop/MediaGrabber/downloads/Downloaded Brahma Naa Sange/2026-05-07 (2).m4a size: 55704495
+2026-05-09 12:56:58: [upload] sending 2026-05-07 (2).m4a to chat 1173474906
+2026-05-09 12:56:58: [process close] 0
+2026-05-09 12:56:58: [progress] 100% 53.1MB/53.1MB

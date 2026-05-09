@@ -15,18 +15,21 @@ Behaviour:
 Requires TELEGRAM_API_ID, TELEGRAM_API_HASH and TELEGRAM_SESSION env variables (session file path).
 """
 from __future__ import annotations
-import os
-import json
+
 import argparse
 import asyncio
-import tempfile
 import contextlib
+import json
+import os
+import tempfile
 from pathlib import Path
-from telethon import TelegramClient, types, errors, utils as tutils # type: ignore
+
+from telethon import TelegramClient, errors, types, utils as tutils  # type: ignore
 
 # Load environment variables from .env file (for automated runs)
 try:
     from dotenv import load_dotenv
+
     load_dotenv()
 except ImportError:
     pass  # dotenv not installed, rely on environment variables
@@ -44,6 +47,11 @@ MIME_EXT_FALLBACK = {
     "audio/ogg": ".ogg",
     "audio/x-m4a": ".m4a",
 }
+
+DEFAULT_SOURCE = 1773081661
+DEFAULT_TARGET = 3130614830
+STATE_DIR = Path(".state")
+DEFAULT_STATE_FILE = STATE_DIR / "bns_state.json"
 
 
 def _ext_from_media(msg) -> str:
@@ -63,25 +71,33 @@ def _ext_from_media(msg) -> str:
         return ".jpg"
     return ".bin"
 
-DEFAULT_SOURCE = 1773081661
-DEFAULT_TARGET = 3130614830
-STATE_DIR = Path('.state')
-STATE_FILE = STATE_DIR / 'bns_state.json'
+
+def is_audio_message(msg) -> bool:
+    """Return True if the message contains audio (including voice)."""
+    if getattr(msg, "voice", None) or getattr(msg, "audio", None):
+        return True
+    doc = getattr(msg, "document", None)
+    if doc and getattr(doc, "mime_type", "").startswith("audio/"):
+        return True
+    for attr in getattr(doc, "attributes", []) or []:
+        if isinstance(attr, types.DocumentAttributeAudio):
+            return True
+    return False
 
 
-def load_state() -> dict:
-    STATE_DIR.mkdir(parents=True, exist_ok=True)
-    if not STATE_FILE.exists():
+def load_state(state_file: Path) -> dict:
+    state_file.parent.mkdir(parents=True, exist_ok=True)
+    if not state_file.exists():
         return {}
     try:
-        return json.loads(STATE_FILE.read_text())
+        return json.loads(state_file.read_text())
     except Exception:
         return {}
 
 
-def save_state(state: dict):
-    STATE_DIR.mkdir(parents=True, exist_ok=True)
-    STATE_FILE.write_text(json.dumps(state))
+def save_state(state_file: Path, state: dict):
+    state_file.parent.mkdir(parents=True, exist_ok=True)
+    state_file.write_text(json.dumps(state))
 
 
 async def resolve_entity_safely(client: TelegramClient, ref):
@@ -98,28 +114,46 @@ async def resolve_entity_safely(client: TelegramClient, ref):
 
 async def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument('--source', type=int, default=DEFAULT_SOURCE, help='Source channel id (numeric)')
-    ap.add_argument('--target', type=int, default=DEFAULT_TARGET, help='Target channel id (numeric)')
-    ap.add_argument('--outdir', default=str(Path('downloads') / 'Brahma naa sange'))
-    ap.add_argument('--seed', action='store_true', help='If set and no state exists, process recent messages instead of seeding state.')
+    ap.add_argument("--source", type=int, default=DEFAULT_SOURCE, help="Source channel id (numeric)")
+    ap.add_argument("--target", type=int, default=DEFAULT_TARGET, help="Target channel id (numeric)")
+    ap.add_argument("--outdir", default=str(Path("downloads") / "Brahma naa sange"))
+    ap.add_argument(
+        "--seed",
+        action="store_true",
+        help="If set and no state exists, process recent messages instead of seeding state.",
+    )
+    ap.add_argument(
+        "--state-file",
+        default=str(DEFAULT_STATE_FILE),
+        help="State file path for last processed id.",
+    )
+    ap.add_argument("--audio-only", action="store_true", help="Only process and send audio messages.")
     args = ap.parse_args()
 
-    api_id = int(os.environ.get('TELEGRAM_API_ID', '0'))
-    api_hash = os.environ.get('TELEGRAM_API_HASH', '')
-    session = os.environ.get('TELEGRAM_SESSION', 'media_grabber_session.session')
+    api_id = int(os.environ.get("TELEGRAM_API_ID", "0"))
+    api_hash = os.environ.get("TELEGRAM_API_HASH", "")
+    session = os.environ.get("TELEGRAM_SESSION", "media_grabber_session.session")
 
     if not api_id or not api_hash:
-        print('TELEGRAM_API_ID and TELEGRAM_API_HASH environment variables are required')
+        print("TELEGRAM_API_ID and TELEGRAM_API_HASH environment variables are required")
         return
 
-    client = TelegramClient(session, api_id, api_hash, timeout=60, request_retries=5, connection_retries=5)
+    client = TelegramClient(
+        session,
+        api_id,
+        api_hash,
+        timeout=60,
+        request_retries=5,
+        connection_retries=5,
+    )
 
-    state = load_state()
-    last_id = int(state.get('last_id', 0))
+    state_file = Path(args.state_file)
+    state = load_state(state_file)
+    last_id = int(state.get("last_id", 0))
 
     try:
         await client.start()
-        print('Logged in')
+        print("Logged in")
 
         src_ent = await resolve_entity_safely(client, args.source)
         tgt_ent = await resolve_entity_safely(client, args.target)
@@ -127,7 +161,7 @@ async def main():
         # Fetch recent messages (window) and decide what to process
         recent = await client.get_messages(src_ent, limit=200)
         if not recent:
-            print('No messages found in source channel')
+            print("No messages found in source channel")
             return
 
         # Determine seed behaviour
@@ -135,17 +169,18 @@ async def main():
             if not args.seed:
                 # Seed latest and exit
                 newest = recent[0]
-                state['last_id'] = newest.id
-                save_state(state)
-                print(f'No state found. Seeded last_id={newest.id}. Use --seed to process recent posts.')
+                state["last_id"] = newest.id
+                save_state(state_file, state)
+                print(
+                    f"No state found. Seeded last_id={newest.id}. Use --seed to process recent posts."
+                )
                 return
-            else:
-                print('No state found but --seed specified: will process recent window.')
+            print("No state found but --seed specified: will process recent window.")
 
         # Gather messages newer than last_id
         to_process = [m for m in recent if m.id > last_id]
         if not to_process:
-            print('No new messages to process.')
+            print("No new messages to process.")
             return
 
         # Process oldest -> newest
@@ -157,39 +192,44 @@ async def main():
         for msg in to_process:
             try:
                 if not msg.media:
-                    print(f'Skipping {msg.id}: no media')
-                    state['last_id'] = msg.id
-                    save_state(state)
+                    print(f"Skipping {msg.id}: no media")
+                    state["last_id"] = msg.id
+                    save_state(state_file, state)
                     continue
 
-                print(f'Processing message {msg.id}...')
+                if args.audio_only and not is_audio_message(msg):
+                    print(f"Skipping {msg.id}: not audio")
+                    state["last_id"] = msg.id
+                    save_state(state_file, state)
+                    continue
+
+                print(f"Processing message {msg.id}...")
                 # Download to temporary file (we'll rename it to date-based filename)
-                tempd = tempfile.mkdtemp(prefix='bns_')
+                tempd = tempfile.mkdtemp(prefix="bns_")
                 path = await msg.download_media(file=tempd)
                 if not path:
-                    print(f'Failed to download media for {msg.id}, skipping')
-                    state['last_id'] = msg.id
-                    save_state(state)
+                    print(f"Failed to download media for {msg.id}, skipping")
+                    state["last_id"] = msg.id
+                    save_state(state_file, state)
                     continue
 
                 # Build date-based filename (use message date if available)
-                msg_date = getattr(msg, 'date', None)
+                msg_date = getattr(msg, "date", None)
                 if msg_date is not None:
                     date_str = msg_date.date().isoformat()
                 else:
                     from datetime import date
+
                     date_str = date.today().isoformat()
 
                 ext = _ext_from_media(msg)
                 base_name = f"{date_str}{ext}"
                 # ensure unique target name inside outdir
-                outdir = Path(args.outdir)
-                outdir.mkdir(parents=True, exist_ok=True)
                 candidate = outdir / base_name
                 if not candidate.exists():
                     final_path = candidate
                 else:
-                    r = candidate.with_suffix('')
+                    r = candidate.with_suffix("")
                     e = candidate.suffix
                     i = 1
                     while True:
@@ -206,42 +246,46 @@ async def main():
                 except Exception:
                     # fallback: copy
                     import shutil
+
                     shutil.copy(path, str(final_path))
                     path = str(final_path)
 
                 caption = None
                 # Telethon stores message text in .message
-                if getattr(msg, 'message', None):
+                if getattr(msg, "message", None):
                     caption = msg.message
 
                 # Re-upload to target channel using the date-named file
-                print(f'Uploading to target channel {args.target} with filename {Path(path).name}...')
+                print(
+                    f"Uploading to target channel {args.target} with filename {Path(path).name}..."
+                )
                 await client.send_file(tgt_ent, path, caption=caption)
-                print(f'Uploaded message {msg.id} -> target')
+                print(f"Uploaded message {msg.id} -> target")
 
                 # update state
-                state['last_id'] = msg.id
-                save_state(state)
+                state["last_id"] = msg.id
+                save_state(state_file, state)
 
             except errors.rpcerrorlist.PeerIdInvalidError as e:
-                print(f'Permission error when sending to target: {e}')
+                print(f"Permission error when sending to target: {e}")
                 return
             except Exception as e:
-                print(f'Error processing message {msg.id}: {e}')
+                print(f"Error processing message {msg.id}: {e}")
             finally:
                 # best-effort cleanup
                 with contextlib.suppress(Exception):
-                    if 'path' in locals():
+                    if "path" in locals():
                         p = Path(path)
                         if p.exists():
                             p.unlink()
                 with contextlib.suppress(Exception):
                     import shutil
+
                     shutil.rmtree(tempd, ignore_errors=True)
 
     finally:
         await client.disconnect()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     asyncio.run(main())
