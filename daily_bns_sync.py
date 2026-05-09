@@ -22,6 +22,9 @@ import contextlib
 import json
 import os
 import tempfile
+import time
+import urllib.parse
+import urllib.request
 from pathlib import Path
 
 from telethon import TelegramClient, errors, types, utils as tutils  # type: ignore
@@ -52,6 +55,268 @@ DEFAULT_SOURCE = 1773081661
 DEFAULT_TARGET = 3130614830
 STATE_DIR = Path(".state")
 DEFAULT_STATE_FILE = STATE_DIR / "bns_state.json"
+
+
+def _env_bool(name: str, default: bool) -> bool:
+    raw = os.environ.get(name)
+    if raw is None:
+        return default
+    return raw.strip().lower() in {"1", "true", "yes", "on"}
+
+
+def _xpath_literal(value: str) -> str:
+    if "'" not in value:
+        return f"'{value}'"
+    if '"' not in value:
+        return f'"{value}"'
+    parts = value.split("'")
+    return "concat(" + ", \"'\", ".join([f"'{p}'" for p in parts]) + ")"
+
+
+def _truncate(value: str, max_len: int = 1400) -> str:
+    value = (value or "").strip()
+    if len(value) <= max_len:
+        return value
+    return value[: max_len - 3].rstrip() + "..."
+
+
+def send_telegram_bot_message(bot_token: str, chat_id: str, text: str) -> None:
+    if not bot_token or not chat_id:
+        return
+    url = f"https://api.telegram.org/bot{bot_token}/sendMessage"
+    payload = urllib.parse.urlencode(
+        {
+            "chat_id": chat_id,
+            "text": _truncate(text, 3500),
+            "disable_web_page_preview": "true",
+        }
+    ).encode("utf-8")
+    req = urllib.request.Request(url, data=payload, method="POST")
+    with urllib.request.urlopen(req, timeout=20) as res:
+        if res.status >= 400:
+            raise RuntimeError(f"Telegram Bot API HTTP {res.status}")
+
+
+def notify(bot_token: str, chat_id: str, text: str) -> None:
+    text = _truncate(text, 3500)
+    print(text)
+    if not bot_token or not chat_id:
+        return
+    try:
+        send_telegram_bot_message(bot_token, chat_id, text)
+    except Exception as exc:
+        print(f"Telegram notify failed: {exc}")
+
+
+def _extract_recent_upload_summary(driver) -> tuple[str, str]:
+    from selenium.webdriver.common.by import By
+
+    recent_sections = driver.find_elements(
+        By.XPATH,
+        "//h3[normalize-space()='Recent uploads']/ancestor::div[contains(@class,'max-w-5xl')][1]",
+    )
+    if not recent_sections:
+        return "", ""
+    section = recent_sections[0]
+    titles = section.find_elements(By.XPATH, ".//h4")
+    summaries = section.find_elements(
+        By.XPATH, ".//p[contains(@class,'text-sm') and contains(@class,'text-gray-600')]"
+    )
+    title = titles[0].text.strip() if titles else ""
+    summary = summaries[0].text.strip() if summaries else ""
+    return title, summary
+
+
+def _browser_error_excerpt(driver, max_len: int = 900) -> str:
+    try:
+        entries = driver.get_log("browser")
+    except Exception:
+        return ""
+
+    interesting = []
+    for entry in entries[-20:]:
+        level = str(entry.get("level", "")).upper()
+        message = str(entry.get("message", "")).strip()
+        lowered = message.lower()
+        if (
+            level in {"SEVERE", "ERROR"}
+            or "429" in lowered
+            or "quota" in lowered
+            or "resource_exhausted" in lowered
+        ):
+            interesting.append(message)
+
+    if not interesting:
+        return ""
+    return _truncate("\n".join(interesting[-3:]), max_len)
+
+
+def _extract_card_error(card, browser_excerpt: str) -> str:
+    from selenium.webdriver.common.by import By
+
+    err_nodes = card.find_elements(
+        By.XPATH,
+        ".//*[contains(@class,'text-red-600') or contains(@class,'text-red-500') or contains(@class,'text-red-700')]",
+    )
+    err_text = "\n".join(
+        node.text.strip() for node in err_nodes if node.text and node.text.strip()
+    ).strip()
+    if err_text:
+        return _truncate(err_text, 1800)
+
+    card_text = card.text.strip()
+    if card_text:
+        return _truncate(card_text, 1800)
+
+    return browser_excerpt or "Website upload failed, but no visible error text was found."
+
+
+def upload_to_bns_site(
+    file_path: Path,
+    site_url: str,
+    admin_username: str,
+    admin_password: str,
+    headless: bool,
+    upload_timeout_seconds: int,
+    stall_timeout_seconds: int,
+) -> dict:
+    from selenium import webdriver
+    from selenium.common.exceptions import TimeoutException
+    from selenium.webdriver.common.by import By
+    from selenium.webdriver.support import expected_conditions as EC
+    from selenium.webdriver.support.ui import WebDriverWait
+
+    options = webdriver.ChromeOptions()
+    options.set_capability("goog:loggingPrefs", {"browser": "ALL"})
+    if headless:
+        options.add_argument("--headless=new")
+    options.add_argument("--no-sandbox")
+    options.add_argument("--disable-dev-shm-usage")
+    options.add_argument("--window-size=1600,1400")
+
+    driver = webdriver.Chrome(options=options)
+    try:
+        driver.set_page_load_timeout(120)
+        driver.get(site_url)
+        wait = WebDriverWait(driver, 30)
+
+        admin_btn = wait.until(
+            EC.element_to_be_clickable(
+                (By.XPATH, "//button[normalize-space()='Are you an admin?']")
+            )
+        )
+        driver.execute_script("arguments[0].click();", admin_btn)
+
+        user_input = wait.until(
+            EC.visibility_of_element_located((By.XPATH, "//input[@placeholder='Admin username']"))
+        )
+        pass_input = wait.until(
+            EC.visibility_of_element_located((By.XPATH, "//input[@placeholder='Admin password']"))
+        )
+        user_input.clear()
+        user_input.send_keys(admin_username)
+        pass_input.clear()
+        pass_input.send_keys(admin_password)
+
+        verify_btn = wait.until(
+            EC.element_to_be_clickable((By.XPATH, "//button[normalize-space()='Verify']"))
+        )
+        driver.execute_script("arguments[0].click();", verify_btn)
+
+        wait.until(
+            EC.presence_of_element_located((By.XPATH, "//*[contains(normalize-space(),'Admin:')]"))
+        )
+
+        file_input = wait.until(EC.presence_of_element_located((By.ID, "audio-upload")))
+        file_input.send_keys(str(file_path.resolve()))
+
+        try:
+            alert = WebDriverWait(driver, 3).until(EC.alert_is_present())
+            alert_text = (alert.text or "").strip()
+            if "already uploaded" in alert_text.lower():
+                alert.dismiss()
+                return {
+                    "status": "skipped_duplicate",
+                    "reason": alert_text or "Already uploaded alert detected",
+                    "title": "",
+                    "summary": "",
+                }
+            alert.accept()
+        except TimeoutException:
+            pass
+
+        file_name = file_path.name
+        file_name_lit = _xpath_literal(file_name)
+        item_xpath = (
+            f"//h4[normalize-space()={file_name_lit}]"
+            "/ancestor::div[contains(@class,'bg-white')][1]"
+        )
+        wait.until(EC.presence_of_element_located((By.XPATH, item_xpath)))
+
+        deadline = time.time() + max(60, upload_timeout_seconds)
+        last_card_text = ""
+        last_change_at = time.time()
+        while time.time() < deadline:
+            cards = driver.find_elements(By.XPATH, item_xpath)
+            browser_excerpt = _browser_error_excerpt(driver)
+            if cards:
+                card = cards[0]
+                card_text = card.text.strip()
+                if card_text != last_card_text:
+                    last_card_text = card_text
+                    last_change_at = time.time()
+
+                compact_text = "".join(card_text.upper().split())
+                if "Successfully Archived" in card_text or "Archived (rate limits detected/recovered)" in card_text:
+                    title, summary = _extract_recent_upload_summary(driver)
+                    return {
+                        "status": "uploaded",
+                        "reason": "Completed",
+                        "title": title,
+                        "summary": summary,
+                    }
+                if (
+                    "ERROR" in compact_text
+                    or "PROCESSINGFAILED" in compact_text
+                    or "RESOURCE_EXHAUSTED" in compact_text
+                ):
+                    err_text = _extract_card_error(card, browser_excerpt)
+                    if browser_excerpt and browser_excerpt not in err_text:
+                        err_text = f"{err_text}\n\nBrowser console:\n{browser_excerpt}"
+                    return {
+                        "status": "error",
+                        "reason": err_text,
+                        "title": "",
+                        "summary": "",
+                    }
+                if browser_excerpt and any(
+                    token in browser_excerpt.lower()
+                    for token in ("429", "quota", "resource_exhausted")
+                ):
+                    if time.time() - last_change_at >= max(20, stall_timeout_seconds):
+                        return {
+                            "status": "error",
+                            "reason": (
+                                "Website upload appears stalled after a browser/API quota error.\n\n"
+                                f"Browser console:\n{browser_excerpt}"
+                            ),
+                            "title": "",
+                            "summary": "",
+                        }
+            time.sleep(2)
+
+        browser_excerpt = _browser_error_excerpt(driver)
+        reason = f"Timed out waiting for upload completion after {upload_timeout_seconds}s"
+        if browser_excerpt:
+            reason = f"{reason}\n\nBrowser console:\n{browser_excerpt}"
+        return {
+            "status": "error",
+            "reason": reason,
+            "title": "",
+            "summary": "",
+        }
+    finally:
+        driver.quit()
 
 
 def _ext_from_media(msg) -> str:
@@ -128,15 +393,49 @@ async def main():
         help="State file path for last processed id.",
     )
     ap.add_argument("--audio-only", action="store_true", help="Only process and send audio messages.")
+    ap.add_argument(
+        "--site-upload-timeout",
+        type=int,
+        default=int(os.environ.get("BNS_UPLOAD_TIMEOUT_SECONDS", "2400")),
+        help="Max seconds to wait for website upload completion per file.",
+    )
+    ap.add_argument(
+        "--site-upload-stall-timeout",
+        type=int,
+        default=int(os.environ.get("BNS_UPLOAD_STALL_SECONDS", "90")),
+        help="Seconds with no visible upload progress before surfacing browser quota errors.",
+    )
+    ap.add_argument(
+        "--no-site-upload",
+        action="store_true",
+        help="Disable Selenium website upload step for this run.",
+    )
     args = ap.parse_args()
 
     api_id = int(os.environ.get("TELEGRAM_API_ID", "0"))
     api_hash = os.environ.get("TELEGRAM_API_HASH", "")
     session = os.environ.get("TELEGRAM_SESSION", "media_grabber_session.session")
+    bot_token = os.environ.get("BOT_TOKEN", "")
+    notify_chat_id = os.environ.get("TELEGRAM_NOTIFY_CHAT_ID", "")
+    site_url = os.environ.get("BNS_SITE_URL", "https://bns.classchats.net")
+    admin_username = os.environ.get("BNS_ADMIN_USERNAME", "").strip()
+    admin_password = os.environ.get("BNS_ADMIN_PASSWORD", "").strip()
+    selenium_headless = _env_bool("BNS_SELENIUM_HEADLESS", True)
+    skip_site_upload = args.no_site_upload or _env_bool("BNS_DISABLE_SITE_UPLOAD", False)
 
     if not api_id or not api_hash:
         print("TELEGRAM_API_ID and TELEGRAM_API_HASH environment variables are required")
         return
+
+    can_site_upload = (
+        (not skip_site_upload)
+        and bool(admin_username)
+        and bool(admin_password)
+    )
+    if not can_site_upload and not skip_site_upload:
+        print("Website upload disabled: set BNS_ADMIN_USERNAME and BNS_ADMIN_PASSWORD in .env")
+    if not bot_token or not notify_chat_id:
+        print("Telegram notifications disabled: set BOT_TOKEN and TELEGRAM_NOTIFY_CHAT_ID in .env")
 
     client = TelegramClient(
         session,
@@ -254,6 +553,70 @@ async def main():
                 # Telethon stores message text in .message
                 if getattr(msg, "message", None):
                     caption = msg.message
+
+                if can_site_upload:
+                    try:
+                        print(f"Uploading {Path(path).name} to {site_url} via Selenium...")
+                        site_result = upload_to_bns_site(
+                            file_path=Path(path),
+                            site_url=site_url,
+                            admin_username=admin_username,
+                            admin_password=admin_password,
+                            headless=selenium_headless,
+                            upload_timeout_seconds=args.site_upload_timeout,
+                            stall_timeout_seconds=args.site_upload_stall_timeout,
+                        )
+                        status = site_result.get("status", "unknown")
+                        title = (site_result.get("title") or "").strip()
+                        summary = (site_result.get("summary") or "").strip()
+                        reason = (site_result.get("reason") or "").strip()
+
+                        if status == "uploaded":
+                            notify_lines = [
+                                "[OK] BNS Website Upload Success",
+                                f"File: {Path(path).name}",
+                            ]
+                            if title:
+                                notify_lines.append(f"Title: {title}")
+                            if summary:
+                                notify_lines.append(f"Summary: {_truncate(summary, 1200)}")
+                            notify(bot_token, notify_chat_id, "\n".join(notify_lines))
+                        elif status == "skipped_duplicate":
+                            notify(
+                                bot_token,
+                                notify_chat_id,
+                                "\n".join(
+                                    [
+                                        "[SKIP] BNS Website Upload Skipped (Already Uploaded)",
+                                        f"File: {Path(path).name}",
+                                        f"Reason: {reason or 'Duplicate detected'}",
+                                    ]
+                                ),
+                            )
+                        else:
+                            notify(
+                                bot_token,
+                                notify_chat_id,
+                                "\n".join(
+                                    [
+                                        "[ERROR] BNS Website Upload Error",
+                                        f"File: {Path(path).name}",
+                                        f"Reason: {reason or 'Unknown website upload failure'}",
+                                    ]
+                                ),
+                            )
+                    except Exception as site_exc:
+                        notify(
+                            bot_token,
+                            notify_chat_id,
+                            "\n".join(
+                                [
+                                    "[ERROR] BNS Website Upload Exception",
+                                    f"File: {Path(path).name}",
+                                    f"Error: {site_exc}",
+                                ]
+                            ),
+                        )
 
                 # Re-upload to target channel using the date-named file
                 print(
