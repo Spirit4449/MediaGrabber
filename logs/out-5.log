@@ -756,3 +756,11 @@
 2026-05-09 12:56:58: [upload] sending 2026-05-07 (2).m4a to chat 1173474906
 2026-05-09 12:56:58: [process close] 0
 2026-05-09 12:56:58: [progress] 100% 53.1MB/53.1MB
+2026-05-09 13:11:18: Bot polling started
+2026-05-09 13:11:22: [dotenv@17.2.3] injecting env (0) from .env -- tip: 🗂️ backup and recover secrets: https://dotenvx.com/ops
+2026-05-09 13:11:22: Server listening on http://127.0.0.1:4000
+2026-05-09 13:18:47: [dotenv@17.2.3] injecting env (0) from .env -- tip: 🗂️ backup and recover secrets: https://dotenvx.com/ops
+2026-05-09 13:20:28: Server listening on http://127.0.0.1:4000
+2026-05-09 13:40:33: Bot polling started
+2026-05-09 13:41:13: [dotenv@17.2.3] injecting env (0) from .env -- tip: 🔄 add secrets lifecycle management: https://dotenvx.com/ops
+2026-05-09 13:41:36: Server listening on http://127.0.0.1:4000

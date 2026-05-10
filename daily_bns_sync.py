@@ -128,11 +128,18 @@ async def main():
         help="State file path for last processed id.",
     )
     ap.add_argument("--audio-only", action="store_true", help="Only process and send audio messages.")
+    ap.add_argument(
+        "--session",
+        default="",
+        help="Override TELEGRAM_SESSION path for this run.",
+    )
     args = ap.parse_args()
 
     api_id = int(os.environ.get("TELEGRAM_API_ID", "0"))
     api_hash = os.environ.get("TELEGRAM_API_HASH", "")
-    session = os.environ.get("TELEGRAM_SESSION", "media_grabber_session.session")
+    session = args.session or os.environ.get(
+        "TELEGRAM_SESSION", "media_grabber_session.session"
+    )
 
     if not api_id or not api_hash:
         print("TELEGRAM_API_ID and TELEGRAM_API_HASH environment variables are required")

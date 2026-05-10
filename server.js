@@ -200,6 +200,35 @@ async function compressMediaToLimit(filePath, { isVideo, isAudio, maxBytes }) {
   return { path: outPath, ext: outputExt };
 }
 
+async function convertAudioToMp3(filePath) {
+  const hasFfmpeg = await canRunBinary(FFMPEG_PATH);
+  if (!hasFfmpeg) return { error: "missing" };
+
+  const outPath = buildCompressedPath(filePath, ".mp3");
+  const args = [
+    "-y",
+    "-i",
+    filePath,
+    "-vn",
+    "-c:a",
+    "libmp3lame",
+    "-q:a",
+    "2",
+    outPath,
+  ];
+
+  try {
+    await runProcess(FFMPEG_PATH, args);
+  } catch (e) {
+    try {
+      await fs.promises.rm(outPath, { force: true });
+    } catch {}
+    return { error: "ffmpeg", detail: e.message };
+  }
+
+  return { path: outPath, ext: ".mp3" };
+}
+
 const VIDEO_EXTS = new Set([
   ".mp4",
   ".mov",
@@ -293,6 +322,79 @@ async function safeUploadAndDelete(
     }
   } catch (e) {
     console.error("[upload] stat failed", e.message);
+  }
+
+  if (isAudio) {
+    const currentExt = (path.extname(base) || "").toLowerCase();
+    if (currentExt !== ".mp3") {
+      const converted = await convertAudioToMp3(currentPath);
+      if (!converted.path) {
+        if (converted.error === "missing") {
+          await telegram.sendMessage(
+            chatId,
+            "⚠️ Cannot convert audio to MP3 because ffmpeg is not installed.",
+          );
+        } else {
+          await telegram.sendMessage(
+            chatId,
+            "⚠️ Failed to convert audio to MP3.",
+          );
+        }
+        try {
+          await fs.promises.rm(currentPath, { force: true });
+        } catch {}
+        return;
+      }
+
+      try {
+        await fs.promises.rm(currentPath, { force: true });
+      } catch {}
+      currentPath = converted.path;
+      base = `${originalStem}${converted.ext || ".mp3"}`;
+
+      try {
+        const stat = await fs.promises.stat(currentPath);
+        if (stat.size > maxBytes) {
+          const compressed = await compressMediaToLimit(currentPath, {
+            isVideo: false,
+            isAudio: true,
+            maxBytes,
+          });
+          if (!compressed.path) {
+            const sizeMb = fmtMB(stat.size);
+            if (compressed.error === "missing") {
+              await telegram.sendMessage(
+                chatId,
+                `⚠️ MP3 is too large (${sizeMb} MB). ffmpeg/ffprobe not installed, cannot compress.`,
+              );
+            } else if (compressed.error === "still_too_large") {
+              await telegram.sendMessage(
+                chatId,
+                `⚠️ MP3 is too large (${sizeMb} MB) even after compression.`,
+              );
+            } else {
+              await telegram.sendMessage(
+                chatId,
+                `⚠️ MP3 is too large (${sizeMb} MB) and could not be compressed.`,
+              );
+            }
+            try {
+              await fs.promises.rm(currentPath, { force: true });
+            } catch {}
+            return;
+          }
+
+          try {
+            await fs.promises.rm(currentPath, { force: true });
+          } catch {}
+          currentPath = compressed.path;
+          const nextExt = compressed.ext || path.extname(currentPath);
+          base = `${originalStem}${nextExt}`;
+        }
+      } catch (e) {
+        console.error("[upload] stat failed", e.message);
+      }
+    }
   }
 
   const stream = fs.createReadStream(currentPath);

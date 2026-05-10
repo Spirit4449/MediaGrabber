@@ -321,3 +321,12 @@
 2026-05-09 12:56:15: (node:57401) [DEP0060] DeprecationWarning: The `util._extend` API is deprecated. Please use Object.assign() instead.
 2026-05-09 12:56:15: (Use `node --trace-deprecation ...` to show where the warning was created)
 2026-05-09 12:56:15: (node:57401) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-05-09 13:11:22: (node:81558) [DEP0060] DeprecationWarning: The `util._extend` API is deprecated. Please use Object.assign() instead.
+2026-05-09 13:11:22: (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-05-09 13:11:22: (node:81558) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-05-09 13:20:27: (node:2507) [DEP0060] DeprecationWarning: The `util._extend` API is deprecated. Please use Object.assign() instead.
+2026-05-09 13:20:27: (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-05-09 13:20:27: (node:2507) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-05-09 13:41:36: (node:2552) [DEP0060] DeprecationWarning: The `util._extend` API is deprecated. Please use Object.assign() instead.
+2026-05-09 13:41:36: (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-05-09 13:41:36: (node:2552) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
