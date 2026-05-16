@@ -1031,3 +1031,160 @@
 2026-05-09 13:28:28: No new messages to process.
 2026-05-09 13:41:41: Logged in
 2026-05-09 13:41:42: No new messages to process.
+2026-05-10 09:46:10: Website upload disabled: set BNS_ADMIN_USERNAME and BNS_ADMIN_PASSWORD in .env
+2026-05-10 09:46:10: 
+2026-05-10 09:46:10: Telegram notifications disabled: set BOT_TOKEN and TELEGRAM_NOTIFY_CHAT_ID in .env
+2026-05-10 09:46:10: Logged in
+2026-05-10 09:46:10: Processing message 5207...
+2026-05-10 09:46:52: Uploading to target channel 3130614830 with filename 2026-05-10.m4a...
+2026-05-11 02:03:43: Logged in
+2026-05-11 02:03:43: Processing message 5207...
+2026-05-11 02:04:29: Uploading 2026-05-10.m4a to https://bns.classchats.net via Selenium...
+2026-05-11 02:04:39: [ERROR] BNS Website Upload Exception
+2026-05-11 02:04:39: File: 2026-05-10.m4a
+2026-05-11 02:04:39: Error: Message: session not created: Chrome instance exited. Examine ChromeDriver verbose log to determine the cause.
+2026-05-11 02:04:39: Stacktrace:
+2026-05-11 02:04:39: #0 0x00557fd72dc0 <unknown>
+2026-05-11 02:04:39: #1 0x00557f716388 <unknown>
+2026-05-11 02:04:39: #2 0x00557f74d808 <unknown>
+2026-05-11 02:04:39: #3 0x00557f7489a8 <unknown>
+2026-05-11 02:04:39: #4 0x00557f78fe60 <unknown>
+2026-05-11 02:04:39: #5 0x00557f78f794 <unknown>
+2026-05-11 02:04:39: #6 0x00557f754328 <unknown>
+2026-05-11 02:04:39: #7 0x00557fd35600 <unknown>
+2026-05-11 02:04:39: #8 0x00557fd386ac <unknown>
+2026-05-11 02:04:39: #9 0x00557fd38258 <unknown>
+2026-05-11 02:04:39: #10 0x00557fd25fe4 <unknown>
+2026-05-11 02:04:39: #11 0x00557fd38d34 <unknown>
+2026-05-11 02:04:39: #12 0x00557fd0f278 <unknown>
+2026-05-11 02:04:39: #13 0x00557fd5f1e8 <unknown>
+2026-05-11 02:04:39: #14 0x00557fd5f410 <unknown>
+2026-05-11 02:04:39: #15 0x00557fd717cc <unknown>
+2026-05-11 02:04:39: #16 0x007f9867202c <unknown>
+2026-05-11 02:04:39: #17 0x007f986dbf58 <unknown>
+2026-05-11 02:04:39: Uploading to target channel 3130614830 with filename 2026-05-10.m4a...
+2026-05-11 02:05:30: Uploaded message 5207 -> target
+2026-05-11 11:52:54: Logged in
+2026-05-11 11:52:54: Processing message 5208...
+2026-05-11 11:53:06: Uploading 2026-05-11.m4a to https://bns.classchats.net via Selenium...
+2026-05-11 11:54:29: [SKIP] BNS Website Upload Skipped (Already Uploaded)
+2026-05-11 11:54:29: File: 2026-05-11.m4a
+2026-05-11 11:54:29: Reason: "2026-05-11.m4a" seems to be already uploaded. Continue anyway?
+2026-05-11 11:54:30: Uploading to target channel 3130614830 with filename 2026-05-11.m4a...
+2026-05-11 11:54:46: Uploaded message 5208 -> target
+2026-05-11 12:01:36: Logged in
+2026-05-11 12:01:37: No new messages to process.
+2026-05-11 13:40:37: Logged in
+2026-05-11 13:40:37: Processing message 5209...
+2026-05-11 13:40:37: 
+2026-05-11 13:40:59: Uploading 2026-05-11.mp4 to https://bns.classchats.net via Selenium...
+2026-05-11 13:42:32: [ERROR] BNS Website Upload Error
+2026-05-11 13:42:32: File: 2026-05-11.mp4
+2026-05-11 13:42:32: Reason: Admin login form not found on the upload page.
+2026-05-11 13:42:32: 
+2026-05-11 13:42:32: Title: Brahma Naa Sange | Deep Wisdom Archive
+2026-05-11 13:42:32: URL: https://bns.classchats.net/?view=dashboard
+2026-05-11 13:42:32: 
+2026-05-11 13:42:32: Brahma naa sange
+2026-05-11 13:42:32: Home
+2026-05-11 13:42:32: Search
+2026-05-11 13:42:32: Starred
+2026-05-11 13:42:32: Archive
+2026-05-11 13:42:32: Brahma naa sange Archived.
+2026-05-11 13:42:32: Find what you need.
+2026-05-11 13:42:32: The oasis of Mahant Swami Maharaj's life and teachings. Relive each recording with transcripts and AI search.
+2026-05-11 13:42:32: Deep Search
+2026-05-11 13:42:32: Find references and exact timestamps instantly with AI backed search.
+2026-05-11 13:42:32: View Archive
+2026-05-11 13:42:32: Browse available recordings and transcripts.
+2026-05-11 13:42:32: RECENT UPLOADS
+2026-05-11 13:42:32: LATEST UPLOADS
+2026-05-11 13:42:32: May 11th, 2026
+2026-05-11 13:42:32: UPLOADED ON 5/11/2026
+2026-05-11 13:42:32: VIEW
+2026-05-11 13:42:32: From April 22-28, 2026, Mahant Swami Maharaj was in Surat, where he emphasized performing service with love and glory, stating that all actions are accounted for. He blessed two families for their engagement, highlighting the importance of unity and humility for true happiness, and performed *dīkṣā* for Yāgn Bhagat, stressing firm adherence to spiritual principles. Swami Maharaj conducted site visits for the Akshardham construction, commending volunteers' tireless efforts, including women undertaking challenging physical tasks, and linked service to *mokṣa*, asserting that Maharaj Himself serves through devotees. He extensively discoursed on *sahaj sampark* (spiritual outreach), citing numerous examples of devotees initiating *satsang* assemblies, inspiring *pūjā* acceptance, connecting communities, and transforming lives through dedication, while also reiterating the profoun...
+2026-05-11 13:42:32: 
+2026-05-11 13:42:32: HTML: logs/selenium/admin-form-missing-20260511-134206.html, Screenshot: logs/selenium/admin-form-missing-20260511-134206.png
+2026-05-11 13:42:32: Uploading to target channel 3130614830 with filename 2026-05-11.mp4...
+2026-05-11 13:42:32: 
+2026-05-11 13:43:19: Uploaded message 5209 -> target
+2026-05-11 13:43:19: Processing message 5210...
+2026-05-11 13:43:19: Uploading 2026-05-11.jpg to https://bns.classchats.net via Selenium...
+2026-05-11 13:43:19: 
+2026-05-11 13:44:31: [ERROR] BNS Website Upload Error
+2026-05-11 13:44:31: File: 2026-05-11.jpg
+2026-05-11 13:44:31: Reason: ChromeDriver start failed: Message: session not created
+2026-05-11 13:44:31: from timeout: Timed out receiving message from renderer: 60.000
+2026-05-11 13:44:31: Stacktrace:
+2026-05-11 13:44:31: #0 0x005579412dc0 <unknown>
+2026-05-11 13:44:31: #1 0x005578db6388 <unknown>
+2026-05-11 13:44:31: #2 0x005578d9fd9c <unknown>
+2026-05-11 13:44:31: #3 0x005578d9deec <unknown>
+2026-05-11 13:44:31: #4 0x005578d9e368 <unknown>
+2026-05-11 13:44:31: #5 0x005578df2258 <unknown>
+2026-05-11 13:44:31: #6 0x005578ded574 <unknown>
+2026-05-11 13:44:31: #7 0x005578de89a8 <unknown>
+2026-05-11 13:44:31: #8 0x005578e2fe60 <unknown>
+2026-05-11 13:44:31: #9 0x005578e2f794 <unknown>
+2026-05-11 13:44:31: #10 0x005578df4328 <unknown>
+2026-05-11 13:44:31: #11 0x0055793d5600 <unknown>
+2026-05-11 13:44:31: #12 0x0055793d86ac <unknown>
+2026-05-11 13:44:31: #13 0x0055793d8258 <unknown>
+2026-05-11 13:44:31: #14 0x0055793c5fe4 <unknown>
+2026-05-11 13:44:31: #15 0x0055793d8d34 <unknown>
+2026-05-11 13:44:31: #16 0x0055793af278 <unknown>
+2026-05-11 13:44:31: #17 0x0055793ff1e8 <unknown>
+2026-05-11 13:44:31: #18 0x0055793ff410 <unknown>
+2026-05-11 13:44:31: #19 0x0055794117cc <unknown>
+2026-05-11 13:44:31: #20 0x007f92fd202c <unknown>
+2026-05-11 13:44:31: #21 0x007f9303bf58 <unknown>
+2026-05-11 13:44:32: Uploading to target channel 3130614830 with filename 2026-05-11.jpg...
+2026-05-11 13:44:32: Uploaded message 5210 -> target
+2026-05-11 18:45:05: Logged in
+2026-05-11 18:45:05: 
+2026-05-11 18:45:05: No new messages to process.
+2026-05-12 12:01:36: Logged in
+2026-05-12 12:01:36: Processing message 5211...
+2026-05-12 12:02:14: Uploading 2026-05-12.m4a to https://bns.classchats.net via Selenium...
+2026-05-12 12:42:45: [ERROR] BNS Website Upload Error
+2026-05-12 12:42:45: File: 2026-05-12.m4a
+2026-05-12 12:42:45: Reason: Timed out waiting for upload completion after 2400s
+2026-05-12 12:42:46: Uploading to target channel 3130614830 with filename 2026-05-12.m4a...
+2026-05-12 12:43:43: Uploaded message 5211 -> target
+2026-05-12 12:43:43: Processing message 5212...
+2026-05-12 12:43:45: Uploading 2026-05-12.jpg to https://bns.classchats.net via Selenium...
+2026-05-12 12:44:50: [ERROR] BNS Website Upload Error
+2026-05-12 12:44:50: File: 2026-05-12.jpg
+2026-05-12 12:44:50: Reason: Admin login form not found on the upload page.
+2026-05-12 12:44:50: 
+2026-05-12 12:44:50: Title: classchats.net | 520: Web server is returning an unknown error
+2026-05-12 12:44:50: URL: https://bns.classchats.net/
+2026-05-12 12:44:50: 
+2026-05-12 12:44:50: Web server is returning an unknown error Error code 520
+2026-05-12 12:44:50: Visit cloudflare.com for more information.
+2026-05-12 12:44:50: 2026-05-12 16:43:48 UTC
+2026-05-12 12:44:50: You
+2026-05-12 12:44:50: Browser
+2026-05-12 12:44:50: Working
+2026-05-12 12:44:50: Atlanta
+2026-05-12 12:44:50: Cloudflare
+2026-05-12 12:44:50: Working
+2026-05-12 12:44:50: bns.classchats.net
+2026-05-12 12:44:50: Host
+2026-05-12 12:44:50: Error
+2026-05-12 12:44:50: What happened?
+2026-05-12 12:44:50: There is an unknown connection issue between Cloudflare and the origin web server. As a result, the web page can not be displayed.
+2026-05-12 12:44:50: What can I do?
+2026-05-12 12:44:50: If you are a visitor of this website:
+2026-05-12 12:44:50: Please try again in a few minutes.
+2026-05-12 12:44:50: If you are the owner of this website:
+2026-05-12 12:44:50: There is an issue between Cloudflare's cache and your origin web server. Cloudflare monitors for these errors and automatically investigates the cause. To help support the investigation, you can pull the corresponding error log from your web server and submit it our support team. Please include the Ray ID (which is at the bottom of this error page). Additional troubleshooting resources.
+2026-05-12 12:44:50: Cloudflare Ray ID: 9faae26d8e7935ce • Your IP: Click to reveal • Performance & security by Cloudflare
+2026-05-12 12:44:50: 
+2026-05-12 12:44:50: HTML: logs/selenium/admin-form-missing-20260512-124449.html, Screenshot: logs/selenium/admin-form-missing-20260512-124449.png
+2026-05-12 12:44:51: Uploading to target channel 3130614830 with filename 2026-05-12.jpg...
+2026-05-12 12:44:51: Uploaded message 5212 -> target
+2026-05-12 13:18:51: Please enter your phone (or bot token): 
+2026-05-13 12:00:01: Please enter your phone (or bot token): 
+2026-05-14 12:00:03: Please enter your phone (or bot token): 
+2026-05-15 12:00:03: Please enter your phone (or bot token): 

@@ -38,3 +38,392 @@
 2026-05-09 12:28:57:     return c.execute(stmt, values).fetchone()
 2026-05-09 12:28:57:            ^^^^^^^^^^^^^^^^^^^^^^^
 2026-05-09 12:28:57: sqlite3.OperationalError: database is locked
+2026-05-10 09:46:22: Traceback (most recent call last):
+2026-05-10 09:46:22:   File "/home/nisch/Desktop/MediaGrabber/daily_bns_sync.py", line 459, in main
+2026-05-10 09:46:22:     await client.start()
+2026-05-10 09:46:22:   File "/home/nisch/Desktop/MediaGrabber/.venv/lib/python3.11/site-packages/telethon/client/auth.py", line 135, in _start
+2026-05-10 09:46:22:     await self.connect()
+2026-05-10 09:46:22:   File "/home/nisch/Desktop/MediaGrabber/.venv/lib/python3.11/site-packages/telethon/client/telegrambaseclient.py", line 558, in connect
+2026-05-10 09:46:22:     self.session.auth_key = self._sender.auth_key
+2026-05-10 09:46:22:     ^^^^^^^^^^^^^^^^^^^^^
+2026-05-10 09:46:22:   File "/home/nisch/Desktop/MediaGrabber/.venv/lib/python3.11/site-packages/telethon/sessions/sqlite.py", line 180, in auth_key
+2026-05-10 09:46:22:     self._update_session_table()
+2026-05-10 09:46:22:   File "/home/nisch/Desktop/MediaGrabber/.venv/lib/python3.11/site-packages/telethon/sessions/sqlite.py", line 194, in _update_session_table
+2026-05-10 09:46:22:     c.execute('delete from sessions')
+2026-05-10 09:46:22: sqlite3.OperationalError: database is locked
+2026-05-10 09:46:22: 
+2026-05-10 09:46:22: During handling of the above exception, another exception occurred:
+2026-05-10 09:46:22: 
+2026-05-10 09:46:22: Traceback (most recent call last):
+2026-05-10 09:46:22:   File "/home/nisch/Desktop/MediaGrabber/daily_bns_sync.py", line 659, in <module>
+2026-05-10 09:46:22:     asyncio.run(main())
+2026-05-10 09:46:22:   File "/usr/lib/python3.11/asyncio/runners.py", line 190, in run
+2026-05-10 09:46:22:     return runner.run(main)
+2026-05-10 09:46:22:            ^^^^^^^^^^^^^^^^
+2026-05-10 09:46:22:   File "/usr/lib/python3.11/asyncio/runners.py", line 118, in run
+2026-05-10 09:46:22:     return self._loop.run_until_complete(task)
+2026-05-10 09:46:22:            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-05-10 09:46:22:   File "/usr/lib/python3.11/asyncio/base_events.py", line 653, in run_until_complete
+2026-05-10 09:46:22:     return future.result()
+2026-05-10 09:46:22:            ^^^^^^^^^^^^^^^
+2026-05-10 09:46:22:   File "/home/nisch/Desktop/MediaGrabber/daily_bns_sync.py", line 655, in main
+2026-05-10 09:46:22:     await client.disconnect()
+2026-05-10 09:46:22:   File "/home/nisch/Desktop/MediaGrabber/.venv/lib/python3.11/site-packages/telethon/client/telegrambaseclient.py", line 735, in _disconnect_coro
+2026-05-10 09:46:22:     self._save_states_and_entities()
+2026-05-10 09:46:22:   File "/home/nisch/Desktop/MediaGrabber/.venv/lib/python3.11/site-packages/telethon/client/telegrambaseclient.py", line 700, in _save_states_and_entities
+2026-05-10 09:46:22:     self.session.set_update_state(0, types.updates.State(**ss, unread_count=0))
+2026-05-10 09:46:22:   File "/home/nisch/Desktop/MediaGrabber/.venv/lib/python3.11/site-packages/telethon/sessions/sqlite.py", line 214, in set_update_state
+2026-05-10 09:46:22:     self._execute('insert or replace into update_state values (?,?,?,?,?)',
+2026-05-10 09:46:22:   File "/home/nisch/Desktop/MediaGrabber/.venv/lib/python3.11/site-packages/telethon/sessions/sqlite.py", line 253, in _execute
+2026-05-10 09:46:22:     return c.execute(stmt, values).fetchone()
+2026-05-10 09:46:22:            ^^^^^^^^^^^^^^^^^^^^^^^
+2026-05-10 09:46:22: sqlite3.OperationalError: database is locked
+2026-05-11 11:20:25: Traceback (most recent call last):
+2026-05-11 11:20:25:   File "/usr/lib/python3.11/asyncio/runners.py", line 118, in run
+2026-05-11 11:20:25:     return self._loop.run_until_complete(task)
+2026-05-11 11:20:25:            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-05-11 11:20:25:   File "/usr/lib/python3.11/asyncio/base_events.py", line 653, in run_until_complete
+2026-05-11 11:20:25:     return future.result()
+2026-05-11 11:20:25:            ^^^^^^^^^^^^^^^
+2026-05-11 11:20:25:   File "/home/nisch/Desktop/MediaGrabber/daily_bns_sync.py", line 693, in main
+2026-05-11 11:20:25:     
+2026-05-11 11:20:25:   File "/home/nisch/Desktop/MediaGrabber/.venv/lib/python3.11/site-packages/telethon/client/uploads.py", line 408, in send_file
+2026-05-11 11:20:25:     file_handle, media, image = await self._file_to_media(
+2026-05-11 11:20:25:                          ^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-05-11 11:20:25:   File "/home/nisch/Desktop/MediaGrabber/.venv/lib/python3.11/site-packages/telethon/client/uploads.py", line 744, in _file_to_media
+2026-05-11 11:20:25:     file_handle = await self.upload_file(
+2026-05-11 11:20:25:                   ^^^^^^^^^^^^^^^^^^^^^^^
+2026-05-11 11:20:25:   File "/home/nisch/Desktop/MediaGrabber/.venv/lib/python3.11/site-packages/telethon/client/uploads.py", line 678, in upload_file
+2026-05-11 11:20:25:     result = await self(request)
+2026-05-11 11:20:25:              ^^^^^^^^^^^^^^^^^^^
+2026-05-11 11:20:25:   File "/home/nisch/Desktop/MediaGrabber/.venv/lib/python3.11/site-packages/telethon/client/users.py", line 30, in __call__
+2026-05-11 11:20:25:     return await self._call(self._sender, request, ordered=ordered)
+2026-05-11 11:20:25:            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-05-11 11:20:25:   File "/home/nisch/Desktop/MediaGrabber/.venv/lib/python3.11/site-packages/telethon/client/users.py", line 87, in _call
+2026-05-11 11:20:25:     result = await future
+2026-05-11 11:20:25:              ^^^^^^^^^^^^
+2026-05-11 11:20:25: asyncio.exceptions.CancelledError
+2026-05-11 11:20:25: 
+2026-05-11 11:20:25: During handling of the above exception, another exception occurred:
+2026-05-11 11:20:25: 
+2026-05-11 11:20:25: Traceback (most recent call last):
+2026-05-11 11:20:25:   File "/home/nisch/Desktop/MediaGrabber/daily_bns_sync.py", line 722, in <module>
+2026-05-11 11:20:25:     finally:
+2026-05-11 11:20:25:     ^^^^^^^^^
+2026-05-11 11:20:25:   File "/usr/lib/python3.11/asyncio/runners.py", line 190, in run
+2026-05-11 11:20:25:     return runner.run(main)
+2026-05-11 11:20:25:            ^^^^^^^^^^^^^^^^
+2026-05-11 11:20:25:   File "/usr/lib/python3.11/asyncio/runners.py", line 123, in run
+2026-05-11 11:20:25:     raise KeyboardInterrupt()
+2026-05-11 11:20:25: KeyboardInterrupt
+2026-05-11 11:21:19: Traceback (most recent call last):
+2026-05-11 11:21:19:   File "/usr/lib/python3.11/asyncio/runners.py", line 118, in run
+2026-05-11 11:21:19:     return self._loop.run_until_complete(task)
+2026-05-11 11:21:19:            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-05-11 11:21:19:   File "/usr/lib/python3.11/asyncio/base_events.py", line 653, in run_until_complete
+2026-05-11 11:21:19:     return future.result()
+2026-05-11 11:21:19:            ^^^^^^^^^^^^^^^
+2026-05-11 11:21:19:   File "/home/nisch/Desktop/MediaGrabber/daily_bns_sync.py", line 698, in main
+2026-05-11 11:21:19:     # Re-upload to target channel using the date-named file
+2026-05-11 11:21:19:     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-05-11 11:21:19:   File "/home/nisch/Desktop/MediaGrabber/.venv/lib/python3.11/site-packages/telethon/client/uploads.py", line 408, in send_file
+2026-05-11 11:21:19:     file_handle, media, image = await self._file_to_media(
+2026-05-11 11:21:19:                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-05-11 11:21:19:   File "/home/nisch/Desktop/MediaGrabber/.venv/lib/python3.11/site-packages/telethon/client/uploads.py", line 744, in _file_to_media
+2026-05-11 11:21:19:     file_handle = await self.upload_file(
+2026-05-11 11:21:19:                   ^^^^^^^^^^^^^^^^^^^^^^^
+2026-05-11 11:21:19:   File "/home/nisch/Desktop/MediaGrabber/.venv/lib/python3.11/site-packages/telethon/client/uploads.py", line 678, in upload_file
+2026-05-11 11:21:19:     result = await self(request)
+2026-05-11 11:21:19:              ^^^^^^^^^^^^^^^^^^^
+2026-05-11 11:21:19:   File "/home/nisch/Desktop/MediaGrabber/.venv/lib/python3.11/site-packages/telethon/client/users.py", line 30, in __call__
+2026-05-11 11:21:19:     return await self._call(self._sender, request, ordered=ordered)
+2026-05-11 11:21:19:            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-05-11 11:21:19:   File "/home/nisch/Desktop/MediaGrabber/.venv/lib/python3.11/site-packages/telethon/client/users.py", line 87, in _call
+2026-05-11 11:21:19:     result = await future
+2026-05-11 11:21:19:              ^^^^^^^^^^^^
+2026-05-11 11:21:19: asyncio.exceptions.CancelledError
+2026-05-11 11:21:19: 
+2026-05-11 11:21:19: During handling of the above exception, another exception occurred:
+2026-05-11 11:21:19: 
+2026-05-11 11:21:19: Traceback (most recent call last):
+2026-05-11 11:21:19:   File "/home/nisch/Desktop/MediaGrabber/daily_bns_sync.py", line 727, in <module>
+2026-05-11 11:21:19:     await client.disconnect()
+2026-05-11 11:21:19: ^^^^^^^^^^^^^^^^^^^
+2026-05-11 11:21:19:   File "/usr/lib/python3.11/asyncio/runners.py", line 190, in run
+2026-05-11 11:21:19:     return runner.run(main)
+2026-05-11 11:21:19:            ^^^^^^^^^^^^^^^^
+2026-05-11 11:21:19:   File "/usr/lib/python3.11/asyncio/runners.py", line 123, in run
+2026-05-11 11:21:19:     raise KeyboardInterrupt()
+2026-05-11 11:21:19: KeyboardInterrupt
+2026-05-11 11:23:47: Traceback (most recent call last):
+2026-05-11 11:23:47:   File "/usr/lib/python3.11/asyncio/runners.py", line 118, in run
+2026-05-11 11:23:47:     return self._loop.run_until_complete(task)
+2026-05-11 11:23:47:            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-05-11 11:23:47:   File "/usr/lib/python3.11/asyncio/base_events.py", line 653, in run_until_complete
+2026-05-11 11:23:47:     return future.result()
+2026-05-11 11:23:47:            ^^^^^^^^^^^^^^^
+2026-05-11 11:23:47:   File "/home/nisch/Desktop/MediaGrabber/daily_bns_sync.py", line 613, in main
+2026-05-11 11:23:47:     # Download to temporary file (we'll rename it to date-based filename)
+2026-05-11 11:23:47:            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-05-11 11:23:47:   File "/home/nisch/Desktop/MediaGrabber/.venv/lib/python3.11/site-packages/telethon/tl/custom/message.py", line 866, in download_media
+2026-05-11 11:23:47:     return await self._client.download_media(self, *args, **kwargs)
+2026-05-11 11:23:47:            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-05-11 11:23:47:   File "/home/nisch/Desktop/MediaGrabber/.venv/lib/python3.11/site-packages/telethon/client/downloads.py", line 422, in download_media
+2026-05-11 11:23:47:     return await self._download_document(
+2026-05-11 11:23:47:            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-05-11 11:23:47:   File "/home/nisch/Desktop/MediaGrabber/.venv/lib/python3.11/site-packages/telethon/client/downloads.py", line 895, in _download_document
+2026-05-11 11:23:47:     result = await self._download_file(
+2026-05-11 11:23:47:              ^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-05-11 11:23:47:   File "/home/nisch/Desktop/MediaGrabber/.venv/lib/python3.11/site-packages/telethon/client/downloads.py", line 545, in _download_file
+2026-05-11 11:23:47:     async for chunk in self._iter_download(
+2026-05-11 11:23:47:   File "/home/nisch/Desktop/MediaGrabber/.venv/lib/python3.11/site-packages/telethon/requestiter.py", line 74, in __anext__
+2026-05-11 11:23:47:     if await self._load_next_chunk():
+2026-05-11 11:23:47:        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-05-11 11:23:47:   File "/home/nisch/Desktop/MediaGrabber/.venv/lib/python3.11/site-packages/telethon/client/downloads.py", line 66, in _load_next_chunk
+2026-05-11 11:23:47:     cur = await self._request()
+2026-05-11 11:23:47:           ^^^^^^^^^^^^^^^^^^^^^
+2026-05-11 11:23:47:   File "/home/nisch/Desktop/MediaGrabber/.venv/lib/python3.11/site-packages/telethon/client/downloads.py", line 76, in _request
+2026-05-11 11:23:47:     result = await self.client._call(self._sender, self.request)
+2026-05-11 11:23:47:              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-05-11 11:23:47:   File "/home/nisch/Desktop/MediaGrabber/.venv/lib/python3.11/site-packages/telethon/client/users.py", line 87, in _call
+2026-05-11 11:23:47:     result = await future
+2026-05-11 11:23:47:              ^^^^^^^^^^^^
+2026-05-11 11:23:47: asyncio.exceptions.CancelledError
+2026-05-11 11:23:47: 
+2026-05-11 11:23:47: During handling of the above exception, another exception occurred:
+2026-05-11 11:23:47: 
+2026-05-11 11:23:47: Traceback (most recent call last):
+2026-05-11 11:23:47:   File "/home/nisch/Desktop/MediaGrabber/daily_bns_sync.py", line 759, in <module>
+2026-05-11 11:23:47:     
+2026-05-11 11:23:47:   File "/usr/lib/python3.11/asyncio/runners.py", line 190, in run
+2026-05-11 11:23:47:     return runner.run(main)
+2026-05-11 11:23:47: ^^^^^^^^^^^^
+2026-05-11 11:23:47:   File "/usr/lib/python3.11/asyncio/runners.py", line 123, in run
+2026-05-11 11:23:47:     raise KeyboardInterrupt()
+2026-05-11 11:23:47: KeyboardInterrupt
+2026-05-11 11:25:35: Traceback (most recent call last):
+2026-05-11 11:25:35:   File "/usr/lib/python3.11/asyncio/runners.py", line 118, in run
+2026-05-11 11:25:35:     return self._loop.run_until_complete(task)
+2026-05-11 11:25:35:            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-05-11 11:25:35:   File "/usr/lib/python3.11/asyncio/base_events.py", line 653, in run_until_complete
+2026-05-11 11:25:35:     return future.result()
+2026-05-11 11:25:35:            ^^^^^^^^^^^^^^^
+2026-05-11 11:25:35:   File "/home/nisch/Desktop/MediaGrabber/daily_bns_sync.py", line 648, in main
+2026-05-11 11:25:35:     save_state(state_file, state)
+2026-05-11 11:25:35:        ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-05-11 11:25:35:   File "/home/nisch/Desktop/MediaGrabber/.venv/lib/python3.11/site-packages/telethon/tl/custom/message.py", line 866, in download_media
+2026-05-11 11:25:35:     return await self._client.download_media(self, *args, **kwargs)
+2026-05-11 11:25:35:            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-05-11 11:25:35:   File "/home/nisch/Desktop/MediaGrabber/.venv/lib/python3.11/site-packages/telethon/client/downloads.py", line 422, in download_media
+2026-05-11 11:25:35:     return await self._download_document(
+2026-05-11 11:25:35:            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-05-11 11:25:35:   File "/home/nisch/Desktop/MediaGrabber/.venv/lib/python3.11/site-packages/telethon/client/downloads.py", line 895, in _download_document
+2026-05-11 11:25:35:     result = await self._download_file(
+2026-05-11 11:25:35:              ^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-05-11 11:25:35:   File "/home/nisch/Desktop/MediaGrabber/.venv/lib/python3.11/site-packages/telethon/client/downloads.py", line 545, in _download_file
+2026-05-11 11:25:35:     async for chunk in self._iter_download(
+2026-05-11 11:25:35:   File "/home/nisch/Desktop/MediaGrabber/.venv/lib/python3.11/site-packages/telethon/requestiter.py", line 74, in __anext__
+2026-05-11 11:25:35:     if await self._load_next_chunk():
+2026-05-11 11:25:35:        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-05-11 11:25:35:   File "/home/nisch/Desktop/MediaGrabber/.venv/lib/python3.11/site-packages/telethon/client/downloads.py", line 66, in _load_next_chunk
+2026-05-11 11:25:35:     cur = await self._request()
+2026-05-11 11:25:35:           ^^^^^^^^^^^^^^^^^^^^^
+2026-05-11 11:25:35:   File "/home/nisch/Desktop/MediaGrabber/.venv/lib/python3.11/site-packages/telethon/client/downloads.py", line 76, in _request
+2026-05-11 11:25:35:     result = await self.client._call(self._sender, self.request)
+2026-05-11 11:25:35:              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-05-11 11:25:35:   File "/home/nisch/Desktop/MediaGrabber/.venv/lib/python3.11/site-packages/telethon/client/users.py", line 87, in _call
+2026-05-11 11:25:35:     result = await future
+2026-05-11 11:25:35:              ^^^^^^^^^^^^
+2026-05-11 11:25:35: asyncio.exceptions.CancelledError
+2026-05-11 11:25:35: 
+2026-05-11 11:25:35: During handling of the above exception, another exception occurred:
+2026-05-11 11:25:35: 
+2026-05-11 11:25:35: Traceback (most recent call last):
+2026-05-11 11:25:35:   File "/home/nisch/Desktop/MediaGrabber/daily_bns_sync.py", line 794, in <module>
+2026-05-11 11:25:35:   File "/usr/lib/python3.11/asyncio/runners.py", line 190, in run
+2026-05-11 11:25:35:     return runner.run(main)
+2026-05-11 11:25:35:            ^^^^^^^^^^^^^^^^
+2026-05-11 11:25:35:   File "/usr/lib/python3.11/asyncio/runners.py", line 123, in run
+2026-05-11 11:25:35:     raise KeyboardInterrupt()
+2026-05-11 11:25:35: KeyboardInterrupt
+2026-05-11 11:27:40: Traceback (most recent call last):
+2026-05-11 11:27:40:   File "/usr/lib/python3.11/asyncio/runners.py", line 118, in run
+2026-05-11 11:27:40:     return self._loop.run_until_complete(task)
+2026-05-11 11:27:40:            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-05-11 11:27:40:   File "/usr/lib/python3.11/asyncio/base_events.py", line 653, in run_until_complete
+2026-05-11 11:27:40:     return future.result()
+2026-05-11 11:27:40:            ^^^^^^^^^^^^^^^
+2026-05-11 11:27:40:   File "/home/nisch/Desktop/MediaGrabber/daily_bns_sync.py", line 761, in main
+2026-05-11 11:27:40:     ),
+2026-05-11 11:27:40: ^^^^^^^
+2026-05-11 11:27:40:   File "/home/nisch/Desktop/MediaGrabber/.venv/lib/python3.11/site-packages/telethon/client/uploads.py", line 408, in send_file
+2026-05-11 11:27:40:     file_handle, media, image = await self._file_to_media(
+2026-05-11 11:27:40:                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-05-11 11:27:40:   File "/home/nisch/Desktop/MediaGrabber/.venv/lib/python3.11/site-packages/telethon/client/uploads.py", line 744, in _file_to_media
+2026-05-11 11:27:40:     file_handle = await self.upload_file(
+2026-05-11 11:27:40:           ^^^^^^^^^^^^^^^^^^^^^^^
+2026-05-11 11:27:40:   File "/home/nisch/Desktop/MediaGrabber/.venv/lib/python3.11/site-packages/telethon/client/uploads.py", line 678, in upload_file
+2026-05-11 11:27:40:     result = await self(request)
+2026-05-11 11:27:40:              ^^^^^^^^^^^^^^^^^^^
+2026-05-11 11:27:40:   File "/home/nisch/Desktop/MediaGrabber/.venv/lib/python3.11/site-packages/telethon/client/users.py", line 30, in __call__
+2026-05-11 11:27:40:     return await self._call(self._sender, request, ordered=ordered)
+2026-05-11 11:27:40:            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-05-11 11:27:40:   File "/home/nisch/Desktop/MediaGrabber/.venv/lib/python3.11/site-packages/telethon/client/users.py", line 87, in _call
+2026-05-11 11:27:40:     result = await future
+2026-05-11 11:27:40:              ^^^^^^^^^^^^
+2026-05-11 11:27:40: asyncio.exceptions.CancelledError
+2026-05-11 11:27:40: 
+2026-05-11 11:27:40: During handling of the above exception, another exception occurred:
+2026-05-11 11:27:40: 
+2026-05-11 11:27:40: Traceback (most recent call last):
+2026-05-11 11:27:40:   File "/home/nisch/Desktop/MediaGrabber/daily_bns_sync.py", line 790, in <module>
+2026-05-11 11:27:40:     except Exception as e:
+2026-05-11 11:27:40: ^^^^^^^^^^^^^^^
+2026-05-11 11:27:40:   File "/usr/lib/python3.11/asyncio/runners.py", line 190, in run
+2026-05-11 11:27:40:     return runner.run(main)
+2026-05-11 11:27:40:            ^^^^^^^^^^^^^^^^
+2026-05-11 11:27:40:   File "/usr/lib/python3.11/asyncio/runners.py", line 123, in run
+2026-05-11 11:27:40:     raise KeyboardInterrupt()
+2026-05-11 11:27:40: KeyboardInterrupt
+2026-05-11 11:28:18: Traceback (most recent call last):
+2026-05-11 11:28:18:   File "/usr/lib/python3.11/asyncio/runners.py", line 118, in run
+2026-05-11 11:28:18:     return self._loop.run_until_complete(task)
+2026-05-11 11:28:18:            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-05-11 11:28:18:   File "/usr/lib/python3.11/asyncio/base_events.py", line 653, in run_until_complete
+2026-05-11 11:28:18:     return future.result()
+2026-05-11 11:28:18:            ^^^^^^^^^^^^^^^
+2026-05-11 11:28:18:   File "/home/nisch/Desktop/MediaGrabber/daily_bns_sync.py", line 663, in main
+2026-05-11 11:28:18:     tempd = tempfile.mkdtemp(prefix="bns_")
+2026-05-11 11:28:18:            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-05-11 11:28:18:   File "/home/nisch/Desktop/MediaGrabber/.venv/lib/python3.11/site-packages/telethon/tl/custom/message.py", line 866, in download_media
+2026-05-11 11:28:18:     return await self._client.download_media(self, *args, **kwargs)
+2026-05-11 11:28:18:            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-05-11 11:28:18:   File "/home/nisch/Desktop/MediaGrabber/.venv/lib/python3.11/site-packages/telethon/client/downloads.py", line 422, in download_media
+2026-05-11 11:28:18:     return await self._download_document(
+2026-05-11 11:28:18:            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-05-11 11:28:18:   File "/home/nisch/Desktop/MediaGrabber/.venv/lib/python3.11/site-packages/telethon/client/downloads.py", line 895, in _download_document
+2026-05-11 11:28:18:     result = await self._download_file(
+2026-05-11 11:28:18:      ^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-05-11 11:28:18:   File "/home/nisch/Desktop/MediaGrabber/.venv/lib/python3.11/site-packages/telethon/client/downloads.py", line 545, in _download_file
+2026-05-11 11:28:18:     async for chunk in self._iter_download(
+2026-05-11 11:28:18:   File "/home/nisch/Desktop/MediaGrabber/.venv/lib/python3.11/site-packages/telethon/requestiter.py", line 74, in __anext__
+2026-05-11 11:28:18:     if await self._load_next_chunk():
+2026-05-11 11:28:18:        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-05-11 11:28:18:   File "/home/nisch/Desktop/MediaGrabber/.venv/lib/python3.11/site-packages/telethon/client/downloads.py", line 66, in _load_next_chunk
+2026-05-11 11:28:18:     cur = await self._request()
+2026-05-11 11:28:18:           ^^^^^^^^^^^^^^^^^^^^^
+2026-05-11 11:28:18:   File "/home/nisch/Desktop/MediaGrabber/.venv/lib/python3.11/site-packages/telethon/client/downloads.py", line 76, in _request
+2026-05-11 11:28:18:     result = await self.client._call(self._sender, self.request)
+2026-05-11 11:28:18: ^^^^^^^^^^^^^^^^^
+2026-05-11 11:28:18:   File "/home/nisch/Desktop/MediaGrabber/.venv/lib/python3.11/site-packages/telethon/client/users.py", line 87, in _call
+2026-05-11 11:28:18:     result = await future
+2026-05-11 11:28:18:              ^^^^^^^^^^^^
+2026-05-11 11:28:18: asyncio.exceptions.CancelledError
+2026-05-11 11:28:18: 
+2026-05-11 11:28:18: During handling of the above exception, another exception occurred:
+2026-05-11 11:28:18: 
+2026-05-11 11:28:18: Traceback (most recent call last):
+2026-05-11 11:28:18:   File "/home/nisch/Desktop/MediaGrabber/daily_bns_sync.py", line 809, in <module>
+2026-05-11 11:28:18:     if __name__ == "__main__":
+2026-05-11 11:28:18:         ^^^^^^^^^^^^^^^^^^^
+2026-05-11 11:28:18:   File "/usr/lib/python3.11/asyncio/runners.py", line 190, in run
+2026-05-11 11:28:18:     return runner.run(main)
+2026-05-11 11:28:18:            ^^^^^^^^^^^^^^^^
+2026-05-11 11:28:18:   File "/usr/lib/python3.11/asyncio/runners.py", line 123, in run
+2026-05-11 11:28:18:     raise KeyboardInterrupt()
+2026-05-11 11:28:18: KeyboardInterrupt
+2026-05-11 11:32:18: Server closed the connection: 0 bytes read on a total of 8 expected bytes
+2026-05-11 11:36:03: Server closed the connection: 0 bytes read on a total of 8 expected bytes
+2026-05-11 11:53:04: Traceback (most recent call last):
+2026-05-11 11:53:04:   File "/home/nisch/Desktop/MediaGrabber/daily_bns_sync.py", line 638, in main
+2026-05-11 11:53:04:     await client.start()
+2026-05-11 11:53:04:   File "/home/nisch/Desktop/MediaGrabber/.venv/lib/python3.11/site-packages/telethon/client/auth.py", line 135, in _start
+2026-05-11 11:53:04:     await self.connect()
+2026-05-11 11:53:04:   File "/home/nisch/Desktop/MediaGrabber/.venv/lib/python3.11/site-packages/telethon/client/telegrambaseclient.py", line 599, in connect
+2026-05-11 11:53:04:     me = await self.get_me()
+2026-05-11 11:53:04:          ^^^^^^^^^^^^^^^^^^^
+2026-05-11 11:53:04:   File "/home/nisch/Desktop/MediaGrabber/.venv/lib/python3.11/site-packages/telethon/client/users.py", line 164, in get_me
+2026-05-11 11:53:04:     me = (await self(
+2026-05-11 11:53:04:           ^^^^^^^^^^^
+2026-05-11 11:53:04:   File "/home/nisch/Desktop/MediaGrabber/.venv/lib/python3.11/site-packages/telethon/client/users.py", line 30, in __call__
+2026-05-11 11:53:04:     return await self._call(self._sender, request, ordered=ordered)
+2026-05-11 11:53:04:            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-05-11 11:53:04:   File "/home/nisch/Desktop/MediaGrabber/.venv/lib/python3.11/site-packages/telethon/client/users.py", line 88, in _call
+2026-05-11 11:53:04:     self.session.process_entities(result)
+2026-05-11 11:53:04:   File "/home/nisch/Desktop/MediaGrabber/.venv/lib/python3.11/site-packages/telethon/sessions/sqlite.py", line 301, in process_entities
+2026-05-11 11:53:04:     c.executemany(
+2026-05-11 11:53:04: sqlite3.OperationalError: database is locked
+2026-05-11 11:53:04: 
+2026-05-11 11:53:04: During handling of the above exception, another exception occurred:
+2026-05-11 11:53:04: 
+2026-05-11 11:53:04: Traceback (most recent call last):
+2026-05-11 11:53:04:   File "/home/nisch/Desktop/MediaGrabber/daily_bns_sync.py", line 838, in <module>
+2026-05-11 11:53:04:     asyncio.run(main())
+2026-05-11 11:53:04:   File "/usr/lib/python3.11/asyncio/runners.py", line 190, in run
+2026-05-11 11:53:04:     return runner.run(main)
+2026-05-11 11:53:04:            ^^^^^^^^^^^^^^^^
+2026-05-11 11:53:04:   File "/usr/lib/python3.11/asyncio/runners.py", line 118, in run
+2026-05-11 11:53:04:     return self._loop.run_until_complete(task)
+2026-05-11 11:53:04: ^^^^^^^
+2026-05-11 11:53:04:   File "/usr/lib/python3.11/asyncio/base_events.py", line 653, in run_until_complete
+2026-05-11 11:53:04:     return future.result()
+2026-05-11 11:53:04:            ^^^^^^^^^^^^^^^
+2026-05-11 11:53:04:   File "/home/nisch/Desktop/MediaGrabber/daily_bns_sync.py", line 834, in main
+2026-05-11 11:53:04:     await client.disconnect()
+2026-05-11 11:53:04:   File "/home/nisch/Desktop/MediaGrabber/.venv/lib/python3.11/site-packages/telethon/client/telegrambaseclient.py", line 735, in _disconnect_coro
+2026-05-11 11:53:04:     self._save_states_and_entities()
+2026-05-11 11:53:04:   File "/home/nisch/Desktop/MediaGrabber/.venv/lib/python3.11/site-packages/telethon/client/telegrambaseclient.py", line 692, in _save_states_and_entities
+2026-05-11 11:53:04:     self.session.process_entities(types.contacts.ResolvedPeer(None, [e._as_input_peer() for e in entities], []))
+2026-05-11 11:53:04:   File "/home/nisch/Desktop/MediaGrabber/.venv/lib/python3.11/site-packages/telethon/sessions/sqlite.py", line 301, in process_entities
+2026-05-11 11:53:04:     c.executemany(
+2026-05-11 11:53:04: sqlite3.OperationalError: database is locked
+2026-05-11 12:37:57: Server closed the connection: 0 bytes read on a total of 8 expected bytes
+2026-05-11 13:40:47: Traceback (most recent call last):
+2026-05-11 13:40:47:   File "/home/nisch/Desktop/MediaGrabber/daily_bns_sync.py", line 631, in main
+2026-05-11 13:40:47:     await client.start()
+2026-05-11 13:40:47:   File "/home/nisch/Desktop/MediaGrabber/.venv/lib/python3.11/site-packages/telethon/client/auth.py", line 135, in _start
+2026-05-11 13:40:47:     await self.connect()
+2026-05-11 13:40:47:   File "/home/nisch/Desktop/MediaGrabber/.venv/lib/python3.11/site-packages/telethon/client/telegrambaseclient.py", line 599, in connect
+2026-05-11 13:40:47:     me = await self.get_me()
+2026-05-11 13:40:47:          ^^^^^^^^^^^^^^^^^^^
+2026-05-11 13:40:47:   File "/home/nisch/Desktop/MediaGrabber/.venv/lib/python3.11/site-packages/telethon/client/users.py", line 164, in get_me
+2026-05-11 13:40:47:     me = (await self(
+2026-05-11 13:40:47:           ^^^^^^^^^^^
+2026-05-11 13:40:47:   File "/home/nisch/Desktop/MediaGrabber/.venv/lib/python3.11/site-packages/telethon/client/users.py", line 30, in __call__
+2026-05-11 13:40:47:     return await self._call(self._sender, request, ordered=ordered)
+2026-05-11 13:40:47:            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-05-11 13:40:47:   File "/home/nisch/Desktop/MediaGrabber/.venv/lib/python3.11/site-packages/telethon/client/users.py", line 88, in _call
+2026-05-11 13:40:47:     self.session.process_entities(result)
+2026-05-11 13:40:47:   File "/home/nisch/Desktop/MediaGrabber/.venv/lib/python3.11/site-packages/telethon/sessions/sqlite.py", line 301, in process_entities
+2026-05-11 13:40:47:     c.executemany(
+2026-05-11 13:40:47: sqlite3.OperationalError: database is locked
+2026-05-11 13:40:47: 
+2026-05-11 13:40:47: During handling of the above exception, another exception occurred:
+2026-05-11 13:40:47: 
+2026-05-11 13:40:47: Traceback (most recent call last):
+2026-05-11 13:40:47:   File "/home/nisch/Desktop/MediaGrabber/daily_bns_sync.py", line 819, in <module>
+2026-05-11 13:40:47:     asyncio.run(main())
+2026-05-11 13:40:47:   File "/usr/lib/python3.11/asyncio/runners.py", line 190, in run
+2026-05-11 13:40:47:     return runner.run(main)
+2026-05-11 13:40:47:            ^^^^^^^^^^^^^^^^
+2026-05-11 13:40:47:   File "/usr/lib/python3.11/asyncio/runners.py", line 118, in run
+2026-05-11 13:40:47:     return self._loop.run_until_complete(task)
+2026-05-11 13:40:47:            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-05-11 13:40:47:   File "/usr/lib/python3.11/asyncio/base_events.py", line 653, in run_until_complete
+2026-05-11 13:40:47:     return future.result()
+2026-05-11 13:40:47:            ^^^^^^^^^^^^^^^
+2026-05-11 13:40:47:   File "/home/nisch/Desktop/MediaGrabber/daily_bns_sync.py", line 815, in main
+2026-05-11 13:40:47:     await client.disconnect()
+2026-05-11 13:40:47:   File "/home/nisch/Desktop/MediaGrabber/.venv/lib/python3.11/site-packages/telethon/client/telegrambaseclient.py", line 735, in _disconnect_coro
+2026-05-11 13:40:47:     self._save_states_and_entities()
+2026-05-11 13:40:47:   File "/home/nisch/Desktop/MediaGrabber/.venv/lib/python3.11/site-packages/telethon/client/telegrambaseclient.py", line 692, in _save_states_and_entities
+2026-05-11 13:40:47:     self.session.process_entities(types.contacts.ResolvedPeer(None, [e._as_input_peer() for e in entities], []))
+2026-05-11 13:40:47:   File "/home/nisch/Desktop/MediaGrabber/.venv/lib/python3.11/site-packages/telethon/sessions/sqlite.py", line 301, in process_entities
+2026-05-11 13:40:47:     c.executemany(
+2026-05-11 13:40:47: sqlite3.OperationalError: database is locked
+2026-05-11 18:07:37: Server closed the connection: 0 bytes read on a total of 8 expected bytes
+2026-05-11 23:02:08: Server closed the connection: 0 bytes read on a total of 8 expected bytes
+2026-05-13 08:07:09: Server closed the connection: 0 bytes read on a total of 8 expected bytes
+2026-05-14 08:41:16: Server closed the connection: 0 bytes read on a total of 8 expected bytes
+2026-05-15 08:41:05: Server closed the connection: 0 bytes read on a total of 8 expected bytes
+2026-05-16 08:41:09: Server closed the connection: 0 bytes read on a total of 8 expected bytes

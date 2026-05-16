@@ -78,3 +78,88 @@
 2026-04-23 09:02:18:     return c.execute(stmt, values).fetchone()
 2026-04-23 09:02:18:            ^^^^^^^^^^^^^^^^^^^^^^^
 2026-04-23 09:02:18: sqlite3.OperationalError: database is locked
+2026-05-10 09:47:41: Traceback (most recent call last):
+2026-05-10 09:47:41:   File "/home/nisch/Desktop/MediaGrabber/daily_bns_sync.py", line 459, in main
+2026-05-10 09:47:41:     await client.start()
+2026-05-10 09:47:41:   File "/home/nisch/Desktop/MediaGrabber/.venv/lib/python3.11/site-packages/telethon/client/auth.py", line 135, in _start
+2026-05-10 09:47:41:     await self.connect()
+2026-05-10 09:47:41:   File "/home/nisch/Desktop/MediaGrabber/.venv/lib/python3.11/site-packages/telethon/client/telegrambaseclient.py", line 558, in connect
+2026-05-10 09:47:41:     self.session.auth_key = self._sender.auth_key
+2026-05-10 09:47:41:     ^^^^^^^^^^^^^^^^^^^^^
+2026-05-10 09:47:41:   File "/home/nisch/Desktop/MediaGrabber/.venv/lib/python3.11/site-packages/telethon/sessions/sqlite.py", line 180, in auth_key
+2026-05-10 09:47:41:     self._update_session_table()
+2026-05-10 09:47:41:   File "/home/nisch/Desktop/MediaGrabber/.venv/lib/python3.11/site-packages/telethon/sessions/sqlite.py", line 194, in _update_session_table
+2026-05-10 09:47:41:     c.execute('delete from sessions')
+2026-05-10 09:47:41: sqlite3.OperationalError: database is locked
+2026-05-10 09:47:41: 
+2026-05-10 09:47:41: During handling of the above exception, another exception occurred:
+2026-05-10 09:47:41: 
+2026-05-10 09:47:41: Traceback (most recent call last):
+2026-05-10 09:47:41:   File "/home/nisch/Desktop/MediaGrabber/daily_bns_sync.py", line 659, in <module>
+2026-05-10 09:47:41:     asyncio.run(main())
+2026-05-10 09:47:41:   File "/usr/lib/python3.11/asyncio/runners.py", line 190, in run
+2026-05-10 09:47:41:     return runner.run(main)
+2026-05-10 09:47:41:            ^^^^^^^^^^^^^^^^
+2026-05-10 09:47:41:   File "/usr/lib/python3.11/asyncio/runners.py", line 118, in run
+2026-05-10 09:47:41:     return self._loop.run_until_complete(task)
+2026-05-10 09:47:41:            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-05-10 09:47:41:   File "/usr/lib/python3.11/asyncio/base_events.py", line 653, in run_until_complete
+2026-05-10 09:47:41:     return future.result()
+2026-05-10 09:47:41:            ^^^^^^^^^^^^^^^
+2026-05-10 09:47:41:   File "/home/nisch/Desktop/MediaGrabber/daily_bns_sync.py", line 655, in main
+2026-05-10 09:47:41:     await client.disconnect()
+2026-05-10 09:47:41:   File "/home/nisch/Desktop/MediaGrabber/.venv/lib/python3.11/site-packages/telethon/client/telegrambaseclient.py", line 735, in _disconnect_coro
+2026-05-10 09:47:41:     self._save_states_and_entities()
+2026-05-10 09:47:41:   File "/home/nisch/Desktop/MediaGrabber/.venv/lib/python3.11/site-packages/telethon/client/telegrambaseclient.py", line 700, in _save_states_and_entities
+2026-05-10 09:47:41:     self.session.set_update_state(0, types.updates.State(**ss, unread_count=0))
+2026-05-10 09:47:41:   File "/home/nisch/Desktop/MediaGrabber/.venv/lib/python3.11/site-packages/telethon/sessions/sqlite.py", line 214, in set_update_state
+2026-05-10 09:47:41:     self._execute('insert or replace into update_state values (?,?,?,?,?)',
+2026-05-10 09:47:41:   File "/home/nisch/Desktop/MediaGrabber/.venv/lib/python3.11/site-packages/telethon/sessions/sqlite.py", line 253, in _execute
+2026-05-10 09:47:41:     return c.execute(stmt, values).fetchone()
+2026-05-10 09:47:41:            ^^^^^^^^^^^^^^^^^^^^^^^
+2026-05-10 09:47:41: sqlite3.OperationalError: database is locked
+2026-05-11 12:34:52: Traceback (most recent call last):
+2026-05-11 12:34:52:   File "/home/nisch/Desktop/MediaGrabber/daily_bns_sync.py", line 638, in main
+2026-05-11 12:34:52:     await client.start()
+2026-05-11 12:34:52:   File "/home/nisch/Desktop/MediaGrabber/.venv/lib/python3.11/site-packages/telethon/client/auth.py", line 135, in _start
+2026-05-11 12:34:52:     await self.connect()
+2026-05-11 12:34:52:   File "/home/nisch/Desktop/MediaGrabber/.venv/lib/python3.11/site-packages/telethon/client/telegrambaseclient.py", line 599, in connect
+2026-05-11 12:34:52:     me = await self.get_me()
+2026-05-11 12:34:52:          ^^^^^^^^^^^^^^^^^^^
+2026-05-11 12:34:52:   File "/home/nisch/Desktop/MediaGrabber/.venv/lib/python3.11/site-packages/telethon/client/users.py", line 164, in get_me
+2026-05-11 12:34:53:     me = (await self(
+2026-05-11 12:34:53:           ^^^^^^^^^^^
+2026-05-11 12:34:53:   File "/home/nisch/Desktop/MediaGrabber/.venv/lib/python3.11/site-packages/telethon/client/users.py", line 30, in __call__
+2026-05-11 12:34:53:     return await self._call(self._sender, request, ordered=ordered)
+2026-05-11 12:34:53:            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-05-11 12:34:53:   File "/home/nisch/Desktop/MediaGrabber/.venv/lib/python3.11/site-packages/telethon/client/users.py", line 88, in _call
+2026-05-11 12:34:53:     self.session.process_entities(result)
+2026-05-11 12:34:53:   File "/home/nisch/Desktop/MediaGrabber/.venv/lib/python3.11/site-packages/telethon/sessions/sqlite.py", line 301, in process_entities
+2026-05-11 12:34:53:     c.executemany(
+2026-05-11 12:34:53: : database is locked
+2026-05-11 12:34:53: 
+2026-05-11 12:34:53: During handling of the above exception, another exception occurred:
+2026-05-11 12:34:53: 
+2026-05-11 12:34:53: Traceback (most recent call last):
+2026-05-11 12:34:53:   File "/home/nisch/Desktop/MediaGrabber/daily_bns_sync.py", line 838, in <module>
+2026-05-11 12:34:53:     asyncio.run(main())
+2026-05-11 12:34:53:   File "/usr/lib/python3.11/asyncio/runners.py", line 190, in run
+2026-05-11 12:34:53:     return runner.run(main)
+2026-05-11 12:34:53:            ^^^^^^^^^^^^^^^^
+2026-05-11 12:34:53:   File "/usr/lib/python3.11/asyncio/runners.py", line 118, in run
+2026-05-11 12:34:53:     return self._loop.run_until_complete(task)
+2026-05-11 12:34:53:      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-05-11 12:34:53:   File "/usr/lib/python3.11/asyncio/base_events.py", line 653, in run_until_complete
+2026-05-11 12:34:53:     return future.result()
+2026-05-11 12:34:53:            ^^^^^^^^^^^^^^^
+2026-05-11 12:34:53:   File "/home/nisch/Desktop/MediaGrabber/daily_bns_sync.py", line 834, in main
+2026-05-11 12:34:53:     await client.disconnect()
+2026-05-11 12:34:53:   File "/home/nisch/Desktop/MediaGrabber/.venv/lib/python3.11/site-packages/telethon/client/telegrambaseclient.py", line 735, in _disconnect_coro
+2026-05-11 12:34:53:     self._save_states_and_entities()
+2026-05-11 12:34:53:   File "/home/nisch/Desktop/MediaGrabber/.venv/lib/python3.11/site-packages/telethon/client/telegrambaseclient.py", line 692, in _save_states_and_entities
+2026-05-11 12:34:53:     self.session.process_entities(types.contacts.ResolvedPeer(None, [e._as_input_peer() for e in entities], []))
+2026-05-11 12:34:53:   File "/home/nisch/Desktop/MediaGrabber/.venv/lib/python3.11/site-packages/telethon/sessions/sqlite.py", line 301, in process_entities
+2026-05-11 12:34:53:     c.executemany(
+2026-05-11 12:34:53: sqlite3.OperationalError: database is locked
+2026-05-11 13:42:33: Server closed the connection: 0 bytes read on a total of 8 expected bytes
+2026-05-12 12:42:46: Server closed the connection: 0 bytes read on a total of 8 expected bytes

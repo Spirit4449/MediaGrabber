@@ -21,11 +21,11 @@ if (!BOT_TOKEN) throw new Error("BOT_TOKEN missing in env");
 const app = express();
 app.use(express.json({ limit: "256kb" }));
 const bot = new Telegraf(BOT_TOKEN);
-const MAX_BOT_UPLOAD_MB = Number(process.env.BOT_MAX_UPLOAD_MB || 30);
+const MAX_BOT_UPLOAD_MB = Number(process.env.BOT_MAX_UPLOAD_MB || 49);
 const COMPRESS_TARGET_MB = Number(
   process.env.BOT_COMPRESS_TARGET_MB || Math.max(1, MAX_BOT_UPLOAD_MB - 2),
 );
-const COMPRESS_AUDIO_KBPS = Number(process.env.BOT_COMPRESS_AUDIO_KBPS || 96);
+const COMPRESS_AUDIO_KBPS = Number(process.env.BOT_COMPRESS_AUDIO_KBPS || 192);
 const COMPRESS_MIN_VIDEO_KBPS = Number(
   process.env.BOT_COMPRESS_MIN_VIDEO_KBPS || 300,
 );
