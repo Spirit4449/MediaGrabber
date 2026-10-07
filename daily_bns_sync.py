@@ -63,6 +63,8 @@ FFPROBE_PATH = os.environ.get("FFPROBE_PATH", "ffprobe")
 BNS_MAX_UPLOAD_MB = float(os.environ.get("BNS_MAX_UPLOAD_MB", "49"))
 BNS_MAX_UPLOAD_BYTES = int(BNS_MAX_UPLOAD_MB * 1024 * 1024)
 AUDIO_EXTS = {".mp3", ".m4a", ".ogg", ".oga", ".wav", ".flac", ".aac", ".opus", ".m4b"}
+DEFAULT_BNS_ADMIN_USERNAME = "admin"
+DEFAULT_BNS_ADMIN_PASSWORD = "admin123"
 
 
 def _env_bool(name: str, default: bool) -> bool:
@@ -70,6 +72,88 @@ def _env_bool(name: str, default: bool) -> bool:
     if raw is None:
         return default
     return raw.strip().lower() in {"1", "true", "yes", "on"}
+
+
+def _clean_env_value(value: str) -> str:
+    value = (value or "").strip()
+    if len(value) >= 2 and value[0] == value[-1] and value[0] in {"'", '"'}:
+        return value[1:-1]
+    return value
+
+
+def _read_env_file(path: Path) -> dict[str, str]:
+    env: dict[str, str] = {}
+    if not path.exists():
+        return env
+    for raw_line in path.read_text(encoding="utf-8").splitlines():
+        line = raw_line.strip()
+        if not line or line.startswith("#") or "=" not in line:
+            continue
+        key, value = line.split("=", 1)
+        env[key.strip()] = _clean_env_value(value)
+    return env
+
+
+def _parse_admin_credentials(raw: str) -> list[tuple[str, str]]:
+    credentials: list[tuple[str, str]] = []
+    for pair in _clean_env_value(raw).split(","):
+        if ":" not in pair:
+            continue
+        username, password = pair.split(":", 1)
+        username = username.strip()
+        password = password.strip()
+        if username and password:
+            credentials.append((username, password))
+    return credentials
+
+
+def _load_bns_site_admin_credentials() -> tuple[str, str] | None:
+    env_path = os.environ.get("BNS_SITE_ENV_FILE", "").strip()
+    candidates = [Path(env_path)] if env_path else []
+    candidates.extend(
+        [
+            Path(__file__).resolve().parent.parent / "Brahma-naa-sange" / ".env.local",
+            Path.home() / "Desktop" / "Brahma-naa-sange" / ".env.local",
+        ]
+    )
+
+    seen: set[Path] = set()
+    for candidate in candidates:
+        try:
+            resolved = candidate.expanduser().resolve()
+        except OSError:
+            resolved = candidate.expanduser()
+        if resolved in seen:
+            continue
+        seen.add(resolved)
+
+        values = _read_env_file(resolved)
+        for key in ("VITE_ADMIN_CREDENTIALS", "VITE_ADMIN_USERS"):
+            parsed = _parse_admin_credentials(values.get(key, ""))
+            if parsed:
+                return parsed[0]
+
+        username = values.get("VITE_ADMIN_USERNAME", "").strip()
+        password = values.get("VITE_ADMIN_PASSWORD", "").strip()
+        if username and password:
+            return username, password
+    return None
+
+
+def _resolve_bns_admin_credentials() -> tuple[str, str]:
+    username = os.environ.get("BNS_ADMIN_USERNAME", "").strip()
+    password = os.environ.get("BNS_ADMIN_PASSWORD", "").strip()
+    has_custom_env_credentials = bool(username and password) and (
+        username != DEFAULT_BNS_ADMIN_USERNAME or password != DEFAULT_BNS_ADMIN_PASSWORD
+    )
+    if has_custom_env_credentials:
+        return username, password
+
+    site_credentials = _load_bns_site_admin_credentials()
+    if site_credentials:
+        return site_credentials
+
+    return username, password
 
 
 def _xpath_literal(value: str) -> str:
@@ -250,14 +334,6 @@ def _upload_calendar_day_uploaded(driver, file_name: str) -> bool:
 
 
 def _page_has_completed_queue_item(driver, file_name: str, body_text: str) -> bool:
-    compact_text = "".join((body_text or "").upper().split())
-    stem = Path(file_name).stem.upper()
-    name = file_name.upper()
-    if "PROCESSINGQUEUE" not in compact_text:
-        return False
-    if stem not in compact_text and name not in compact_text:
-        return False
-
     from selenium.webdriver.common.by import By
 
     for node in driver.find_elements(
@@ -275,11 +351,40 @@ def _page_has_completed_queue_item(driver, file_name: str, body_text: str) -> bo
             if "ARCHIVED" in card_text or ("COMPLETED" in card_text and "100%" in card_text):
                 return True
 
-    return (
-        "ARCHIVED" in compact_text
-        and "FAILED" not in compact_text
-        and "ERROR" not in compact_text
+    return False
+
+
+def _find_upload_queue_card(driver, file_name: str):
+    from selenium.webdriver.common.by import By
+
+    file_literal = _xpath_literal(Path(file_name).name)
+    nodes = driver.find_elements(
+        By.XPATH,
+        (
+            "//h3[normalize-space()='Processing Queue']"
+            "/ancestor::div[contains(@class,'space-y-4')][1]"
+            f"//*[normalize-space()={file_literal}]"
+        ),
     )
+    for node in nodes:
+        with contextlib.suppress(Exception):
+            return node.find_element(
+                By.XPATH,
+                "./ancestor::div[contains(@class,'animate-slideDown')][1]",
+            )
+        with contextlib.suppress(Exception):
+            return node.find_element(
+                By.XPATH,
+                "./ancestor::div[contains(@class,'rounded-2xl') and contains(@class,'border')][1]",
+            )
+    return None
+
+
+def _upload_queue_card_text(driver, file_name: str) -> str:
+    card = _find_upload_queue_card(driver, file_name)
+    if not card:
+        return ""
+    return (card.text or "").strip()
 
 
 def _extract_card_error(card, browser_excerpt: str) -> str:
@@ -615,23 +720,26 @@ def upload_to_bns_site(
         file_name = file_path.name
         expected_title = _expected_upload_title(file_name)
         deadline = time.time() + max(60, upload_timeout_seconds)
-        last_card_text = ""
+        last_body_text = ""
+        last_queue_text = ""
         last_change_at = time.time()
+        next_progress_log_at = time.time() + 60
         while time.time() < deadline:
             browser_excerpt = _browser_error_excerpt(driver)
             body_text = ""
             with contextlib.suppress(Exception):
                 body_text = driver.find_element(By.TAG_NAME, "body").text.strip()
-            if body_text and body_text != last_card_text:
-                last_card_text = body_text
+            if body_text and body_text != last_body_text:
+                last_body_text = body_text
                 last_change_at = time.time()
 
-            compact_text = "".join(body_text.upper().split())
-            if (
-                "SUCCESSFULLYARCHIVED" in compact_text
-                or "ARCHIVED(RATELIMITSDETECTED/RECOVERED)" in compact_text
-                or _page_has_completed_queue_item(driver, file_name, body_text)
-            ):
+            queue_text = _upload_queue_card_text(driver, file_name)
+            if queue_text and queue_text != last_queue_text:
+                last_queue_text = queue_text
+                last_change_at = time.time()
+
+            compact_queue_text = "".join(queue_text.upper().split())
+            if _page_has_completed_queue_item(driver, file_name, body_text):
                 title, summary = _extract_recent_upload_summary(driver)
                 return {
                     "status": "uploaded",
@@ -639,28 +747,16 @@ def upload_to_bns_site(
                     "title": title,
                     "summary": summary,
                 }
-            if expected_title and _page_has_uploaded_title(driver, expected_title):
-                title, summary = _extract_recent_upload_summary(driver)
-                return {
-                    "status": "uploaded",
-                    "reason": f"Found expected uploaded title {expected_title}",
-                    "title": title or expected_title,
-                    "summary": summary,
-                }
-            if _upload_calendar_day_uploaded(driver, file_name):
-                title, summary = _extract_recent_upload_summary(driver)
-                return {
-                    "status": "uploaded",
-                    "reason": f"Upload calendar now marks {file_name}",
-                    "title": title or expected_title,
-                    "summary": summary,
-                }
+            if time.time() >= next_progress_log_at:
+                status = _truncate(queue_text, 500) or "waiting for processing queue item"
+                print(f"BNS website upload still running for {file_name}: {status}")
+                next_progress_log_at = time.time() + 60
             if (
-                "ERROR" in compact_text
-                or "PROCESSINGFAILED" in compact_text
-                or "RESOURCE_EXHAUSTED" in compact_text
+                "ERROR" in compact_queue_text
+                or "FAILED" in compact_queue_text
+                or "RESOURCE_EXHAUSTED" in compact_queue_text
             ):
-                err_text = _truncate(body_text, 1800) or "Website upload failed."
+                err_text = _truncate(queue_text, 1800) or "Website upload failed."
                 if browser_excerpt and browser_excerpt not in err_text:
                     err_text = f"{err_text}\n\nBrowser console:\n{browser_excerpt}"
                 return {
@@ -701,6 +797,16 @@ def upload_to_bns_site(
         debug_hint = _write_debug_artifacts(driver, "upload-timeout")
         if debug_hint:
             reason = f"{reason}\n\n{debug_hint}"
+        if last_queue_text:
+            reason = f"{reason}\n\nLast queue status:\n{_truncate(last_queue_text, 1800)}"
+        elif expected_title and (
+            _page_has_uploaded_title(driver, expected_title)
+            or _upload_calendar_day_uploaded(driver, file_name)
+        ):
+            reason = (
+                f"{reason}\n\nA stale archive/calendar entry for {expected_title} exists, "
+                "but the current processing queue item never reached Archived/100%."
+            )
         if browser_excerpt:
             reason = f"{reason}\n\nBrowser console:\n{browser_excerpt}"
         return {
@@ -885,6 +991,12 @@ async def main():
         action="store_true",
         help="Disable Selenium website upload step for this run.",
     )
+    ap.add_argument(
+        "--only-message-id",
+        type=int,
+        default=0,
+        help="Process only this source message id from the recent window.",
+    )
     args = ap.parse_args()
 
     api_id = int(os.environ.get("TELEGRAM_API_ID", "0"))
@@ -893,8 +1005,7 @@ async def main():
     bot_token = os.environ.get("BOT_TOKEN", "")
     notify_chat_id = os.environ.get("TELEGRAM_NOTIFY_CHAT_ID", "")
     site_url = os.environ.get("BNS_SITE_URL", "https://bns.classchats.net")
-    admin_username = os.environ.get("BNS_ADMIN_USERNAME", "").strip()
-    admin_password = os.environ.get("BNS_ADMIN_PASSWORD", "").strip()
+    admin_username, admin_password = _resolve_bns_admin_credentials()
     selenium_headless = _env_bool("BNS_SELENIUM_HEADLESS", True)
     skip_site_upload = args.no_site_upload or _env_bool("BNS_DISABLE_SITE_UPLOAD", False)
 
@@ -956,7 +1067,19 @@ async def main():
             print("No state found but --seed specified: will process recent window.")
 
         # Gather messages newer than last_id
-        to_process = [m for m in recent if m.id > last_id]
+        if args.only_message_id:
+            to_process = [m for m in recent if m.id == args.only_message_id]
+            if not to_process:
+                print(f"Message {args.only_message_id} not found in recent source window.")
+                return
+            if to_process[0].id <= last_id:
+                print(
+                    f"Message {args.only_message_id} is not newer than state last_id={last_id}. "
+                    "Set the state file last_id lower before replaying a processed message."
+                )
+                return
+        else:
+            to_process = [m for m in recent if m.id > last_id]
         if not to_process:
             print("No new messages to process.")
             return
@@ -1063,6 +1186,8 @@ async def main():
                                 "[OK] BNS Website Upload Success",
                                 f"File: {Path(path).name}",
                             ]
+                            if reason:
+                                notify_lines.append(f"Website status: {reason}")
                             if title:
                                 notify_lines.append(f"Title: {title}")
                             if summary:

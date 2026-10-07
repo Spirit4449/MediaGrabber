@@ -351,3 +351,200 @@
 2026-05-16 11:16:05: (node:2076736) [DEP0060] DeprecationWarning: The `util._extend` API is deprecated. Please use Object.assign() instead.
 2026-05-16 11:16:05: (Use `node --trace-deprecation ...` to show where the warning was created)
 2026-05-16 11:16:05: (node:2076736) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-05-22 09:41:44: (node:2056) [DEP0060] DeprecationWarning: The `util._extend` API is deprecated. Please use Object.assign() instead.
+2026-05-22 09:41:44: (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-05-22 09:41:44: (node:2056) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-05-24 10:20:13: (node:2487) [DEP0060] DeprecationWarning: The `util._extend` API is deprecated. Please use Object.assign() instead.
+2026-05-24 10:20:13: (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-05-24 10:20:13: (node:2487) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-06-14 19:16:57: (node:1765) [DEP0060] DeprecationWarning: The `util._extend` API is deprecated. Please use Object.assign() instead.
+2026-06-14 19:16:57: (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-06-14 19:16:57: (node:1765) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-06-14 19:17:04: FetchError: request to https://api.telegram.org/bot7873936965:[REDACTED]/getMe failed, reason: getaddrinfo EAI_AGAIN api.telegram.org
+2026-06-14 19:17:04:     at ClientRequest.<anonymous> (/home/nisch/Desktop/MediaGrabber/node_modules/node-fetch/lib/index.js:1501:11)
+2026-06-14 19:17:04:     at ClientRequest.emit (node:events:513:28)
+2026-06-14 19:17:04:     at emitErrorEvent (node:_http_client:104:11)
+2026-06-14 19:17:04:     at TLSSocket.socketErrorListener (node:_http_client:512:5)
+2026-06-14 19:17:04:     at TLSSocket.emit (node:events:513:28)
+2026-06-14 19:17:04:     at emitErrorNT (node:internal/streams/destroy:170:8)
+2026-06-14 19:17:04:     at emitErrorCloseNT (node:internal/streams/destroy:129:3)
+2026-06-14 19:17:04:     at process.processTicksAndRejections (node:internal/process/task_queues:90:21) {
+2026-06-14 19:17:04:   type: 'system',
+2026-06-14 19:17:04:   errno: 'EAI_AGAIN',
+2026-06-14 19:17:04:   code: 'EAI_AGAIN'
+2026-06-14 19:17:04: }
+2026-06-15 08:53:27: (node:2388) [DEP0060] DeprecationWarning: The `util._extend` API is deprecated. Please use Object.assign() instead.
+2026-06-15 08:53:27: (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-06-15 08:53:27: (node:2388) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-06-15 08:53:28: FetchError: request to https://api.telegram.org/bot7873936965:[REDACTED]/getMe failed, reason: getaddrinfo EAI_AGAIN api.telegram.org
+2026-06-15 08:53:28:     at ClientRequest.<anonymous> (/home/nisch/Desktop/MediaGrabber/node_modules/node-fetch/lib/index.js:1501:11)
+2026-06-15 08:53:28:     at ClientRequest.emit (node:events:513:28)
+2026-06-15 08:53:28:     at emitErrorEvent (node:_http_client:104:11)
+2026-06-15 08:53:28:     at TLSSocket.socketErrorListener (node:_http_client:512:5)
+2026-06-15 08:53:28:     at TLSSocket.emit (node:events:513:28)
+2026-06-15 08:53:28:     at emitErrorNT (node:internal/streams/destroy:170:8)
+2026-06-15 08:53:28:     at emitErrorCloseNT (node:internal/streams/destroy:129:3)
+2026-06-15 08:53:28:     at process.processTicksAndRejections (node:internal/process/task_queues:90:21) {
+2026-06-15 08:53:28:   type: 'system',
+2026-06-15 08:53:28:   errno: 'EAI_AGAIN',
+2026-06-15 08:53:28:   code: 'EAI_AGAIN'
+2026-06-15 08:53:28: }
+2026-06-29 10:05:38: Error: Bot is not running!
+2026-06-29 10:05:38:     at Telegraf.stop (/home/nisch/Desktop/MediaGrabber/node_modules/telegraf/lib/telegraf.js:218:19)
+2026-06-29 10:05:38:     at process.<anonymous> (/home/nisch/Desktop/MediaGrabber/server.js:811:34)
+2026-06-29 10:05:38:     at Object.onceWrapper (node:events:628:26)
+2026-06-29 10:05:38:     at process.emit (node:events:513:28)
+2026-06-29 10:05:39: (node:1964302) [DEP0060] DeprecationWarning: The `util._extend` API is deprecated. Please use Object.assign() instead.
+2026-06-29 10:05:39: (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-06-29 10:05:39: (node:1964302) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-07-08 12:34:41: (node:1295556) [DEP0060] DeprecationWarning: The `util._extend` API is deprecated. Please use Object.assign() instead.
+2026-07-08 12:34:41: (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-07-08 12:34:41: (node:1295556) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-07-28 22:40:39: (node:1720) [DEP0060] DeprecationWarning: The `util._extend` API is deprecated. Please use Object.assign() instead.
+2026-07-28 22:40:39: (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-07-28 22:40:39: (node:1720) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-07-28 22:40:44: FetchError: request to https://api.telegram.org/bot7873936965:[REDACTED]/getMe failed, reason: getaddrinfo EAI_AGAIN api.telegram.org
+2026-07-28 22:40:44:     at ClientRequest.<anonymous> (/home/nisch/Desktop/MediaGrabber/node_modules/node-fetch/lib/index.js:1501:11)
+2026-07-28 22:40:44:     at ClientRequest.emit (node:events:513:28)
+2026-07-28 22:40:44:     at emitErrorEvent (node:_http_client:104:11)
+2026-07-28 22:40:44:     at TLSSocket.socketErrorListener (node:_http_client:512:5)
+2026-07-28 22:40:44:     at TLSSocket.emit (node:events:513:28)
+2026-07-28 22:40:44:     at emitErrorNT (node:internal/streams/destroy:170:8)
+2026-07-28 22:40:44:     at emitErrorCloseNT (node:internal/streams/destroy:129:3)
+2026-07-28 22:40:44:     at process.processTicksAndRejections (node:internal/process/task_queues:90:21) {
+2026-07-28 22:40:44:   type: 'system',
+2026-07-28 22:40:44:   errno: 'EAI_AGAIN',
+2026-07-28 22:40:44:   code: 'EAI_AGAIN'
+2026-07-28 22:40:44: }
+2026-07-31 12:37:59: Error: Bot is not running!
+2026-07-31 12:37:59:     at Telegraf.stop (/home/nisch/Desktop/MediaGrabber/node_modules/telegraf/lib/telegraf.js:218:19)
+2026-07-31 12:37:59:     at process.<anonymous> (/home/nisch/Desktop/MediaGrabber/server.js:811:34)
+2026-07-31 12:37:59:     at Object.onceWrapper (node:events:628:26)
+2026-07-31 12:37:59:     at process.emit (node:events:513:28)
+2026-07-31 12:38:00: (node:1560030) [DEP0060] DeprecationWarning: The `util._extend` API is deprecated. Please use Object.assign() instead.
+2026-07-31 12:38:00: (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-07-31 12:38:00: (node:1560030) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-08-04 19:59:50: (node:2398) [DEP0060] DeprecationWarning: The `util._extend` API is deprecated. Please use Object.assign() instead.
+2026-08-04 19:59:50: (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-08-04 19:59:50: (node:2398) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-08-05 20:48:46: (node:2319814) [DEP0060] DeprecationWarning: The `util._extend` API is deprecated. Please use Object.assign() instead.
+2026-08-05 20:48:46: (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-08-05 20:48:46: (node:2319814) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-08-23 21:41:38: [upload fail] 504: Gateway Time-out
+2026-08-24 13:03:11: (node:2415) [DEP0060] DeprecationWarning: The `util._extend` API is deprecated. Please use Object.assign() instead.
+2026-08-24 13:03:11: (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-08-24 13:03:11: (node:2415) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-08-24 13:03:24: [error] exception OperationalError: database is locked
+2026-08-24 13:03:29: [downloader stderr] Traceback (most recent call last):
+2026-08-24 13:03:29:   File "/home/nisch/Desktop/MediaGrabber/downloader.py", line 269, in <module>
+2026-08-24 13:03:29: 
+2026-08-24 13:03:29: [downloader stderr]     asyncio.run(main())
+2026-08-24 13:03:29:   File "/usr/lib/python3.11/asyncio/runners.py", line 190, in run
+2026-08-24 13:03:29: 
+2026-08-24 13:03:29: [downloader stderr]     return runner.run(main)
+2026-08-24 13:03:29:            ^^^^^^^^^^^^^^^^
+2026-08-24 13:03:29:   File "/usr/lib/python3.11/asyncio/runners.py", line 118, in run
+2026-08-24 13:03:29:     return self._loop.run_until_complete(task)
+2026-08-24 13:03:29:            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-08-24 13:03:29:   File "/usr/lib/python3.11/asyncio/base_events.py", line 653, in run_until_complete
+2026-08-24 13:03:29: 
+2026-08-24 13:03:29: [downloader stderr]     return future.result()
+2026-08-24 13:03:29: 
+2026-08-24 13:03:29: [downloader stderr]            ^^^^^^^^^^^^^^^
+2026-08-24 13:03:29:   File "/home/nisch/Desktop/MediaGrabber/downloader.py", line 266, in main
+2026-08-24 13:03:29: 
+2026-08-24 13:03:29: [downloader stderr]     await client.disconnect()
+2026-08-24 13:03:29:   File "/home/nisch/Desktop/MediaGrabber/.venv/lib/python3.11/site-packages/telethon/client/telegrambaseclient.py", line 735, in _disconnect_coro
+2026-08-24 13:03:29: 
+2026-08-24 13:03:29: [downloader stderr]     self._save_states_and_entities()
+2026-08-24 13:03:29: 
+2026-08-24 13:03:29: [downloader stderr]   File "/home/nisch/Desktop/MediaGrabber/.venv/lib/python3.11/site-packages/telethon/client/telegrambaseclient.py", line 700, in _save_states_and_entities
+2026-08-24 13:03:29:     self.session.set_update_state(0, types.updates.State(**ss, unread_count=0))
+2026-08-24 13:03:29: 
+2026-08-24 13:03:29: [downloader stderr]   File "/home/nisch/Desktop/MediaGrabber/.venv/lib/python3.11/site-packages/telethon/sessions/sqlite.py", line 214, in set_update_state
+2026-08-24 13:03:29: 
+2026-08-24 13:03:29: [downloader stderr]     self._execute('insert or replace into update_state values (?,?,?,?,?)',
+2026-08-24 13:03:29:   File "/home/nisch/Desktop/MediaGrabber/.venv/lib/python3.11/site-packages/telethon/sessions/sqlite.py", line 253, in _execute
+2026-08-24 13:03:29: 
+2026-08-24 13:03:29: [downloader stderr]     return c.execute(stmt, values).fetchone()
+2026-08-24 13:03:29:            ^^^^^^^^^^^^^^^^^^^^^^^
+2026-08-24 13:03:29: sqlite3.OperationalError: database is locked
+2026-08-24 13:03:29: 
+2026-08-25 20:04:00: (node:2489) [DEP0060] DeprecationWarning: The `util._extend` API is deprecated. Please use Object.assign() instead.
+2026-08-25 20:04:00: (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-08-25 20:04:00: (node:2489) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-08-28 12:04:39: (node:2405) [DEP0060] DeprecationWarning: The `util._extend` API is deprecated. Please use Object.assign() instead.
+2026-08-28 12:04:39: (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-08-28 12:04:39: (node:2405) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-09-04 15:26:16: (node:3359) [DEP0060] DeprecationWarning: The `util._extend` API is deprecated. Please use Object.assign() instead.
+2026-09-04 15:26:16: (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-09-04 15:26:16: (node:3359) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-09-05 10:52:15: (node:2571) [DEP0060] DeprecationWarning: The `util._extend` API is deprecated. Please use Object.assign() instead.
+2026-09-05 10:52:15: (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-09-05 10:52:15: (node:2571) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-09-07 21:17:14: (node:2904) [DEP0060] DeprecationWarning: The `util._extend` API is deprecated. Please use Object.assign() instead.
+2026-09-07 21:17:14: (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-09-07 21:17:14: (node:2904) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-09-08 09:36:16: (node:2555) [DEP0060] DeprecationWarning: The `util._extend` API is deprecated. Please use Object.assign() instead.
+2026-09-08 09:36:16: (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-09-08 09:36:16: (node:2555) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-09-11 01:53:18: (node:2626) [DEP0060] DeprecationWarning: The `util._extend` API is deprecated. Please use Object.assign() instead.
+2026-09-11 01:53:18: (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-09-11 01:53:18: (node:2626) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-09-11 03:49:57: (node:4667) [DEP0060] DeprecationWarning: The `util._extend` API is deprecated. Please use Object.assign() instead.
+2026-09-11 03:49:57: (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-09-11 03:49:57: (node:4667) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-09-11 03:57:19: (node:2527) [DEP0060] DeprecationWarning: The `util._extend` API is deprecated. Please use Object.assign() instead.
+2026-09-11 03:57:19: (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-09-11 03:57:19: (node:2527) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-09-11 21:45:43: (node:2640) [DEP0060] DeprecationWarning: The `util._extend` API is deprecated. Please use Object.assign() instead.
+2026-09-11 21:45:43: (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-09-11 21:45:43: (node:2640) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-09-11 21:47:49: (node:2119) [DEP0060] DeprecationWarning: The `util._extend` API is deprecated. Please use Object.assign() instead.
+2026-09-11 21:47:49: (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-09-11 21:47:49: (node:2119) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-09-11 21:54:51: (node:3269) [DEP0060] DeprecationWarning: The `util._extend` API is deprecated. Please use Object.assign() instead.
+2026-09-11 21:54:51: (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-09-11 21:54:51: (node:3269) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-09-11 21:57:51: (node:2288) [DEP0060] DeprecationWarning: The `util._extend` API is deprecated. Please use Object.assign() instead.
+2026-09-11 21:57:51: (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-09-11 21:57:51: (node:2288) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-09-12 22:59:13: (node:3214) [DEP0060] DeprecationWarning: The `util._extend` API is deprecated. Please use Object.assign() instead.
+2026-09-12 22:59:13: (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-09-12 22:59:13: (node:3214) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-09-18 13:04:18: (node:1437) [DEP0060] DeprecationWarning: The `util._extend` API is deprecated. Please use Object.assign() instead.
+2026-09-18 13:04:18: (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-09-18 13:04:18: (node:1437) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-09-18 13:04:31: FetchError: request to https://api.telegram.org/bot7873936965:[REDACTED]/getMe failed, reason: getaddrinfo EAI_AGAIN api.telegram.org
+2026-09-18 13:04:31:     at ClientRequest.<anonymous> (/home/nisch/Desktop/MediaGrabber/node_modules/node-fetch/lib/index.js:1501:11)
+2026-09-18 13:04:31:     at ClientRequest.emit (node:events:513:28)
+2026-09-18 13:04:31:     at emitErrorEvent (node:_http_client:104:11)
+2026-09-18 13:04:31:     at TLSSocket.socketErrorListener (node:_http_client:512:5)
+2026-09-18 13:04:31:     at TLSSocket.emit (node:events:513:28)
+2026-09-18 13:04:31:     at emitErrorNT (node:internal/streams/destroy:170:8)
+2026-09-18 13:04:31:     at emitErrorCloseNT (node:internal/streams/destroy:129:3)
+2026-09-18 13:04:31:     at process.processTicksAndRejections (node:internal/process/task_queues:90:21) {
+2026-09-18 13:04:31:   type: 'system',
+2026-09-18 13:04:31:   errno: 'EAI_AGAIN',
+2026-09-18 13:04:31:   code: 'EAI_AGAIN'
+2026-09-18 13:04:31: }
+2026-09-18 15:33:50: Error: Bot is not running!
+2026-09-18 15:33:50:     at Telegraf.stop (/home/nisch/Desktop/MediaGrabber/node_modules/telegraf/lib/telegraf.js:218:19)
+2026-09-18 15:33:50:     at process.<anonymous> (/home/nisch/Desktop/MediaGrabber/server.js:811:34)
+2026-09-18 15:33:50:     at Object.onceWrapper (node:events:628:26)
+2026-09-18 15:33:50:     at process.emit (node:events:513:28)
+2026-09-18 15:34:26: (node:2245) [DEP0060] DeprecationWarning: The `util._extend` API is deprecated. Please use Object.assign() instead.
+2026-09-18 15:34:26: (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-09-18 15:34:26: (node:2245) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-09-20 02:54:45: (node:2218) [DEP0060] DeprecationWarning: The `util._extend` API is deprecated. Please use Object.assign() instead.
+2026-09-20 02:54:45: (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-09-20 02:54:45: (node:2218) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-09-20 02:55:47: (node:2237) [DEP0060] DeprecationWarning: The `util._extend` API is deprecated. Please use Object.assign() instead.
+2026-09-20 02:55:47: (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-09-20 02:55:47: (node:2237) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-09-20 08:21:02: (node:2222) [DEP0060] DeprecationWarning: The `util._extend` API is deprecated. Please use Object.assign() instead.
+2026-09-20 08:21:02: (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-09-20 08:21:02: (node:2222) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-10-05 12:03:49: (node:2219) [DEP0060] DeprecationWarning: The `util._extend` API is deprecated. Please use Object.assign() instead.
+2026-10-05 12:03:49: (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-10-05 12:03:49: (node:2219) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
