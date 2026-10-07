@@ -70,10 +70,6 @@ class JSONStore:
             mutator(self.data)
             atomic_write(self.path, self.data)
 
-    async def write(self) -> None:
-        async with self._lock:
-            atomic_write(self.path, self.data)
-
 
 class RunStats:
     """Tracks run-time counters with async safety."""
@@ -96,7 +92,7 @@ class RunStats:
         return dict(self._data)
 
 
-BASE_DIR = Path(__file__).resolve().parent
+BASE_DIR = Path(__file__).resolve().parents[1]
 CONFIG_PATH = BASE_DIR / "config.json"
 RESULTS_PATH = BASE_DIR / "results.json"
 PROGRESS_PATH = BASE_DIR / "progress.json"
@@ -504,7 +500,7 @@ async def categorize_image(
             raise
         except GeminiUnavailable:
             raise
-    except (RESOURCE_EXHAUSTED_ERROR, TOO_MANY_REQUESTS_ERROR) as limits:
+        except (RESOURCE_EXHAUSTED_ERROR, TOO_MANY_REQUESTS_ERROR) as limits:
             if attempt >= max_retries:
                 raise GeminiQuotaExceeded(str(limits))
             logger.warning("Gemini rate limited (%s); retrying in %ss", limits, backoff)

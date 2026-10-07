@@ -1,478 +1,145 @@
-# MediaGrabber - Telegram Media Sync System
+# MediaGrabber
 
-**A secure, production-grade Telegram media synchronization and downloader** with three modes:
+MediaGrabber downloads Telegram posts on demand through a bot or an HMAC-authenticated HTTP API. A separate scheduled Python job copies channel media to another Telegram channel and can upload audio to the BNS website.
 
-1. **On-Demand Downloads** - POST `/api/download` with HMAC-signed requests to download any Telegram post
-2. **Scheduled Daily Sync** - Automatically monitors a source channel and uploads new media to target channel (runs daily at 12 PM via PM2)
-3. **Bot Commands** - Telegraf bot interface for interactive use
+## Project layout
 
-**Features:**
-
-- ✅ Downloads media from public channels (t.me/username/post) and private channels (t.me/c/id/post)
-- ✅ Streams progress to Telegram chat
-- ✅ Auto-restarts if server crashes (via PM2)
-- ✅ Rate-limited API with HMAC-SHA256 authentication
-- ✅ Public original-quality download links for oversized files via Nginx
-- ✅ Stateful daily sync (tracks processed messages)
-- ✅ Absolute path support for cross-machine deployment
-
-**Designed for:**
-
-- Linux/Mac servers and Raspberry Pi
-- 24/7 operation with PM2 process manager
-- Nginx reverse proxy (sample config included)
-
-## Architecture
-
-```
-Telegram (Public & Private Channels)
-    ↓
-    ├─→ [On-Demand API] server.js + downloader.py
-    │   POST /api/download with HMAC signature
-    │   Downloads immediately, uploads to chat
-    │
-    └─→ [Daily Scheduler] daily_bns_sync.py via PM2
-        Runs at 12 PM daily
-        Monitors source channel, syncs new media
-        Maintains .state/bns_state.json
+```text
+server.js                      Node startup and service wiring
+src/
+  api.js                       HTTP routes, HMAC authentication, rate limiting
+  bot.js                       Bot commands and invite conversation
+  download-flow.js              Worker lifecycle and progress/delivery orchestration
+  downloader-events.js         Ordered JSON-lines events from Python
+  media-delivery.js             Telegram uploads and original download links
+  media-compression.js          FFmpeg/FFprobe conversion
+  shared-downloads.js           Publishing originals and retention cleanup
+  progress.js                  Progress display formatting
+  telegram-links.js            Post/invite link validation
+downloader.py                  On-demand Python worker and login CLI
+download_session.py            Read-only saved login → per-worker memory session
+parallel_download.py           Bounded parallel document transfers
+daily_bns_sync.py               Scheduled Telegram/BNS sync entry point
+tools/                         Optional image tools and one-time migration
+test/                          Node and Python regression tests
+docs/                          Architecture review and deployment/operator guides
 ```
 
-**Three Components:**
+`server.js`, `downloader.py`, and `daily_bns_sync.py` remain at the root so existing PM2 entry points still work. The Node app resolves its `.env`, worker, and default download directories relative to the project root. Run Python commands from this directory; their relative session/state paths use the working directory.
 
-| Component             | Type    | Purpose                    | Runs                             |
-| --------------------- | ------- | -------------------------- | -------------------------------- |
-| **server.js**         | Node.js | Express API + Telegraf bot | 24/7 (PM2 managed)               |
-| **downloader.py**     | Python  | Media download worker      | On-demand (spawned by server.js) |
-| **daily_bns_sync.py** | Python  | Daily sync monitor         | Daily at 12 PM (PM2 cron)        |
+Local `.env`, `.state/`, `logs/`, `downloads/`, `shared-downloads/`, and `*.session*` files are runtime data and are ignored by Git. Back up session and state files separately; sync checkpoints must survive deployment.
 
-**Tech Stack:**
+Before applying this cleanup to another checkout, back up its session files and `.state/` outside the repository. Git can remove the formerly tracked copies when updating that checkout; restore them before restarting services. This cleanup kept all local runtime files intact.
 
-- **Telegraf** - Telegram Bot API wrapper (Node.js)
-- **Telethon** - Telegram user account client (Python 3)
-- **Express.js** - HTTP API server
-- **PM2** - Process manager + scheduler
-- **dotenv** - Environment variable loader
-- **HMAC-SHA256** - API request authentication
+## Setup
 
-## Requirements
-
-**System:**
-
-- Linux/Mac (or Raspberry Pi) or Windows with WSL2
-- Node.js 18+ (`node --version`)
-- Python 3.10+ (`python3 --version`)
-
-**Credentials (from Telegram):**
-
-1. **Bot Token** - Create bot via [@BotFather](https://t.me/botfather) → Get token
-2. **User API Credentials** - Register app at [my.telegram.org](https://my.telegram.org) → Get API ID & Hash
-
-**Optional:**
-
-- Nginx (for HTTPS reverse proxy)
-- Google Gemini API key (if using `telegram_scraper.py`)
-- PM2 globally installed (`npm install -g pm2`) - for persistent management
-
-## Setup (Linux/Mac)
-
-### 1. Clone/Extract and Install Dependencies
+Requires Node.js 18+ and Python 3.10+. Install FFmpeg and FFprobe for audio conversion or optional compressed copies; BNS website uploads also require Chrome/Chromium and a compatible driver.
 
 ```bash
-cd MediaGrabber
-
-# Install Node dependencies
-npm install
-
-# Create Python virtual environment
+npm ci
 python3 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
-```
-
-### 2. Configure Environment
-
-```bash
 cp .env.example .env
 ```
 
-Edit `.env`:
+Fill in the bot token, Telegram API ID/hash, and a long random `SHARED_SECRET`. The template uses `.venv/bin/python` for workers. Configure `PUBLIC_DOWNLOAD_BASE_URL` and Nginx if oversized originals should be shared; see [public downloads](docs/public-downloads.md).
 
-```ini
-# Express server
-PORT=4000
-BIND_HOST=127.0.0.1
-SHARED_SECRET=your-random-secret-here-64-chars-min
-
-# Telegram Bot (from @BotFather)
-BOT_TOKEN=123456789:ABCDEFghijklmnopqrstuvwxyz
-
-# Telegram User API (from my.telegram.org)
-TELEGRAM_API_ID=27434653
-TELEGRAM_API_HASH=41a4175c8c019f5b61b6484af9d02c64
-
-# Python binary path
-PYTHON_BIN=python
-```
-
-### 3. First Run - Telethon Login
-
-**Important:** Telethon requires user account login to create a session. This is one-time setup.
+Create the saved user login once, separately from active downloads:
 
 ```bash
-# Activate venv
-source .venv/bin/activate
-
-# Run downloader with --preflight (triggers login)
-export $(grep -v '^#' .env | xargs)
-python downloader.py --link https://t.me/example/123 --preflight
+.venv/bin/python downloader.py --login
 ```
 
-You'll be prompted:
+The worker loads the project `.env` itself. Enter your phone number, Telegram code, and 2FA password if requested. This creates `media_grabber_session.session`, or the path named by `TELEGRAM_SESSION`. Workers read that login into independent in-memory sessions; they do not write to its SQLite database.
 
-1. Enter your phone number
-2. Enter the verification code sent to Telegram
-3. Enter 2FA password (if enabled)
-
-This creates `media_grabber_session.session` - **keep this file safe!**
-
-### 4. Start Server
-
-**Option A: Manual (development)**
+Start the bot and HTTP server:
 
 ```bash
 npm start
 ```
 
-**Option B: PM2 (production, recommended)**
-
-First install PM2:
+For PM2, use your existing local config or create one from the template:
 
 ```bash
-npm install -g pm2
-```
-
-Start with ecosystem config:
-
-```bash
+cp ecosystem.config.example.cjs ecosystem.config.cjs
+# Review the schedule, timezone, channel IDs, and Python path first.
 pm2 start ecosystem.config.cjs
-pm2 save  # persist on reboot
+pm2 save
 ```
 
-View logs:
+The example schedules daily sync at 17:00 in the deployment host's timezone. PM2 starts the job immediately when first starting the config as well. Existing installations may use a different schedule or separate audio-sync process. The `.env` template disables website uploads until configured.
 
-```bash
-pm2 logs
-pm2 logs satsangfetcher
-pm2 logs bns_daily
+## On-demand downloads
+
+Send a Telegram post URL to the bot, such as `https://t.me/channel/123` or `https://t.me/c/123456/789`. If channel access is missing, the bot asks for an invite. `/stop` and `/cancel` cancel the invite conversation; they do not cancel a running transfer.
+
+HTTP clients call `POST /api/download` with JSON:
+
+```json
+{
+  "link": "https://t.me/channel/123",
+  "chat_id": 123456789,
+  "caption": "Downloaded media",
+  "forceVideo": false
+}
 ```
 
-## Setup (Windows)
-
-**Warning:** Paths are different. In `ecosystem.config.cjs`, change:
+Set `x-signature` to the hex HMAC-SHA256 of `JSON.stringify(body)`, using `SHARED_SECRET`:
 
 ```javascript
-PYTHON_BIN: "./.venv/Scripts/python.exe",  // Windows path
-// Also update cwd and TELEGRAM_SESSION paths
-```
-
-Or use **WSL2 (recommended)** - then follow Linux setup.
-
-## Usage
-
-### Mode 1: On-Demand Download via API
-
-```bash
-curl -X POST http://127.0.0.1:4000/api/download \
-  -H "Content-Type: application/json" \
-  -H "x-signature: <HMAC-SHA256>" \
-  -d '{
-    "link": "https://t.me/c/1773081661/4385",
-    "chat_id": 123456789,
-    "caption": "Downloaded media",
-    "forceVideo": false
-  }'
-```
-
-**Compute HMAC (Node.js):**
-
-```javascript
-const crypto = require("crypto");
-const body = { link, chat_id, caption };
-const sig = crypto
-  .createHmac("sha256", process.env.SHARED_SECRET)
+const signature = require('node:crypto')
+  .createHmac('sha256', process.env.SHARED_SECRET)
   .update(JSON.stringify(body))
-  .digest("hex");
+  .digest('hex');
 ```
 
-### Mode 2: Daily Scheduled Sync
+The server signs the parsed/re-serialized JSON object, not the raw HTTP bytes. `{ "ok": true }` means the background download was started; completion or failure is delivered in Telegram. `GET /healthz` checks HTTP availability only.
 
-**Automatic via PM2:**
+Manual preflight or download:
 
 ```bash
-pm2 start ecosystem.config.cjs
-# daily_bns_sync.py runs automatically at 12:00 (12 PM) daily
+.venv/bin/python downloader.py --link https://t.me/channel/123 --preflight
+.venv/bin/python downloader.py --link https://t.me/channel/123
 ```
 
-**Manual trigger:**
+Files under the configured bot upload limit are sent to Telegram. Oversized originals are published unchanged with an expiring link; compressed copies are optional. Failed delivery retains the working original, but automatic delivery retries are not implemented.
+
+### Download performance
+
+Install `requirements.txt` in the environment used by `PYTHON_BIN`, then restart MediaGrabber. `cryptg` enables native Telegram decryption automatically. The bot checks access and downloads using one worker connection per request; cached/public channel lookups skip the full dialog list.
+
+Documents of at least 8 MiB use four concurrent download streams. Set `DOWNLOAD_WORKERS=1` to use standard downloads, or choose 2–8 streams. Photos and smaller documents use standard downloads. Parallel failures retry with Telethon's standard downloader, and cancelled/failed downloads remove partial files. Progress updates are limited to every two seconds, with queued updates coalesced so delivery does not wait for a backlog of message edits.
+
+The tests use simulated transfers; measure a real file on the deployment host to determine the speed improvement under its Telegram and network limits.
+
+## Scheduled sync
 
 ```bash
-source .venv/bin/activate
-export $(grep -v '^#' .env | xargs)
-python daily_bns_sync.py [--source 123 --target 456 --seed]
+.venv/bin/python daily_bns_sync.py --help
+.venv/bin/python daily_bns_sync.py --source 123456 --target 789012
 ```
 
-**Arguments:**
+The daily script loads `.env` itself. With no checkpoint, its first run records the latest post and exits. `--seed` processes the recent window instead. Audio sync, per-run state/session files, website credentials, replay instructions, and known flags are covered in the [operator guide](docs/bns-daily-sync-operator-guide.md).
 
-- `--source` - Source channel ID (default: 1773081661)
-- `--target` - Target channel ID (default: 3130614830)
-- `--outdir` - Download directory (default: downloads/Brahma\ naa\ sange/)
-- `--seed` - Force process recent messages on first run (else just seeds state)
+Current limitations: sync scans only the latest 200 messages; failures can be skipped if a later message advances the checkpoint; website and Telegram delivery are not tracked independently. See the [architecture review](docs/architecture.md) before relying on unattended catch-up or replay.
 
-**State tracking:**
+## Optional tools
 
-```
-.state/
-└── bns_state.json  # Stores last_processed_id to avoid re-downloading
-```
+The standalone scripts formerly at the root now live under `tools/`. Run them from the project root; update any external manual commands accordingly. They are not launched by the core server or the checked local PM2 config. The sample `images/` directory is used by `tools/ai.py` and has been retained.
 
-### Mode 3: Manual Download Scripts
+See [tools setup and usage](tools/README.md). The duplicate interactive `grabber.py` has been removed; use `downloader.py --link ...` instead. The empty `box.js` was also removed.
 
-**One-off download:**
+## Verification and operations
 
 ```bash
-source .venv/bin/activate
-export $(grep -v '^#' .env | xargs)
-python downloader.py --link https://t.me/c/123/456 --preflight
+npm test
+.venv/bin/python -m unittest discover -s test -p 'test_*.py'
 ```
 
-**Advanced scraping with AI categorization:**
+Node tests cover worker events, download orchestration, API routing/authentication, original delivery/retention, and real FFmpeg geometry/audio conversion. Encoding tests skip if FFmpeg/FFprobe are unavailable. Python tests cover saved sessions, concurrent transfers, cancellation, and fallback behavior. Tests do not contact Telegram or the BNS website.
 
-```bash
-python telegram_scraper.py config.json
-# Requires Gemini API key + APScheduler
-```
-
-## PM2 - Process Management
-
-The `ecosystem.config.cjs` configures two processes:
-
-### Process 1: `satsangfetcher` (server.js)
-
-```javascript
-{
-  name: "satsangfetcher",
-  script: "server.js",
-  instances: 1,
-  autorestart: true,        // Auto-restart on crash
-  watch: false,
-  cron_restart: false,
-  env: {
-    NODE_ENV: "production",
-    PYTHON_BIN: "./.venv/bin/python",
-    BOT_TOKEN: "...",
-    SHARED_SECRET: "...",
-    PORT: "4000"
-  }
-}
-```
-
-**Commands:**
-
-```bash
-pm2 start ecosystem.config.cjs --only satsangfetcher
-pm2 restart satsangfetcher
-pm2 stop satsangfetcher
-pm2 logs satsangfetcher
-pm2 monit  # real-time stats
-```
-
-### Process 2: `bns_daily` (daily_bns_sync.py)
-
-```javascript
-{
-  name: "bns_daily",
-  script: "./daily_bns_sync.py",
-  instances: 1,
-  autorestart: false,         // Don't auto-restart on crash
-  cron_restart: "0 17 * * *", // Run at 5 PM daily
-  env: {
-    TELEGRAM_API_ID: "...",
-    TELEGRAM_API_HASH: "...",
-  }
-}
-```
-
-**Why separate processes?**
-
-- Server runs 24/7
-- Daily script runs on schedule
-- Independent logging
-- Can restart one without affecting the other
-
-**View state:**
-
-```bash
-pm2 list
-pm2 info bns_daily
-```
-
-## Security & Nginx
-
-**Why Nginx?**
-
-- Terminates HTTPS/SSL
-- Hides internal IP (127.0.0.1)
-- Acts as reverse proxy to localhost:4000
-- Can limit request sizes & rates at network level
-
-**Sample config (nginx.conf.sample):**
-See the included `nginx.conf.sample` for HTTPS + rate limiting setup.
-
-## Session Management
-
-**Session file:** `media_grabber_session.session`
-
-- Created after first Telethon login
-- Contains authenticated session data
-- **DO NOT commit to git** (already in .gitignore)
-- **Must exist on each machine** - run `--preflight` once per host
-
-**If changing API credentials:**
-
-```bash
-rm media_grabber_session.session
-python downloader.py --link https://t.me/example/123 --preflight
-# Re-authenticate
-```
-
-## Troubleshooting
-
-| Error                                 | Solution                                          |
-| ------------------------------------- | ------------------------------------------------- |
-| `TELEGRAM_API_ID/HASH required`       | Add to `.env` or set via `export`                 |
-| `Could not find the input entity`     | User account must join source channel first       |
-| `No new messages to process`          | State already up-to-date or no new posts          |
-| `Permission denied sending to target` | Verify bot is admin in target channel             |
-| `Large files timeout`                 | Increase timeout in `daily_bns_sync.py`           |
-| Server crashes                        | Check `pm2 logs` - verify credentials/permissions |
-
-## What We Fixed ✅
-
-**Problem:** Daily downloader (`daily_bns_sync.py`) failed with:
-
-```
-TELEGRAM_API_ID and TELEGRAM_API_HASH environment variables are required
-```
-
-**Root Cause:** Script didn't load `.env` file (unlike Node.js bot which uses `dotenv`).
-
-**Solution:** Added dotenv loading:
-
-```python
-try:
-    from dotenv import load_dotenv
-    load_dotenv()
-except ImportError:
-    pass
-```
-
-**Result:** Daily sync now works automatically! 🎉
-
-## File Structure
-
-```
-MediaGrabber/
-├── server.js                    # Express + Telegraf bot (runs 24/7)
-├── downloader.py               # Single-use downloader worker
-├── daily_bns_sync.py            # Daily sync monitor (runs at 5 PM)
-├── ecosystem.config.cjs         # PM2 configuration
-├── package.json                 # Node dependencies
-├── requirements.txt             # Python dependencies
-├── .env                         # Your credentials (don't commit!)
-├── .env.example                 # Template for .env
-├── nginx.conf.sample            # Nginx reverse proxy config
-├── media_grabber_session.session # Telethon auth session (created on first run)
-│
-├── Optional utilities:
-│   ├── telegram_scraper.py      # Advanced scraper with Gemini AI
-│   ├── genai.py                 # Gemini API test
-│   ├── grabber.py               # Alternative downloader
-│   └── box.js                   # Utility script
-│
-└── Generated on first run:
-    ├── .state/bns_state.json    # Daily sync state tracker
-    ├── logs/                    # PM2 logs
-    ├── downloads/               # Downloaded media (temp storage)
-    └── .venv/                   # Python virtual environment
-```
-
-## FAQ
-
-**Q: Can I run this without PM2?**
-A: Yes. For on-demand only:
-
-```bash
-npm start
-```
-
-Then manually schedule `daily_bns_sync.py` with `cron`, systemd timer, or Task Scheduler.
-
-**Q: Does this work on Raspberry Pi?**
-A: Yes! Perfect for it. Tested on RPi 4 with 4GB RAM running 24/7.
-
-**Q: What if I want different channels?**
-A: For daily sync:
-
-```bash
-python daily_bns_sync.py --source 123456 --target 789012
-```
-
-Or edit `daily_bns_sync.py` constants.
-
-**Q: Is this production-ready?**
-A: Yes, but:
-
-- Use strong `SHARED_SECRET` (64+ characters)
-- Keep `.env` and session file secure
-- Monitor logs with `pm2 logs`
-- Use HTTPS via Nginx for public APIs
-- Test with `--preflight` after setup
-
-**Q: Maximum file size?**
-A: Telegram API limit ~2GB. Timeout after 20+ minutes of no progress.
-
-**Q: Can I track the sync history?**
-A: Yes, check `.state/bns_state.json` and `pm2 logs bns_daily`.
-
-## Known Limitations
-
-- **Paths:** `ecosystem.config.cjs` has hardcoded absolute paths - adjust for your system
-- **Windows:** Requires WSL2 or manual path adjustments
-- **Session:** Tied to Telegram account + API credentials - must re-auth if either changes
-- **File cleanup:** Downloaded files deleted after upload - no permanent archive (use target channel for that)
-
----
-
-## License
-
-[Add license here]
-
-## Support
-
-For issues:
-
-1. Check logs: `pm2 logs`
-2. Verify credentials in `.env`
-3. Ensure bot is admin in target channel
-4. Ensure user account joined source channel
-5. Try manual run with `--seed` to force processing
-
----
-
-**Last Updated:** January 21, 2026  
-**Status:** ✅ Daily Sync Working  
-**Maintained by:** You!
-
-## Oversized original downloads
-
-See [public download setup](docs/public-downloads.md) for production environment values, Nginx configuration, retention, and optional improved compression.
+- [Architecture and prioritized follow-ups](docs/architecture.md)
+- [BNS daily sync operator guide](docs/bns-daily-sync-operator-guide.md)
+- [Public download deployment](docs/public-downloads.md)
+- [Domain migration](docs/domain-migration.md)

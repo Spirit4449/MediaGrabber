@@ -1,0 +1,7 @@
+-r ../requirements.txt
+
+# Optional image tools only; these are not needed by the bot or daily sync.
+APScheduler>=3,<4
+google-generativeai
+google-genai
+Pillow

@@ -12,3 +12,17 @@ login.txt
 env
 ecosystem.config.cjs
 shared-downloads/
+
+# Local credentials, Telegram logins, and generated runtime data
+.env.*
+!.env.example
+*.session
+*.session-*
+.state/
+logs/
+data/
+config.json
+results.json
+progress.json
+pending_images.json
+.DS_Store

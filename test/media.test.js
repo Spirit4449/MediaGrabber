@@ -3,9 +3,9 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs/promises');
 const path = require('node:path');
 const os = require('node:os');
-const vm = require('node:vm');
-const { createSharedDownloads } = require('../shared-downloads');
-const { createCompressor, geometry, run } = require('../media-compression');
+const { createMediaDelivery } = require('../src/media-delivery');
+const { createSharedDownloads } = require('../src/shared-downloads');
+const { createCompressor, geometry, run } = require('../src/media-compression');
 
 async function fixture(t) {
   const root = await fs.mkdtemp(path.join(os.tmpdir(), 'media-test-'));
@@ -41,20 +41,15 @@ test('missing public URL does not discard the original', async t => {
 test('oversized delivery sends only the original link and preserves source on message failure', async t => {
   const root = await fixture(t), source = path.join(root, 'video.mp4');
   const store = createSharedDownloads({ directory: path.join(root, 'public'), baseUrl: 'https://bns.classchats.net/downloads/' });
-  const code = await fs.readFile(path.join(__dirname, '../server.js'), 'utf8');
-  const start = code.indexOf('async function safeUploadAndDelete(');
-  const end = code.indexOf('function progressBar', start);
-  const context = vm.createContext({ fs: require('node:fs'), path, console, MAX_BOT_UPLOAD_MB: 0.000001, SEND_COMPRESSED_COPY: false,
-    VIDEO_EXTS: new Set(['.mp4']), AUDIO_EXTS: new Set(), PHOTO_EXTS: new Set(), sharedDownloads: store,
+  const deliver = createMediaDelivery({ maxUploadMb: 0.000001, sharedDownloads: store,
     compressor: { compress() { throw new Error('Should not compress'); } } });
-  vm.runInContext(code.slice(start, end), context);
   await fs.writeFile(source, 'original bytes');
   let message;
-  await context.safeUploadAndDelete({ sendMessage: async (...args) => { message = args; } }, 1, source);
+  await deliver({ sendMessage: async (...args) => { message = args; } }, 1, source);
   assert.match(message[2].reply_markup.inline_keyboard[0][0].url, /^https:/);
   await assert.rejects(fs.stat(source), { code: 'ENOENT' });
   await fs.writeFile(source, 'retry original');
-  await assert.rejects(context.safeUploadAndDelete({ sendMessage: async () => { throw new Error('Telegram down'); } }, 1, source), /Telegram down/);
+  await assert.rejects(deliver({ sendMessage: async () => { throw new Error('Telegram down'); } }, 1, source), /Telegram down/);
   assert.equal(await fs.readFile(source, 'utf8'), 'retry original');
 });
 test('real encoding preserves landscape, portrait, anamorphic and rotated display ratios', async t => {

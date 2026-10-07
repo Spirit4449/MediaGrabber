@@ -1,6 +1,12 @@
 # downloader.py
-import asyncio, os, re, json, argparse, contextlib
+import asyncio, os, re, json, argparse, contextlib, time
+from pathlib import Path
+from dotenv import load_dotenv
+from parallel_download import download_document
 from telethon import TelegramClient, types, functions, utils  # <-- utils helps with extensions
+from download_session import load_download_session
+
+load_dotenv(Path(__file__).resolve().with_name(".env"))
 
 API_ID = int(os.environ.get("TELEGRAM_API_ID", "0"))
 API_HASH = os.environ.get("TELEGRAM_API_HASH", "")
@@ -8,8 +14,7 @@ API_HASH = os.environ.get("TELEGRAM_API_HASH", "")
 if not API_ID or not API_HASH:
     raise SystemExit("TELEGRAM_API_ID / TELEGRAM_API_HASH env vars are required")
 
-client = TelegramClient('media_grabber_session', API_ID, API_HASH,
-                        timeout=60, request_retries=5, connection_retries=5)
+client = None
 
 def emit(event_type, **data):
     print(json.dumps({"type": event_type, **data}, ensure_ascii=False), flush=True)
@@ -36,19 +41,14 @@ async def ensure_joined_with_invite(invite: str):
     return await client(functions.messages.ImportChatInviteRequest(hash=inv_hash))
 
 async def resolve_entity(kind, ref):
-    await client.get_dialogs(limit=None)
     try:
         return await client.get_input_entity(ref)
-    except Exception:
-        if kind == "peer_id" and isinstance(ref, int):
-            return await client.get_input_entity(types.PeerChannel(abs(ref)))
+    except ValueError:
+        # Private channel access hashes may need a one-time session cache refresh.
+        if kind == "peer_id":
+            await client.get_dialogs(limit=None)
+            return await client.get_input_entity(ref)
         raise
-
-def human(n):
-    for unit in ["B","KB","MB","GB","TB"]:
-        if n < 1024: return f"{n:.2f} {unit}"
-        n /= 1024
-    return f"{n:.2f} PB"
 
 def compute_stall_timeout(expected_bytes: int | None):
     if not expected_bytes: return 90
@@ -123,7 +123,7 @@ def _derive_target_path(msg, folder: str) -> str:
 
     if orig:
         base = _sanitize_filename(orig)
-        root, ext = os.path.splitext(base)
+        _, ext = os.path.splitext(base)
         if not ext:
             base = base + _ext_from_media(msg)
     else:
@@ -147,23 +147,38 @@ def _derive_target_path(msg, folder: str) -> str:
 
 # ---------- download & watchdog ----------
 async def download_with_progress(msg, folder, progress_event):
-    last = 0
+    last_update = 0
     total = getattr(getattr(msg, "document", None), "size", None) or 0
     target_path = _derive_target_path(msg, folder)
 
     def cb(downloaded, _total):
-        nonlocal last
+        nonlocal last_update
         progress_event.set()
-        if downloaded - last >= 512 * 1024 or downloaded == _total:
-            last = downloaded
+        now = time.monotonic()
+        if now - last_update >= 2 or downloaded == _total:
+            last_update = now
             pct = (downloaded / _total * 100) if _total else None
             emit("progress",
                  downloaded=downloaded, total=_total,
                  pct=(round(pct, 1) if pct is not None else None))
 
-    # Pass a FULL file path with extension so Telethon won't create document.dat
-    path = await msg.download_media(file=target_path, progress_callback=cb)
-    return path
+    workers = int(os.environ.get("DOWNLOAD_WORKERS", "4"))
+    if not 1 <= workers <= 8:
+        raise ValueError("DOWNLOAD_WORKERS must be between 1 and 8")
+    try:
+        if workers > 1 and total >= 8 * 1024 * 1024 and msg.document:
+            try:
+                return await download_document(client, msg.media, target_path, total, workers, cb)
+            except Exception as error:
+                # Retry through Telethon's standard path for reference refresh and
+                # other cases unsupported by the offset-based download.
+                emit("status", text=f"Parallel download unavailable ({type(error).__name__}); retrying sequentially")
+                last_update = 0
+        return await msg.download_media(file=target_path, progress_callback=cb)
+    except BaseException:
+        with contextlib.suppress(OSError):
+            os.remove(target_path)
+        raise
 
 async def watchdog(task, progress_event, stall):
     try:
@@ -180,12 +195,22 @@ async def watchdog(task, progress_event, stall):
 
 # ---------- main ----------
 async def main():
+    global client
     ap = argparse.ArgumentParser()
-    ap.add_argument("--link", required=True)
+    ap.add_argument("--link")
+    ap.add_argument("--login", action="store_true", help="Create or refresh the saved Telegram login separately from downloads")
     ap.add_argument("--outdir", default=os.path.join(os.getcwd(), "downloads"))
     ap.add_argument("--invite", help="Optional invite link/hash to join before downloading")
     ap.add_argument("--preflight", action="store_true", help="Only check access and metadata; do not download")
     args = ap.parse_args()
+
+    if not args.login and not args.link:
+        ap.error("--link is required unless --login is used")
+    session_path = os.environ.get("TELEGRAM_SESSION", "media_grabber_session")
+    if args.login:
+        async with TelegramClient(session_path, API_ID, API_HASH):
+            emit("status", text="Telegram login saved")
+        return
 
     try:
         kind, ref, msg_id, is_private = parse_link(args.link)
@@ -194,7 +219,12 @@ async def main():
         return
 
     try:
-        await client.start()
+        client = TelegramClient(load_download_session(session_path), API_ID, API_HASH,
+                                timeout=60, request_retries=5, connection_retries=5)
+        await client.connect()
+        if not await client.is_user_authorized():
+            emit("error", code="login_required", text="Telegram login expired; run downloader.py --login first")
+            return
         emit("status", text="Logged in")
 
         need_invite = False
@@ -263,7 +293,8 @@ async def main():
     except Exception as e:
         emit("error", code="exception", text=f"{e.__class__.__name__}: {e}")
     finally:
-        await client.disconnect()
+        if client is not None:
+            await client.disconnect()
 
 if __name__ == "__main__":
     asyncio.run(main())

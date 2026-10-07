@@ -6,6 +6,9 @@
     "telegraf": "^4.16.3"
   },
   "scripts": {
-    "test": "node --test test/*.test.js"
-  }
+    "test": "node --test test/*.test.js",
+    "start": "node server.js",
+    "test:python": "python3 -m unittest discover -s test -p 'test_*.py'"
+  },
+  "private": true
 }

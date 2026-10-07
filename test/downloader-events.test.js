@@ -2,8 +2,28 @@ const test = require('node:test');
 const assert = require('node:assert/strict');
 const { EventEmitter } = require('node:events');
 const { PassThrough } = require('node:stream');
-const { consumeDownloader } = require('../downloader-events');
+const { consumeDownloader } = require('../src/downloader-events');
 function worker() { const child = new EventEmitter(); child.stdout = new PassThrough(); return child; }
+test('slow progress handler coalesces pending updates and promptly handles completion', async () => {
+  const child = worker(), seen = [];
+  let release;
+  const blocked = new Promise(resolve => { release = resolve; });
+  const consumer = consumeDownloader(child, {
+    onEvent: async ev => {
+      seen.push(ev.type === 'progress' ? ev.downloaded : ev.type);
+      if (ev.downloaded === 1) await blocked;
+    },
+    onFailure: async error => { throw error; }, onLog() {},
+  });
+  child.stdout.write('{"type":"progress","downloaded":1}\n');
+  await new Promise(resolve => setImmediate(resolve));
+  for (let i = 2; i <= 100; i++) child.stdout.write(JSON.stringify({ type: 'progress', downloaded: i }) + '\n');
+  child.stdout.write('{"type":"done"}\n{"type":"progress","downloaded":101}\n');
+  child.emit('close', 0);
+  release();
+  await consumer.settled();
+  assert.deepEqual(seen, [1, 100, 'done']);
+});
 test('completion follows progress in order; late progress cannot overwrite delivery', async () => {
   const child = worker(), seen = [];
   const consumer = consumeDownloader(child, {

@@ -387,26 +387,6 @@ def _upload_queue_card_text(driver, file_name: str) -> str:
     return (card.text or "").strip()
 
 
-def _extract_card_error(card, browser_excerpt: str) -> str:
-    from selenium.webdriver.common.by import By
-
-    err_nodes = card.find_elements(
-        By.XPATH,
-        ".//*[contains(@class,'text-red-600') or contains(@class,'text-red-500') or contains(@class,'text-red-700')]",
-    )
-    err_text = "\n".join(
-        node.text.strip() for node in err_nodes if node.text and node.text.strip()
-    ).strip()
-    if err_text:
-        return _truncate(err_text, 1800)
-
-    card_text = card.text.strip()
-    if card_text:
-        return _truncate(card_text, 1800)
-
-    return browser_excerpt or "Website upload failed, but no visible error text was found."
-
-
 def upload_to_bns_site(
     file_path: Path,
     site_url: str,
@@ -416,8 +396,6 @@ def upload_to_bns_site(
     upload_timeout_seconds: int,
     stall_timeout_seconds: int,
 ) -> dict:
-    import shutil
-
     from selenium import webdriver
     from selenium.common.exceptions import TimeoutException
     from selenium.webdriver.chrome.service import Service
@@ -818,8 +796,6 @@ def upload_to_bns_site(
     finally:
         driver.quit()
         with contextlib.suppress(Exception):
-            import shutil
-
             shutil.rmtree(chrome_profile_dir, ignore_errors=True)
 
 
@@ -1134,8 +1110,6 @@ async def main():
                     path = str(final_path)
                 except Exception:
                     # fallback: copy
-                    import shutil
-
                     shutil.copy(path, str(final_path))
                     path = str(final_path)
 
@@ -1254,8 +1228,6 @@ async def main():
                         if p.exists():
                             p.unlink()
                 with contextlib.suppress(Exception):
-                    import shutil
-
                     shutil.rmtree(tempd, ignore_errors=True)
 
     finally:

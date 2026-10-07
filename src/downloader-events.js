@@ -3,13 +3,23 @@
 function consumeDownloader(child, { onEvent, onFailure, onLog = console.log }) {
   let buffer = '', terminal = false;
   let queue = Promise.resolve();
+  let pendingProgress = null;
   function enqueue(line) {
     if (!line.trim()) return;
     let event;
     try { event = JSON.parse(line); }
     catch { onLog(line); return; }
+    // Keep at most one waiting progress edit, even if Telegram responds slowly.
+    if (event.type === 'progress' && pendingProgress) {
+      pendingProgress.event = event;
+      return;
+    }
+    const slot = { event };
+    pendingProgress = event.type === 'progress' ? slot : null;
     queue = queue.then(async () => {
+      if (pendingProgress === slot) pendingProgress = null;
       if (terminal) return;
+      const event = slot.event;
       if (['done', 'error', 'need_invite'].includes(event.type)) terminal = true;
       await onEvent(event);
     }).catch(async error => {
