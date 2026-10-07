@@ -129,7 +129,7 @@ async def main(link: str):
             print(f"\n❌ Error: No progress for {stall_timeout_s}s, download cancelled.")
         finally:
             watchdog_task.cancel()
-            with contextlib.suppress(Exception):
+            with contextlib.suppress(asyncio.CancelledError):
                 await watchdog_task
 
     except Exception as e:

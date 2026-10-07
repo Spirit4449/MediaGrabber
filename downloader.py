@@ -255,7 +255,7 @@ async def main():
             return
         finally:
             wd_task.cancel()
-            with contextlib.suppress(Exception):
+            with contextlib.suppress(asyncio.CancelledError):
                 await wd_task
 
         size = os.path.getsize(path) if os.path.exists(path) else None

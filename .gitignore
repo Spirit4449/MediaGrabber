@@ -11,3 +11,4 @@ __pycache__/
 login.txt
 env
 ecosystem.config.cjs
+shared-downloads/

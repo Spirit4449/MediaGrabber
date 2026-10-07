@@ -18,3 +18,17 @@ location /healthz {
     proxy_set_header Connection "";
     proxy_set_header Host $host;
 }
+
+# Add inside the existing HTTPS server for bns.classchats.net.
+# Match SHARED_DOWNLOAD_DIR on the production device.
+location ^~ /downloads/ {
+    alias /var/www/mediagrabber-downloads/;
+    autoindex off;
+    sendfile on;
+    gzip off;
+    add_header Content-Disposition "attachment" always;
+    add_header X-Content-Type-Options "nosniff" always;
+    add_header Cache-Control "no-store" always;
+    if ($uri ~ "(^|/)\.") { return 404; }
+    limit_except GET { deny all; }
+}

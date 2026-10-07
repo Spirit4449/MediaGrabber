@@ -4,5 +4,8 @@
     "express": "^5.1.0",
     "express-rate-limit": "^8.2.0",
     "telegraf": "^4.16.3"
+  },
+  "scripts": {
+    "test": "node --test test/*.test.js"
   }
 }

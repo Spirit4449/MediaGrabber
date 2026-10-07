@@ -12,7 +12,7 @@
 - ✅ Streams progress to Telegram chat
 - ✅ Auto-restarts if server crashes (via PM2)
 - ✅ Rate-limited API with HMAC-SHA256 authentication
-- ✅ No static file serving (security hardened)
+- ✅ Public original-quality download links for oversized files via Nginx
 - ✅ Stateful daily sync (tracks processed messages)
 - ✅ Absolute path support for cross-machine deployment
 
@@ -472,3 +472,7 @@ For issues:
 **Last Updated:** January 21, 2026  
 **Status:** ✅ Daily Sync Working  
 **Maintained by:** You!
+
+## Oversized original downloads
+
+See [public download setup](docs/public-downloads.md) for production environment values, Nginx configuration, retention, and optional improved compression.

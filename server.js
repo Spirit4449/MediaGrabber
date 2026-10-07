@@ -5,6 +5,9 @@ const crypto = require("crypto");
 const path = require("path");
 const fs = require("fs");
 const { spawn } = require("child_process");
+const { createSharedDownloads } = require("./shared-downloads");
+const { createCompressor } = require("./media-compression");
+const { consumeDownloader } = require("./downloader-events");
 const { Telegraf } = require("telegraf");
 
 const {
@@ -35,6 +38,23 @@ const COMPRESS_MAX_VIDEO_KBPS = Number(
 const FFMPEG_PATH = process.env.FFMPEG_PATH || "ffmpeg";
 const FFPROBE_PATH = process.env.FFPROBE_PATH || "ffprobe";
 
+if (!Number.isFinite(MAX_BOT_UPLOAD_MB) || MAX_BOT_UPLOAD_MB <= 0) throw new Error("BOT_MAX_UPLOAD_MB must be positive");
+const SEND_COMPRESSED_COPY = process.env.BOT_SEND_COMPRESSED_COPY === "true";
+const sharedDownloads = createSharedDownloads({
+  directory: process.env.SHARED_DOWNLOAD_DIR || path.join(process.cwd(), "shared-downloads"),
+  baseUrl: process.env.PUBLIC_DOWNLOAD_BASE_URL,
+  retentionHours: Number(process.env.DOWNLOAD_RETENTION_HOURS || 72),
+});
+const compressor = createCompressor({
+  ffmpeg: FFMPEG_PATH, ffprobe: FFPROBE_PATH,
+  targetMb: COMPRESS_TARGET_MB, audioKbps: COMPRESS_AUDIO_KBPS,
+  minVideoKbps: COMPRESS_MIN_VIDEO_KBPS, maxVideoKbps: COMPRESS_MAX_VIDEO_KBPS,
+  preset: process.env.BOT_COMPRESS_PRESET || "medium",
+});
+if (!process.env.PUBLIC_DOWNLOAD_BASE_URL) console.warn("[downloads] PUBLIC_DOWNLOAD_BASE_URL is missing; oversized originals will be kept but cannot be shared.");
+sharedDownloads.cleanup().catch(error => console.error("[downloads cleanup]", error.message));
+setInterval(() => sharedDownloads.cleanup().catch(error => console.error("[downloads cleanup]", error.message)), 15 * 60 * 1000).unref();
+
 // ---------- settings ----------
 const INVITE_WAIT_MS = 5 * 60 * 1000; // 5 minutes to send invite before expiring
 
@@ -56,179 +76,6 @@ function spawnDownloader(args) {
     { cwd: process.cwd() },
   );
 }
-function runProcess(cmd, args) {
-  return new Promise((resolve, reject) => {
-    const child = spawn(cmd, args, { stdio: ["ignore", "pipe", "pipe"] });
-    let stdout = "";
-    let stderr = "";
-    child.stdout.on("data", (chunk) => {
-      stdout += chunk.toString("utf8");
-    });
-    child.stderr.on("data", (chunk) => {
-      stderr += chunk.toString("utf8");
-    });
-    child.on("error", reject);
-    child.on("close", (code) => {
-      if (code === 0) return resolve({ stdout, stderr });
-      return reject(new Error(`${cmd} failed (${code}): ${stderr || stdout}`));
-    });
-  });
-}
-async function canRunBinary(cmd) {
-  try {
-    await runProcess(cmd, ["-version"]);
-    return true;
-  } catch {
-    return false;
-  }
-}
-async function getDurationSeconds(filePath) {
-  const { stdout } = await runProcess(FFPROBE_PATH, [
-    "-v",
-    "error",
-    "-show_entries",
-    "format=duration",
-    "-of",
-    "default=nk=1:nw=1",
-    filePath,
-  ]);
-  const secs = Number.parseFloat(String(stdout || "").trim());
-  if (!Number.isFinite(secs) || secs <= 0) throw new Error("Invalid duration");
-  return secs;
-}
-function buildCompressedPath(filePath, ext) {
-  const dir = path.dirname(filePath);
-  const base = path.basename(filePath, path.extname(filePath));
-  return path.join(dir, `${base}.tmp${ext}`);
-}
-async function compressMediaToLimit(filePath, { isVideo, isAudio, maxBytes }) {
-  const targetBytes = Math.min(
-    maxBytes - 1024 * 1024,
-    Math.floor(COMPRESS_TARGET_MB * 1024 * 1024),
-  );
-  if (targetBytes <= 0) return { error: "target" };
-
-  const [hasFfmpeg, hasFfprobe] = await Promise.all([
-    canRunBinary(FFMPEG_PATH),
-    canRunBinary(FFPROBE_PATH),
-  ]);
-  if (!hasFfmpeg || !hasFfprobe) return { error: "missing" };
-
-  let duration;
-  try {
-    duration = await getDurationSeconds(filePath);
-  } catch {
-    return { error: "duration" };
-  }
-
-  const totalKbps = Math.max(
-    64,
-    Math.floor((targetBytes * 8) / duration / 1000),
-  );
-  const outputExt = isVideo ? ".mp4" : ".mp3";
-  const outPath = buildCompressedPath(filePath, outputExt);
-  let args;
-
-  if (isVideo) {
-    const audioKbps = Math.max(64, Math.min(128, Math.floor(totalKbps * 0.1)));
-    let videoKbps = totalKbps - audioKbps;
-    videoKbps = Math.max(
-      COMPRESS_MIN_VIDEO_KBPS,
-      Math.min(COMPRESS_MAX_VIDEO_KBPS, videoKbps),
-    );
-    args = [
-      "-y",
-      "-i",
-      filePath,
-      "-c:v",
-      "libx264",
-      "-preset",
-      "veryfast",
-      "-b:v",
-      `${videoKbps}k`,
-      "-maxrate",
-      `${videoKbps}k`,
-      "-bufsize",
-      `${videoKbps * 2}k`,
-      "-vf",
-      "scale=min(1280\\,iw):-2",
-      "-c:a",
-      "aac",
-      "-b:a",
-      `${audioKbps}k`,
-      "-movflags",
-      "+faststart",
-      outPath,
-    ];
-  } else if (isAudio) {
-    const targetKbps = Math.floor((targetBytes * 8) / duration / 1000);
-    const audioKbps = Math.max(48, Math.min(COMPRESS_AUDIO_KBPS, targetKbps));
-    args = [
-      "-y",
-      "-i",
-      filePath,
-      "-vn",
-      "-c:a",
-      "libmp3lame",
-      "-b:a",
-      `${audioKbps}k`,
-      outPath,
-    ];
-  } else {
-    return { error: "type" };
-  }
-
-  try {
-    await runProcess(FFMPEG_PATH, args);
-  } catch (e) {
-    try {
-      await fs.promises.rm(outPath, { force: true });
-    } catch {}
-    return { error: "ffmpeg", detail: e.message };
-  }
-
-  try {
-    const stat = await fs.promises.stat(outPath);
-    if (stat.size > maxBytes) {
-      await fs.promises.rm(outPath, { force: true });
-      return { error: "still_too_large", size: stat.size };
-    }
-  } catch {
-    return { error: "stat" };
-  }
-
-  return { path: outPath, ext: outputExt };
-}
-
-async function convertAudioToMp3(filePath) {
-  const hasFfmpeg = await canRunBinary(FFMPEG_PATH);
-  if (!hasFfmpeg) return { error: "missing" };
-
-  const outPath = buildCompressedPath(filePath, ".mp3");
-  const args = [
-    "-y",
-    "-i",
-    filePath,
-    "-vn",
-    "-c:a",
-    "libmp3lame",
-    "-q:a",
-    "2",
-    outPath,
-  ];
-
-  try {
-    await runProcess(FFMPEG_PATH, args);
-  } catch (e) {
-    try {
-      await fs.promises.rm(outPath, { force: true });
-    } catch {}
-    return { error: "ffmpeg", detail: e.message };
-  }
-
-  return { path: outPath, ext: ".mp3" };
-}
-
 const VIDEO_EXTS = new Set([
   ".mp4",
   ".mov",
@@ -251,169 +98,64 @@ const AUDIO_EXTS = new Set([
   ".opus",
   ".m4b",
 ]);
-async function safeUploadAndDelete(
-  telegram,
-  chatId,
-  filePath,
-  { caption, forceVideo } = {},
-) {
-  let currentPath = filePath;
-  const originalBase = path.basename(currentPath);
-  const originalStem = path.basename(currentPath, path.extname(currentPath));
-  let base = originalBase;
-  console.log("[upload] sending", base, "to chat", chatId);
-
-  const ext = (path.extname(base) || "").toLowerCase();
-  const isVideo = forceVideo || VIDEO_EXTS.has(ext);
-  const isPhoto = PHOTO_EXTS.has(ext);
+async function safeUploadAndDelete(telegram, chatId, filePath, { caption, forceVideo } = {}) {
+  const originalBase = path.basename(filePath);
+  const ext = path.extname(filePath).toLowerCase();
+  const isVideo = !!forceVideo || VIDEO_EXTS.has(ext);
   const isAudio = AUDIO_EXTS.has(ext);
-
   const maxBytes = MAX_BOT_UPLOAD_MB * 1024 * 1024;
-  try {
-    const stat = await fs.promises.stat(currentPath);
-    if (stat.size > maxBytes) {
-      if (!isVideo && !isAudio) {
-        const sizeMb = fmtMB(stat.size);
-        await telegram.sendMessage(
-          chatId,
-          `⚠️ File too large for bot upload (${sizeMb} MB). Limit is ${MAX_BOT_UPLOAD_MB} MB.`,
-        );
-        try {
-          await fs.promises.rm(currentPath, { force: true });
-        } catch {}
-        return;
-      }
-
-      const compressed = await compressMediaToLimit(currentPath, {
-        isVideo,
-        isAudio,
-        maxBytes,
-      });
-      if (!compressed.path) {
-        const sizeMb = fmtMB(stat.size);
-        if (compressed.error === "missing") {
-          await telegram.sendMessage(
-            chatId,
-            `⚠️ File too large (${sizeMb} MB). ffmpeg/ffprobe not installed, cannot compress.`,
-          );
-        } else if (compressed.error === "still_too_large") {
-          await telegram.sendMessage(
-            chatId,
-            `⚠️ File too large (${sizeMb} MB) even after compression.`,
-          );
-        } else {
-          await telegram.sendMessage(
-            chatId,
-            `⚠️ File too large (${sizeMb} MB) and could not be compressed.`,
-          );
-        }
-        try {
-          await fs.promises.rm(currentPath, { force: true });
-        } catch {}
-        return;
-      }
-
-      try {
-        await fs.promises.rm(currentPath, { force: true });
-      } catch {}
-      currentPath = compressed.path;
-      const nextExt = compressed.ext || path.extname(currentPath);
-      base = `${originalStem}${nextExt}`;
-    }
-  } catch (e) {
-    console.error("[upload] stat failed", e.message);
-  }
-
-  if (isAudio) {
-    const currentExt = (path.extname(base) || "").toLowerCase();
-    if (currentExt !== ".mp3") {
-      const converted = await convertAudioToMp3(currentPath);
-      if (!converted.path) {
-        if (converted.error === "missing") {
-          await telegram.sendMessage(
-            chatId,
-            "⚠️ Cannot convert audio to MP3 because ffmpeg is not installed.",
-          );
-        } else {
-          await telegram.sendMessage(
-            chatId,
-            "⚠️ Failed to convert audio to MP3.",
-          );
-        }
-        try {
-          await fs.promises.rm(currentPath, { force: true });
-        } catch {}
-        return;
-      }
-
-      try {
-        await fs.promises.rm(currentPath, { force: true });
-      } catch {}
-      currentPath = converted.path;
-      base = `${originalStem}${converted.ext || ".mp3"}`;
-
-      try {
-        const stat = await fs.promises.stat(currentPath);
-        if (stat.size > maxBytes) {
-          const compressed = await compressMediaToLimit(currentPath, {
-            isVideo: false,
-            isAudio: true,
-            maxBytes,
-          });
-          if (!compressed.path) {
-            const sizeMb = fmtMB(stat.size);
-            if (compressed.error === "missing") {
-              await telegram.sendMessage(
-                chatId,
-                `⚠️ MP3 is too large (${sizeMb} MB). ffmpeg/ffprobe not installed, cannot compress.`,
-              );
-            } else if (compressed.error === "still_too_large") {
-              await telegram.sendMessage(
-                chatId,
-                `⚠️ MP3 is too large (${sizeMb} MB) even after compression.`,
-              );
-            } else {
-              await telegram.sendMessage(
-                chatId,
-                `⚠️ MP3 is too large (${sizeMb} MB) and could not be compressed.`,
-              );
-            }
-            try {
-              await fs.promises.rm(currentPath, { force: true });
-            } catch {}
-            return;
-          }
-
-          try {
-            await fs.promises.rm(currentPath, { force: true });
-          } catch {}
-          currentPath = compressed.path;
-          const nextExt = compressed.ext || path.extname(currentPath);
-          base = `${originalStem}${nextExt}`;
-        }
-      } catch (e) {
-        console.error("[upload] stat failed", e.message);
-      }
+  const stat = await fs.promises.stat(filePath);
+  let originalShared = false;
+  let compressed;
+  let currentPath = filePath;
+  let base = originalBase;
+  if (stat.size > maxBytes) {
+    console.log("[delivery] publishing original", originalBase);
+    const shared = await sharedDownloads.publish(filePath);
+    console.log("[delivery] original ready", originalBase);
+    // Keep the working original if Telegram rejects the link message, for retry.
+    await telegram.sendMessage(chatId,
+      `${caption ? caption + "\n" : ""}📥 ${originalBase} · ${fmtMB(stat.size)} MB\nOriginal quality. Available for ${sharedDownloads.retentionHours} hours.`,
+      { reply_markup: { inline_keyboard: [[{ text: "Download original", url: shared.url }]] } });
+    originalShared = true;
+    if (!SEND_COMPRESSED_COPY || (!isVideo && !isAudio)) {
+      await fs.promises.rm(filePath, { force: true });
+      return;
     }
   }
-
+  if (originalShared || (isAudio && ext !== ".mp3")) {
+    compressed = await compressor.compress(filePath, { isVideo, isAudio, maxBytes });
+    if (!compressed.path) {
+      if (!originalShared) throw new Error(`Audio conversion failed: ${compressed.error}. Original kept.`);
+      await telegram.sendMessage(chatId, `Original download is ready. Compressed copy unavailable: ${compressed.error}`);
+      await fs.promises.rm(filePath, { force: true });
+      return;
+    }
+    currentPath = compressed.path;
+    base = path.basename(originalBase, ext) + compressed.ext;
+  }
   const stream = fs.createReadStream(currentPath);
   const inputFile = { source: stream, filename: base };
-
-  const sendExt = (path.extname(base) || "").toLowerCase();
-  const sendIsVideo = forceVideo || VIDEO_EXTS.has(sendExt);
-  const sendIsPhoto = PHOTO_EXTS.has(sendExt);
-
-  if (sendIsVideo) {
-    await telegram.sendVideo(chatId, inputFile, { caption: caption || "" });
-  } else if (sendIsPhoto) {
-    await telegram.sendPhoto(chatId, inputFile, { caption: caption || "" });
-  } else {
-    await telegram.sendDocument(chatId, inputFile, { caption: caption || "" });
-  }
   try {
-    await fs.promises.rm(currentPath, { force: true });
-  } catch {}
+    const options = { caption: originalShared ? "Compressed copy — original available above" : (caption || "") };
+    if (isVideo) {
+      if (compressed) Object.assign(options, { width: compressed.width, height: compressed.height, duration: Math.ceil(compressed.duration), supports_streaming: true });
+      await telegram.sendVideo(chatId, inputFile, options);
+    } else if (PHOTO_EXTS.has(ext)) {
+      await telegram.sendPhoto(chatId, inputFile, options);
+    } else {
+      await telegram.sendDocument(chatId, inputFile, options);
+    }
+    await fs.promises.rm(filePath, { force: true });
+  } catch (error) {
+    if (!originalShared) throw error;
+    console.error("[preview upload failed]", error.message);
+    await fs.promises.rm(filePath, { force: true });
+    // The original link was already delivered successfully.
+  } finally {
+    stream.destroy();
+    if (compressed) await compressed.cleanup();
+  }
 }
 function fmtMB(bytes) {
   if (!bytes && bytes !== 0) return "??";
@@ -585,85 +327,44 @@ async function handleDownloadFlow(ctx, link, opts = {}) {
 
 function startBackgroundDownload(ctx, link, progressMsgId, opts = {}) {
   const chatId = ctx.chat.id;
-  const DOWNLOAD_ROOT = path.join(process.cwd(), "downloads");
-  const args = ["--link", link, "--outdir", DOWNLOAD_ROOT];
+  const args = ["--link", link, "--outdir", path.join(process.cwd(), "downloads", crypto.randomUUID())];
   if (opts.invite) args.push("--invite", opts.invite);
-
   const py = spawnDownloader(args);
-  let buffer = "";
   let lastPctLogged = -10;
-
-  py.stdout.on("data", async (chunk) => {
-    buffer += chunk.toString("utf8");
-    let idx;
-    while ((idx = buffer.indexOf("\n")) >= 0) {
-      const line = buffer.slice(0, idx).trim();
-      buffer = buffer.slice(idx + 1);
-      if (!line) continue;
-
-      let ev;
-      try {
-        ev = JSON.parse(line);
-      } catch {
-        console.log("[dl log]", line);
-        continue;
-      }
-
+  consumeDownloader(py, {
+    onFailure: async error => {
+      console.error("[worker failure]", error.message);
+      await ctx.telegram.editMessageText(chatId, progressMsgId, undefined,
+        `❌ ${error.message}`).catch(() => {});
+    },
+    onEvent: async ev => {
       if (ev.type === "progress") {
         const pct = typeof ev.pct === "number" ? ev.pct : 0;
-        const txt = progressText(ev.downloaded, ev.total, pct);
-        try {
-          await ctx.telegram.editMessageText(
-            chatId,
-            progressMsgId,
-            undefined,
-            txt,
-          );
-        } catch {}
+        const text = pct >= 100 ? "✅ Download complete. Finalizing file…" : progressText(ev.downloaded, ev.total, pct);
+        await ctx.telegram.editMessageText(chatId, progressMsgId, undefined, text).catch(() => {});
         if (pct - lastPctLogged >= 10 || pct === 100) {
           lastPctLogged = pct;
-          console.log(
-            `[progress] ${pct}% ${fmtMB(ev.downloaded)}MB/${fmtMB(ev.total)}MB`,
-          );
+          console.log(`[progress] ${pct}% ${fmtMB(ev.downloaded)}MB/${fmtMB(ev.total)}MB`);
         }
       } else if (ev.type === "error") {
         console.error("[error]", ev.code || "", ev.text || "");
-        await ctx.telegram
-          .editMessageText(
-            chatId,
-            progressMsgId,
-            undefined,
-            `❌ ${ev.text || "Failed"}`,
-          )
-          .catch(() => {});
+        await ctx.telegram.editMessageText(chatId, progressMsgId, undefined, `❌ ${ev.text || "Failed"}`).catch(() => {});
       } else if (ev.type === "done" && ev.path) {
         console.log("[done] path:", ev.path, "size:", ev.size);
+        await ctx.telegram.editMessageText(chatId, progressMsgId, undefined, "✅ Download complete. Preparing delivery…").catch(() => {});
         try {
-          await safeUploadAndDelete(ctx.telegram, chatId, ev.path, {
-            caption: "",
-          });
-          await ctx.telegram
-            .deleteMessage(chatId, progressMsgId)
-            .catch(() => {}); // success: delete progress
-        } catch (e) {
-          console.error("[upload fail]", e.message);
-          await ctx.telegram
-            .editMessageText(
-              chatId,
-              progressMsgId,
-              undefined,
-              `❌ Upload failed: ${e.message}`,
-            )
-            .catch(() => {});
+          await safeUploadAndDelete(ctx.telegram, chatId, ev.path, { caption: opts.caption || "", forceVideo: !!opts.forceVideo });
+          await ctx.telegram.deleteMessage(chatId, progressMsgId).catch(() => {});
+        } catch (error) {
+          console.error("[delivery failed]", error.message);
+          await ctx.telegram.editMessageText(chatId, progressMsgId, undefined, `❌ Delivery failed: ${error.message}`).catch(() => {});
         }
+      } else if (ev.type === "need_invite") {
+        await ctx.telegram.editMessageText(chatId, progressMsgId, undefined, "❌ Access changed. Please send the post link again and provide an invite.").catch(() => {});
       }
-    }
+    },
   });
-
-  py.stderr.on("data", (chunk) =>
-    console.error("[downloader stderr]", chunk.toString("utf8")),
-  );
-  py.on("close", (code) => console.log("[process close]", code));
+  py.stderr.on("data", chunk => console.error("[downloader stderr]", chunk.toString("utf8")));
 }
 
 // ---------- express (optional secure API) ----------
@@ -704,92 +405,8 @@ app.post("/api/download", verifyHmac, async (req, res) => {
       chat_id,
       "📥 0% [░░░░░░░░░░░░░░░░░░] 0.0 MB / ?? MB",
     );
-    let progressMsgId = pmsg.message_id;
-
-    const py = spawnDownloader(["--link", link, "--outdir", DOWNLOAD_ROOT]);
-
-    let buffer = "";
-    let lastPctLogged = -10;
-
-    py.stdout.on("data", async (chunk) => {
-      buffer += chunk.toString("utf8");
-      let idx;
-      while ((idx = buffer.indexOf("\n")) >= 0) {
-        const line = buffer.slice(0, idx).trim();
-        buffer = buffer.slice(idx + 1);
-        if (!line) continue;
-
-        let ev;
-        try {
-          ev = JSON.parse(line);
-        } catch {
-          console.log("[downloader log]", line);
-          continue;
-        }
-
-        if (ev.type === "progress") {
-          const pct = typeof ev.pct === "number" ? ev.pct : 0;
-          const txt = progressText(ev.downloaded, ev.total, pct);
-          try {
-            await bot.telegram.editMessageText(
-              chat_id,
-              progressMsgId,
-              undefined,
-              txt,
-            );
-          } catch (e) {
-            console.warn("[edit fail]", e.message);
-            const np = await bot.telegram.sendMessage(chat_id, txt);
-            progressMsgId = np.message_id;
-          }
-          if (pct - lastPctLogged >= 10 || pct === 100) {
-            lastPctLogged = pct;
-            console.log(
-              `[progress] ${pct}% ${fmtMB(ev.downloaded)}MB/${fmtMB(ev.total)}MB`,
-            );
-          }
-        } else if (ev.type === "error") {
-          console.error("[error]", ev.code || "", ev.text || "");
-          await bot.telegram
-            .editMessageText(
-              chat_id,
-              progressMsgId,
-              undefined,
-              `❌ ${ev.text || "Failed"}`,
-            )
-            .catch(() => {});
-        } else if (ev.type === "done" && ev.path) {
-          console.log("[done] path:", ev.path, "size:", ev.size);
-          try {
-            await safeUploadAndDelete(bot.telegram, chat_id, ev.path, {
-              caption: "",
-              forceVideo: !!forceVideo,
-            });
-            await bot.telegram
-              .deleteMessage(chat_id, progressMsgId)
-              .catch(() => {});
-          } catch (e) {
-            console.error("[upload fail]", e.message);
-            await bot.telegram
-              .editMessageText(
-                chat_id,
-                progressMsgId,
-                undefined,
-                `❌ Upload failed: ${e.message}`,
-              )
-              .catch(() => {});
-          }
-        }
-      }
-    });
-
-    py.stderr.on("data", (chunk) => {
-      console.error("[downloader stderr]", chunk.toString("utf8"));
-    });
-
-    py.on("close", (code) => {
-      console.log("[process close] code:", code);
-    });
+    startBackgroundDownload({ chat: { id: chat_id }, telegram: bot.telegram }, link,
+      pmsg.message_id, { caption: caption || "", forceVideo: !!forceVideo });
 
     res.json({ ok: true });
   } catch (e) {
