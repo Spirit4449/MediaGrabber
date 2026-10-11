@@ -8,6 +8,7 @@ const { createMediaDelivery } = require("./src/media-delivery");
 const { createDownloadFlow } = require("./src/download-flow");
 const { registerBot } = require("./src/bot");
 const { registerApi } = require("./src/api");
+const { trackPolling, writeHeartbeat, launchBot } = require("./src/bot-health");
 
 const {
   PORT = 4000,
@@ -64,12 +65,21 @@ const flow = createDownloadFlow({ rootDir: __dirname, pythonBin: PYTHON_BIN, saf
 registerBot(bot, flow);
 registerApi(app, { bot, sharedSecret: SHARED_SECRET, rootDir: __dirname, startBackgroundDownload: flow.startBackgroundDownload });
 
-app.listen(Number(PORT), BIND_HOST, () => {
+const server = app.listen(Number(PORT), BIND_HOST, () => {
   console.log(`Server listening on http://${BIND_HOST}:${PORT}`);
 });
-bot
-  .launch()
-  .then(() => console.log("Bot polling started"))
-  .catch(console.error);
-process.once("SIGINT", () => bot.stop("SIGINT"));
-process.once("SIGTERM", () => bot.stop("SIGTERM"));
+let stopping = false;
+function shutdown(reason, code = 0) {
+  if (stopping) return;
+  stopping = true;
+  console.log(`[shutdown] ${reason}`);
+  try { bot.stop(reason); } catch { /* Startup may have failed before polling. */ }
+  server.close(() => process.exit(code));
+  setTimeout(() => process.exit(code), 5000).unref();
+}
+trackPolling(bot.telegram, () => writeHeartbeat(
+  process.env.BOT_HEALTH_FILE || path.join(__dirname, '.state', 'bot-health.json'),
+));
+launchBot(bot, shutdown);
+process.once("SIGINT", () => shutdown("SIGINT"));
+process.once("SIGTERM", () => shutdown("SIGTERM"));

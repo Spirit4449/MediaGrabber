@@ -59,7 +59,7 @@ Start the bot and HTTP server:
 npm start
 ```
 
-For PM2, use your existing local config or create one from the template:
+For an existing PM2 deployment, follow the [recovery migration guide](docs/recovery-deployment.md) to replace old process definitions safely. For a new deployment, create a config from the template:
 
 ```bash
 cp ecosystem.config.example.cjs ecosystem.config.cjs
@@ -68,7 +68,7 @@ pm2 start ecosystem.config.cjs
 pm2 save
 ```
 
-The example schedules daily sync at 17:00 in the deployment host's timezone. PM2 starts the job immediately when first starting the config as well. Existing installations may use a different schedule or separate audio-sync process. The `.env` template disables website uploads until configured.
+The example runs persistent recovery workers: the bot has a polling watchdog, BNS audio checks every 15 minutes from 08:00, and normal BNS sync checks from noon. Each stops after today’s successful delivery or at 18:00; attempts have a 30-minute limit and missing delivery triggers an alert at 18:00. Set `BNS_TIMEZONE` explicitly (default `America/New_York`). The `.env` template disables website uploads until configured.
 
 ## On-demand downloads
 
@@ -122,7 +122,7 @@ The tests use simulated transfers; measure a real file on the deployment host to
 
 The daily script loads `.env` itself. With no checkpoint, its first run records the latest post and exits. `--seed` processes the recent window instead. Audio sync, per-run state/session files, website credentials, replay instructions, and known flags are covered in the [operator guide](docs/bns-daily-sync-operator-guide.md).
 
-Current limitations: sync scans only the latest 200 messages; failures can be skipped if a later message advances the checkpoint; website and Telegram delivery are not tracked independently. See the [architecture review](docs/architecture.md) before relying on unattended catch-up or replay.
+Sync processes the oldest unseen messages in batches of 200, stops at failures, and saves each successful destination separately. The persistent worker retries unfinished runs. See [retry behavior and its limits](docs/bns-daily-sync-operator-guide.md#retry-limits), including the small duplicate-delivery window when a remote upload succeeds before its checkpoint is saved.
 
 ## Optional tools
 

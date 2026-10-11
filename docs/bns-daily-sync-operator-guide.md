@@ -13,7 +13,9 @@ This guide covers how to run `daily_bns_sync.py`, how the state files work, what
 5. For audio runs, converts audio to an MP3 under the configured upload size.
 6. Uploads the MP3 to the BNS website with Selenium when site upload is enabled.
 7. Reposts the media to the target Telegram channel.
-8. Advances `last_id` after the message is handled.
+8. Saves each completed delivery step and advances `last_id` only after required deliveries succeed. On failure it stops and retains the message for retry.
+
+State is written atomically and locked against overlapping runs. Existing `last_id` files remain compatible. Corrupt state causes an error instead of silently reseeding. Messages after the checkpoint are fetched oldest first in batches of 200, even after long outages.
 
 The important state file for the audio website flow is:
 
@@ -157,7 +159,7 @@ Skips the BNS website upload and only performs the Telegram repost flow.
 
 `--only-message-id MESSAGE_ID`
 
-Process only one specific source Telegram message from the recent source window. The message still must be newer than `last_id`, so set the state file back first when replaying a processed message.
+Fetch and process one specific source Telegram message by ID. The message still must be newer than `last_id`, so set the state file back first when replaying a processed message.
 
 Example:
 
@@ -212,39 +214,19 @@ BNS_MAX_UPLOAD_MB
 
 `BNS_MAX_UPLOAD_MB` defaults to `49`. The script converts audio to MP3 and compresses as needed to stay under this size.
 
-## PM2 Scheduled Runs
+## PM2 Recovery Workers
 
-The PM2 config is:
+Follow the [Linux deployment and migration guide](recovery-deployment.md) to activate the new configuration. No new dependencies are required.
 
-```text
-ecosystem.config.cjs
-```
-
-Relevant apps:
-
-```text
-bns_daily
-bns_daily_audio
-```
-
-`bns_daily_audio` runs daily at 08:00 and uses:
+`bns_daily` and `bns_daily_audio` now run persistent `service_worker.py` processes. They launch bounded sync attempts every 15 minutes from noon and 08:00 respectively, in `BNS_TIMEZONE` (default `America/New_York`). Failed attempts retry, with a 30-minute limit per attempt; completed website steps are not repeated on a Telegram retry. Checks stop after today’s successful delivery or at 18:00 and resume the next day. At `BNS_ALERT_AFTER` (default `18:00`), missing delivery sends an alert to the existing personal notification chat. An in-flight attempt may finish within its 30-minute limit after the cutoff.
 
 ```bash
-daily_bns_sync.py --target 3744810661 --audio-only --state-file .state/bns_audio_state.json
-```
-
-Useful PM2 commands:
-
-```bash
-cd /home/nisch/Desktop/MediaGrabber
 pm2 status
 pm2 logs bns_daily_audio
-pm2 logs bns_daily
 pm2 restart bns_daily_audio
-pm2 save
 ```
 
-If you changed `.env`, the next fresh script start reads it. A PM2 restart is useful when you want to force the next run with new environment/config immediately.
+Stop the relevant worker before manual replay or editing its checkpoint, then restart it afterward. Back up state first. A targeted `--only-message-id` replay intentionally advances the checkpoint to that ID, so use a separate replay state file if earlier pending work must remain untouched. The normal script's per-state lock prevents concurrent attempts, but does not protect manual file edits.
 
 ## Logs And Debug Artifacts
 
@@ -427,7 +409,7 @@ FFPROBE_PATH=/path/to/ffprobe
 
 Use the same session file configured in `.env` or pass `--session`.
 
-If Telethon asks for login interactively, complete the phone/code/2FA flow once. The `.session` file is what makes future runs automatic.
+Automated sync never prompts for login. Provision or repair the saved session using `downloader.py --login` on the deployment host. BNS loads its authorization into memory so concurrent workers do not write to the same session database.
 
 ## Useful Inspection Commands
 
@@ -461,3 +443,7 @@ Check script syntax:
 .venv/bin/python -m py_compile daily_bns_sync.py
 ```
 
+
+## Retry limits
+
+A remote upload can succeed just before a crash prevents saving its checkpoint. A retry can duplicate that Telegram post; website retries use the site's existing duplicate detection. Previously skipped posts are not rediscovered automatically—use targeted replay. A permanently failing message blocks later messages until resolved. Bot requests are not a durable queue and may need resending after a restart.

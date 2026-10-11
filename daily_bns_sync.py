@@ -8,8 +8,8 @@ Default source: 1773081661
 Default target: 3130614830
 
 Behaviour:
-- Maintains a small state file at .state/bns_state.json with last_processed_id.
-- On first run (no state), seeds the last_processed_id to the latest message and exits to avoid backfilling.
+- Maintains a small state file at .state/bns_state.json with last_id.
+- On first run (no state), seeds the last_id to the latest message and exits to avoid backfilling.
   Use --seed to force processing of the recent window.
 
 Requires TELEGRAM_API_ID, TELEGRAM_API_HASH and TELEGRAM_SESSION env variables (session file path).
@@ -19,7 +19,6 @@ from __future__ import annotations
 import argparse
 import asyncio
 import contextlib
-import json
 import os
 import shutil
 import subprocess
@@ -28,9 +27,12 @@ import time
 import urllib.parse
 import urllib.request
 from datetime import datetime
+from zoneinfo import ZoneInfo
+from download_session import load_download_session
+from reliability import load_state, save_state, exclusive_lock
 from pathlib import Path
 
-from telethon import TelegramClient, errors, types, utils as tutils  # type: ignore
+from telethon import TelegramClient, types, utils as tutils  # type: ignore
 
 # Load environment variables from .env file (for automated runs)
 try:
@@ -846,6 +848,7 @@ def get_audio_duration_seconds(input_path: Path) -> float | None:
         ],
         capture_output=True,
         text=True,
+        timeout=30,
     )
     if proc.returncode != 0:
         return None
@@ -890,7 +893,7 @@ def convert_audio_to_mp3(input_path: Path) -> Path:
         *audio_options,
         str(output_path),
     ]
-    proc = subprocess.run(cmd, capture_output=True, text=True)
+    proc = subprocess.run(cmd, capture_output=True, text=True, timeout=1800)
     if proc.returncode != 0:
         detail = (proc.stderr or proc.stdout or "ffmpeg failed").strip()
         raise RuntimeError(detail)
@@ -900,21 +903,6 @@ def convert_audio_to_mp3(input_path: Path) -> Path:
             f"(limit {BNS_MAX_UPLOAD_MB:.1f} MB)"
         )
     return output_path
-
-
-def load_state(state_file: Path) -> dict:
-    state_file.parent.mkdir(parents=True, exist_ok=True)
-    if not state_file.exists():
-        return {}
-    try:
-        return json.loads(state_file.read_text())
-    except Exception:
-        return {}
-
-
-def save_state(state_file: Path, state: dict):
-    state_file.parent.mkdir(parents=True, exist_ok=True)
-    state_file.write_text(json.dumps(state))
 
 
 async def resolve_entity_safely(client: TelegramClient, ref):
@@ -971,9 +959,16 @@ async def main():
         "--only-message-id",
         type=int,
         default=0,
-        help="Process only this source message id from the recent window.",
+        help="Process only this source message id (must be newer than the checkpoint).",
     )
+    ap.add_argument("--stop-after-today", action="store_true",
+                    help="Stop after completing a source post dated today (used by the recovery worker).")
     args = ap.parse_args()
+    with exclusive_lock(str(Path(args.state_file).resolve()) + ".lock"):
+        await run_sync(args)
+
+
+async def run_sync(args):
 
     api_id = int(os.environ.get("TELEGRAM_API_ID", "0"))
     api_hash = os.environ.get("TELEGRAM_API_HASH", "")
@@ -986,8 +981,7 @@ async def main():
     skip_site_upload = args.no_site_upload or _env_bool("BNS_DISABLE_SITE_UPLOAD", False)
 
     if not api_id or not api_hash:
-        print("TELEGRAM_API_ID and TELEGRAM_API_HASH environment variables are required")
-        return
+        raise RuntimeError("TELEGRAM_API_ID and TELEGRAM_API_HASH environment variables are required")
 
     site_upload_run_allowed = args.audio_only
     can_site_upload = (
@@ -998,13 +992,13 @@ async def main():
     )
     if not site_upload_run_allowed and not skip_site_upload:
         print("Website upload disabled: only --audio-only runs may upload to the BNS site")
-    elif not can_site_upload and not skip_site_upload:
-        print("Website upload disabled: set BNS_ADMIN_USERNAME and BNS_ADMIN_PASSWORD in .env")
+    elif args.audio_only and not can_site_upload and not skip_site_upload:
+        raise RuntimeError("Website upload requires BNS_ADMIN_USERNAME and BNS_ADMIN_PASSWORD; explicitly disable it to skip")
     if not bot_token or not notify_chat_id:
         print("Telegram notifications disabled: set BOT_TOKEN and TELEGRAM_NOTIFY_CHAT_ID in .env")
 
     client = TelegramClient(
-        session,
+        load_download_session(session),
         api_id,
         api_hash,
         timeout=60,
@@ -1015,55 +1009,50 @@ async def main():
     state_file = Path(args.state_file)
     state = load_state(state_file)
     last_id = int(state.get("last_id", 0))
+    today = datetime.now(ZoneInfo(os.environ.get("BNS_TIMEZONE", "America/New_York"))).date().isoformat()
+    stop_after_today = getattr(args, "stop_after_today", False)
+    if stop_after_today and state.get("last_delivery_date", "") >= today:
+        print("Today's BNS is already delivered.")
+        return
 
     try:
-        await client.start()
+        await client.connect()
+        if not await client.is_user_authorized():
+            raise RuntimeError("Telegram session is not authorized; run downloader.py --login on this host")
         print("Logged in")
 
         src_ent = await resolve_entity_safely(client, args.source)
         tgt_ent = await resolve_entity_safely(client, args.target)
 
-        # Fetch recent messages (window) and decide what to process
-        recent = await client.get_messages(src_ent, limit=200)
-        if not recent:
-            print("No messages found in source channel")
-            return
-
-        # Determine seed behaviour
-        if last_id == 0:
-            if not args.seed:
-                # Seed latest and exit
-                newest = recent[0]
-                state["last_id"] = newest.id
-                save_state(state_file, state)
-                print(
-                    f"No state found. Seeded last_id={newest.id}. Use --seed to process recent posts."
-                )
-                return
-            print("No state found but --seed specified: will process recent window.")
-
-        # Gather messages newer than last_id
+        # Fetch oldest unseen messages, so an outage longer than 200 posts loses nothing.
         if args.only_message_id:
-            to_process = [m for m in recent if m.id == args.only_message_id]
-            if not to_process:
-                print(f"Message {args.only_message_id} not found in recent source window.")
+            if args.only_message_id <= last_id:
+                raise RuntimeError("Requested message is already processed; restore an appropriate checkpoint first")
+            msg = await client.get_messages(src_ent, ids=args.only_message_id)
+            if not msg:
+                raise RuntimeError("Requested source message was not found")
+            to_process = [msg]
+        elif last_id == 0:
+            recent = await client.get_messages(src_ent, limit=200 if args.seed else 1)
+            if not recent:
+                print("No messages found in source channel")
                 return
-            if to_process[0].id <= last_id:
-                print(
-                    f"Message {args.only_message_id} is not newer than state last_id={last_id}. "
-                    "Set the state file last_id lower before replaying a processed message."
-                )
+            if not args.seed:
+                state["last_id"] = recent[0].id
+                save_state(state_file, state)
+                print(f"No state found. Seeded last_id={recent[0].id}; no historical deliveries made.")
                 return
+            to_process = sorted(recent, key=lambda msg: msg.id)
         else:
-            to_process = [m for m in recent if m.id > last_id]
+            to_process = [msg async for msg in client.iter_messages(
+                src_ent, min_id=last_id, reverse=True, limit=200,
+            )]
         if not to_process:
             print("No new messages to process.")
             return
 
-        # Process oldest -> newest
-        to_process.sort(key=lambda m: m.id)
-
         for msg in to_process:
+            tempd = None
             try:
                 if not msg.media:
                     print(f"Skipping {msg.id}: no media")
@@ -1080,12 +1069,9 @@ async def main():
                 print(f"Processing message {msg.id}...")
                 # Download to temporary file (we'll rename it to date-based filename)
                 tempd = tempfile.mkdtemp(prefix="bns_")
-                path = await msg.download_media(file=tempd)
+                path = await asyncio.wait_for(msg.download_media(file=tempd), timeout=1800)
                 if not path:
-                    print(f"Failed to download media for {msg.id}, skipping")
-                    state["last_id"] = msg.id
-                    save_state(state_file, state)
-                    continue
+                    raise RuntimeError(f"Failed to download media for {msg.id}; retained for retry")
 
                 # Build date-based filename (use message date if available)
                 msg_date = getattr(msg, "date", None)
@@ -1120,7 +1106,7 @@ async def main():
 
                 if args.audio_only and Path(path).suffix.lower() in AUDIO_EXTS:
                     try:
-                        upload_path = convert_audio_to_mp3(Path(path))
+                        upload_path = await asyncio.to_thread(convert_audio_to_mp3, Path(path))
                         if upload_path != Path(path):
                             print(f"Prepared MP3 under {BNS_MAX_UPLOAD_MB:.1f} MB: {upload_path.name}")
                         path = str(upload_path)
@@ -1138,96 +1124,55 @@ async def main():
                         )
                         raise
 
-                if can_site_upload:
-                    try:
-                        print(f"Uploading {Path(path).name} to {site_url} via Selenium...")
-                        site_result = upload_to_bns_site(
-                            file_path=Path(path),
-                            site_url=site_url,
-                            admin_username=admin_username,
-                            admin_password=admin_password,
-                            headless=selenium_headless,
-                            upload_timeout_seconds=args.site_upload_timeout,
-                            stall_timeout_seconds=args.site_upload_stall_timeout,
-                        )
-                        status = site_result.get("status", "unknown")
-                        title = (site_result.get("title") or "").strip()
-                        summary = (site_result.get("summary") or "").strip()
-                        reason = (site_result.get("reason") or "").strip()
-
-                        if status == "uploaded":
-                            notify_lines = [
-                                "[OK] BNS Website Upload Success",
-                                f"File: {Path(path).name}",
-                            ]
-                            if reason:
-                                notify_lines.append(f"Website status: {reason}")
-                            if title:
-                                notify_lines.append(f"Title: {title}")
-                            if summary:
-                                notify_lines.append(f"Summary: {_truncate(summary, 1200)}")
-                            notify(bot_token, notify_chat_id, "\n".join(notify_lines))
-                        elif status == "skipped_duplicate":
-                            notify(
-                                bot_token,
-                                notify_chat_id,
-                                "\n".join(
-                                    [
-                                        "[SKIP] BNS Website Upload Skipped (Already Uploaded)",
-                                        f"File: {Path(path).name}",
-                                        f"Reason: {reason or 'Duplicate detected'}",
-                                    ]
-                                ),
-                            )
-                        else:
-                            notify(
-                                bot_token,
-                                notify_chat_id,
-                                "\n".join(
-                                    [
-                                        "[ERROR] BNS Website Upload Error",
-                                        f"File: {Path(path).name}",
-                                        f"Reason: {reason or 'Unknown website upload failure'}",
-                                    ]
-                                ),
-                            )
-                    except Exception as site_exc:
-                        notify(
-                            bot_token,
-                            notify_chat_id,
-                            "\n".join(
-                                [
-                                    "[ERROR] BNS Website Upload Exception",
-                                    f"File: {Path(path).name}",
-                                    f"Error: {site_exc}",
-                                ]
-                            ),
-                        )
+                steps = state.setdefault("pending", {}).setdefault(str(msg.id), {})
+                if can_site_upload and not steps.get("website"):
+                    print(f"Uploading {Path(path).name} to {site_url} via Selenium...")
+                    site_result = await asyncio.to_thread(
+                        upload_to_bns_site,
+                        file_path=Path(path), site_url=site_url,
+                        admin_username=admin_username, admin_password=admin_password,
+                        headless=selenium_headless,
+                        upload_timeout_seconds=args.site_upload_timeout,
+                        stall_timeout_seconds=args.site_upload_stall_timeout,
+                    )
+                    if site_result.get("status") not in {"uploaded", "skipped_duplicate"}:
+                        raise RuntimeError(site_result.get("reason") or "Website upload failed")
+                    steps["website"] = True
+                    save_state(state_file, state)
+                    notice = [f"[OK] BNS website: {Path(path).name} ({site_result['status']})"]
+                    for key in ("reason", "title", "summary"):
+                        if site_result.get(key):
+                            notice.append(f"{key.title()}: {_truncate(str(site_result[key]), 1200)}")
+                    notify(bot_token, notify_chat_id, "\n".join(notice))
 
                 # Re-upload to target channel using the date-named file
                 print(
                     f"Uploading to target channel {args.target} with filename {Path(path).name}..."
                 )
-                await client.send_file(tgt_ent, path, caption=caption)
+                if not steps.get("telegram"):
+                    await asyncio.wait_for(client.send_file(tgt_ent, path, caption=caption), timeout=1800)
+                    steps["telegram"] = True
+                    save_state(state_file, state)
                 print(f"Uploaded message {msg.id} -> target")
 
-                # update state
+                # Advance only after every required destination succeeds.
                 state["last_id"] = msg.id
+                state["pending"].pop(str(msg.id), None)
+                state["last_success_at"] = time.time()
+                delivery_date = (msg_date.astimezone(ZoneInfo(os.environ.get("BNS_TIMEZONE", "America/New_York")))
+                                 .date().isoformat()) if msg_date else date_str
+                state["last_delivery_date"] = max(state.get("last_delivery_date", ""), delivery_date)
                 save_state(state_file, state)
+                if stop_after_today and delivery_date >= today:
+                    print("Today's BNS delivered; stopping until tomorrow.")
+                    break
 
-            except errors.rpcerrorlist.PeerIdInvalidError as e:
-                print(f"Permission error when sending to target: {e}")
-                return
-            except Exception as e:
-                print(f"Error processing message {msg.id}: {e}")
+            except Exception as exc:
+                # Stop here: later successes must never overtake this failed message.
+                print(f"Error processing message {msg.id}; will retry: {exc}")
+                raise
             finally:
-                # best-effort cleanup
-                with contextlib.suppress(Exception):
-                    if "path" in locals():
-                        p = Path(path)
-                        if p.exists():
-                            p.unlink()
-                with contextlib.suppress(Exception):
+                if tempd:
                     shutil.rmtree(tempd, ignore_errors=True)
 
     finally:

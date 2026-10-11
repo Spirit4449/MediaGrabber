@@ -9,12 +9,14 @@ const INVITE_WAIT_MS = 5 * 60 * 1000;
 
 function createDownloadFlow({ rootDir, pythonBin, safeUploadAndDelete, spawnWorker, consumeWorker = consumeDownloader }) {
   const state = new Map();
+  const timeout = Number(process.env.DOWNLOAD_TIMEOUT_SECONDS || 1800) * 1000;
+  if (!Number.isFinite(timeout) || timeout <= 0) throw new Error("DOWNLOAD_TIMEOUT_SECONDS must be positive");
   function spawnDownloader(args) {
     console.log("[spawn] python downloader.py", args.join(" "));
     return spawn(
       pythonBin,
       [path.join(rootDir, "downloader.py"), ...args],
-      { cwd: rootDir },
+      { cwd: rootDir, timeout, killSignal: "SIGKILL" },
     );
   }
   async function handleDownloadFlow(ctx, link, opts = {}) {

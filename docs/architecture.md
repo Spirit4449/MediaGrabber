@@ -42,15 +42,13 @@ Python worker entry points stay at the root to preserve PM2 commands and sibling
 
 ### 1. Make daily sync recovery reliable
 
-`daily_bns_sync.py:main` fetches `get_messages(..., limit=200)` and checkpoints `last_id`. A failed message can be followed by a successful newer message that advances `last_id` beyond the failure. A download returning no path explicitly advances it too. Website errors are logged/returned but do not prevent a later successful Telegram upload from advancing the same checkpoint. A backlog larger than 200 messages is never fully examined.
+Implemented: oldest-first batches after `last_id`, fail at the first incomplete message, atomic checkpoints, per-destination completion flags, and persistent retry workers. See [recovery deployment](recovery-deployment.md). The bot has a separate polling watchdog and fatal polling failures exit for PM2 recovery.
 
-Use a persistent per-message record keyed by source channel and message ID, with separate Telegram and website delivery status, attempt counts, and retry errors. Fetch messages after the checkpoint using pagination. Advance the scan cursor only after recording every discovered item; retry incomplete destinations independently. A local SQLite database is sufficient. Add tests for failure followed by success, partial destination success, restart after send-before-checkpoint, and a backlog over 200 messages before changing production behavior.
-
-As an interim fix, fail the run at the first incomplete message and replace JSON checkpoints atomically. Do not replay failures blindly: Telegram may already have accepted a send before the checkpoint was written. A per-destination delivery record is needed to manage duplicate risk.
+Remaining: a durable per-message queue would let later messages proceed while a permanently invalid message waits for operator intervention. Telegram can accept a send before its success checkpoint is written; crash recovery can still duplicate that send. Stronger destination idempotency/reconciliation is needed for an exactly-once guarantee.
 
 ### 2. Bound download jobs and own their lifecycle
 
-Every bot message or accepted API request immediately spawns a process. `DOWNLOAD_WORKERS` bounds streams within one worker, not the total number of active workers. The API has an HTTP rate limit; bot traffic has no corresponding admission limit. SIGINT/SIGTERM currently stop bot polling only, and invite entries expire only when that chat sends another message.
+Every bot message or accepted API request immediately spawns a process. `DOWNLOAD_WORKERS` bounds streams within one worker, not the total number of active workers. The API has an HTTP rate limit; bot traffic has no corresponding admission limit. The recovery worker cleans up the bot process group on exit, and downloads have a hard timeout. Invite entries still expire only when that chat sends another message.
 
 Introduce one job manager shared by both adapters, with a global concurrency cap, queue limit, per-chat limit, tracked child processes, and graceful shutdown. Expire invite state periodically. Remove empty completed job directories and establish retention for failed-delivery files; currently only the public download directory has expiry cleanup. Test overload, shutdown during transfer/delivery, and retry retention. A persistent queue becomes useful if restart recovery is required; start with a bounded in-process manager if it is not.
 
@@ -62,7 +60,7 @@ The script also searches neighboring project environment files and falls back to
 
 ### 4. Tighten configuration and readiness reporting
 
-Validate numeric settings and required executables before starting work. A failed `bot.launch()` is only logged while `/healthz` still returns success; expose separate readiness for bot polling and the worker environment. Keep liveness distinct from readiness.
+Validate numeric settings and required executables before starting work. Fatal polling errors now shut down the server, and a separate worker checks successful long polls. `/healthz` intentionally remains HTTP-only; a richer readiness endpoint could expose polling and worker-environment status to external monitors.
 
 Both bot and signed API requests use one authenticated Telegram user account. Before exposing the bot broadly, define who may request downloads or ask that account to join private channels; add explicit user/chat authorization to match that policy. HMAC validates API callers but is not bot authorization and currently has no timestamp/nonce for replay protection.
 

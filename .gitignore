@@ -26,3 +26,7 @@ results.json
 progress.json
 pending_images.json
 .DS_Store
+
+# Deployment migration backups may contain credentials or checkpoints
+ecosystem.config.before-recovery.cjs
+.state.before-recovery-*
