@@ -11,7 +11,7 @@ This guide covers how to run `daily_bns_sync.py`, how the state files work, what
 3. Compares each message id against a state file containing `last_id`.
 4. Processes messages with `id > last_id`.
 5. For audio runs, converts audio to an MP3 under the configured upload size.
-6. Uploads the MP3 to the BNS website with Selenium when site upload is enabled.
+6. Signs in to the BNS website with Selenium and selects the MP3 on the Upload tab when site upload is enabled. The site uploads the audio to storage and processes it as a server-side job; the script waits for that job to finish.
 7. Reposts the media to the target Telegram channel.
 8. Saves each completed delivery step and advances `last_id` only after required deliveries succeed. On failure it stops and retains the message for retry.
 
@@ -137,9 +137,9 @@ media_grabber_session_audio.session
 
 `--site-upload-timeout SECONDS`
 
-Maximum time Selenium waits for the BNS website processing queue to finish one upload.
+Maximum time Selenium waits for the BNS website's server job to finish one upload.
 
-The website upload can include transcription, analysis, embeddings, and saving to Supabase, so large files can take a long time. A practical value is:
+The job includes transcription, analysis, embeddings, and saving to Supabase, so large files can take a long time. If the wait times out, the job keeps running on the site and the next run attaches to it instead of uploading again. A practical value is:
 
 ```text
 7200
@@ -147,7 +147,7 @@ The website upload can include transcription, analysis, embeddings, and saving t
 
 `--site-upload-stall-timeout SECONDS`
 
-How long Selenium waits after a browser/API quota-looking stall before reporting a failure. A practical value is:
+How long the browser's audio upload may show no progress, before the site has queued a job, until it is reported as stalled. It does not apply once the server job exists. A practical value is:
 
 ```text
 300
@@ -265,13 +265,21 @@ Open the HTML or PNG to see exactly what Selenium saw.
 
 ## Website Upload Success Criteria
 
-The script should not treat stale archive/calendar entries as success.
+The script reads the signed-in account's jobs from the site's `/api/jobs` endpoint (through the browser session) and matches on the exact file name.
 
 Current success means:
 
 ```text
-The Processing Queue card for the exact file name reaches Archived / 100%.
+The newest job for the exact file name has status "completed" (message "Archived").
 ```
+
+Before uploading, the script checks for an existing job with that file name:
+
+- `completed`: reported as uploaded, nothing is re-uploaded.
+- still running: the script waits for it.
+- `error` or `stopped`: the script presses the job's retry endpoint, which resumes from the site's saved checkpoints, then waits.
+
+Jobs are listed per account, so keep `BNS_ADMIN_USERNAME` stable. Clearing the Uploads list on the site hides jobs from this check.
 
 While waiting, the script prints a progress line about once per minute:
 
@@ -283,7 +291,7 @@ If it times out, the error includes:
 
 ```text
 Timed out waiting for upload completion
-Last queue status
+Last job status
 HTML/Screenshot debug artifact paths
 Browser console excerpt, when relevant
 ```
@@ -346,18 +354,20 @@ Check Selenium debug files:
 ls -lt logs/selenium | head
 ```
 
-### Admin verification fails
+### Sign-in fails
+
+The whole site is behind a sign-in page. The script fills `#bns-username` / `#bns-password` and reports the site's own error text (for example `Invalid username or password.`). The site locks an IP out after 10 failed sign-ins in 15 minutes.
 
 The script resolves credentials from:
 
 1. `BNS_ADMIN_USERNAME` and `BNS_ADMIN_PASSWORD` in MediaGrabber `.env`, unless they are still the old default.
-2. The sibling website env file:
+2. The first `ADMIN_CREDENTIALS` entry in the sibling website env file:
 
 ```text
 /home/nisch/Desktop/Brahma-naa-sange/.env.local
 ```
 
-If the website admin accounts change, update one of those files.
+The account must be in the website's `ADMIN_CREDENTIALS`. A `VIEWER_CREDENTIALS` account signs in but has no Upload tab, which the script reports as `the Upload tab is missing`.
 
 ### Website upload hangs
 

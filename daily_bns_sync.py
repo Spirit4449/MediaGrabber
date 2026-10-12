@@ -130,7 +130,7 @@ def _load_bns_site_admin_credentials() -> tuple[str, str] | None:
         seen.add(resolved)
 
         values = _read_env_file(resolved)
-        for key in ("VITE_ADMIN_CREDENTIALS", "VITE_ADMIN_USERS"):
+        for key in ("ADMIN_CREDENTIALS", "VITE_ADMIN_CREDENTIALS", "VITE_ADMIN_USERS"):
             parsed = _parse_admin_credentials(values.get(key, ""))
             if parsed:
                 return parsed[0]
@@ -229,25 +229,6 @@ def notify(bot_token: str, chat_id: str, text: str) -> None:
         print(f"Telegram notify failed: {exc}")
 
 
-def _extract_recent_upload_summary(driver) -> tuple[str, str]:
-    from selenium.webdriver.common.by import By
-
-    recent_sections = driver.find_elements(
-        By.XPATH,
-        "//h3[normalize-space()='Recent uploads']/ancestor::div[contains(@class,'max-w-5xl')][1]",
-    )
-    if not recent_sections:
-        return "", ""
-    section = recent_sections[0]
-    titles = section.find_elements(By.XPATH, ".//h4")
-    summaries = section.find_elements(
-        By.XPATH, ".//p[contains(@class,'text-sm') and contains(@class,'text-gray-600')]"
-    )
-    title = titles[0].text.strip() if titles else ""
-    summary = summaries[0].text.strip() if summaries else ""
-    return title, summary
-
-
 def _browser_error_excerpt(driver, max_len: int = 900) -> str:
     try:
         entries = driver.get_log("browser")
@@ -272,121 +253,128 @@ def _browser_error_excerpt(driver, max_len: int = 900) -> str:
     return _truncate("\n".join(interesting[-3:]), max_len)
 
 
-def _expected_upload_title(file_name: str) -> str:
-    stem = Path(file_name).stem
-    base = stem.split(" (", 1)[0]
+# Runs in the signed-in page, so the request carries the site's session cookie.
+_SITE_FETCH_SCRIPT = """
+const [path, method, done] = arguments;
+fetch(path, {
+  method,
+  credentials: 'same-origin',
+  ...(method === 'POST' ? {headers: {'Content-Type': 'application/json'}, body: '{}'} : {}),
+}).then(async (res) => done({status: res.status, body: await res.json().catch(() => null)}))
+  .catch((err) => done({status: 0, error: String(err)}));
+"""
+
+
+def _site_fetch(driver, path: str, method: str = "GET") -> dict:
     try:
-        dt = datetime.strptime(base, "%Y-%m-%d")
-    except ValueError:
-        return ""
-
-    day = dt.day
-    if 10 <= day % 100 <= 20:
-        suffix = "th"
-    else:
-        suffix = {1: "st", 2: "nd", 3: "rd"}.get(day % 10, "th")
-    return dt.strftime(f"%B {day}{suffix}, %Y")
+        return driver.execute_async_script(_SITE_FETCH_SCRIPT, path, method) or {}
+    except Exception as exc:
+        return {"status": 0, "error": str(exc)}
 
 
-def _page_has_uploaded_title(driver, expected_title: str) -> bool:
-    if not expected_title:
-        return False
+def _site_jobs(driver, file_name: str) -> tuple[list[dict] | None, str]:
+    """Return this account's server jobs for file_name (newest first), or None with a reason."""
+    res = _site_fetch(driver, "/api/jobs")
+    body = res.get("body")
+    if res.get("status") != 200 or not isinstance(body, list):
+        detail = res.get("error") or (body.get("error") if isinstance(body, dict) else "")
+        return None, f"HTTP {res.get('status', 0)}" + (f": {detail}" if detail else "")
+    return [job for job in body if isinstance(job, dict) and job.get("fileName") == file_name], ""
 
-    from selenium.webdriver.common.by import By
 
-    matches = driver.find_elements(
-        By.XPATH,
-        f"//h4[normalize-space()={_xpath_literal(expected_title)}]",
+def _job_status_line(job: dict) -> str:
+    line = f"{job.get('status', '?')} {int(job.get('progress') or 0)}% - {job.get('message', '')}".strip()
+    if job.get("error"):
+        line = f"{line}\n{job['error']}"
+    return line
+
+
+def _site_record_summary(driver, record_id: str) -> tuple[str, str]:
+    res = _site_fetch(
+        driver,
+        f"/api/database/rest/v1/transcriptions?id=eq.{record_id}&select=title,summary:analysis->>summary",
     )
-    return bool(matches)
+    rows = res.get("body")
+    if res.get("status") != 200 or not isinstance(rows, list) or not rows:
+        return "", ""
+    return str(rows[0].get("title") or "").strip(), str(rows[0].get("summary") or "").strip()
 
 
-def _upload_calendar_day_uploaded(driver, file_name: str) -> bool:
-    stem = Path(file_name).stem
-    base = stem.split(" (", 1)[0]
-    try:
-        dt = datetime.strptime(base, "%Y-%m-%d")
-    except ValueError:
-        return False
-
+def _upload_card_text(driver, file_name: str) -> str:
+    """Text of the Uploads card for file_name; only needed before the server job exists."""
     from selenium.webdriver.common.by import By
 
-    month_label = dt.strftime("%B %Y")
-    day_label = str(dt.day)
-    buttons = driver.find_elements(
+    cards = driver.find_elements(
         By.XPATH,
         (
-            "//h3[normalize-space()='Upload calendar']"
-            "/ancestor::div[contains(@class,'max-w-5xl')][1]"
-            f"//span[normalize-space()={_xpath_literal(month_label)}]"
-            "/ancestor::div[contains(@class,'bg-white')][1]"
-            f"//button[.//span[normalize-space()={_xpath_literal(day_label)}]]"
+            f"//h4[normalize-space()={_xpath_literal(Path(file_name).name)}]"
+            "/ancestor::div[contains(@class,'animate-slideDown')][1]"
         ),
     )
-    for button in buttons:
-        classes = button.get_attribute("class") or ""
-        if "border-orange-200" in classes or "bg-orange-50" in classes:
-            return True
-        markers = button.find_elements(
-            By.XPATH, ".//span[contains(@class,'bg-orange-500')]"
+    with contextlib.suppress(Exception):
+        return " | ".join(part.strip() for part in (cards[0].text or "").splitlines() if part.strip())
+    return ""
+
+
+def _sign_in_to_bns_site(driver, site_url: str, admin_username: str, admin_password: str) -> str:
+    """Open the site and sign in. Returns "" once the admin Upload tab is available, else a reason."""
+    from selenium.common.exceptions import TimeoutException
+    from selenium.webdriver.common.by import By
+    from selenium.webdriver.support.ui import WebDriverWait
+
+    upload_tab = (By.XPATH, "//nav//button[normalize-space()='Upload']")
+    signed_in = (By.XPATH, "//nav//button[normalize-space()='Archive']")
+    login_user = (By.ID, "bns-username")
+    login_pass = (By.ID, "bns-password")
+    login_alert = (By.XPATH, "//form//p[@role='alert']")
+
+    def fail(reason: str, label: str) -> str:
+        debug_hint = _write_debug_artifacts(driver, label)
+        return f"{reason}\n\n{debug_hint}" if debug_hint else reason
+
+    driver.get(site_url)
+    try:
+        WebDriverWait(driver, 60).until(
+            lambda d: d.find_elements(*signed_in)
+            or (d.find_elements(*login_user) and d.find_elements(*login_pass))
         )
-        if markers:
-            return True
-    return False
-
-
-def _page_has_completed_queue_item(driver, file_name: str, body_text: str) -> bool:
-    from selenium.webdriver.common.by import By
-
-    for node in driver.find_elements(
-        By.XPATH,
-        f"//*[contains(normalize-space(), {_xpath_literal(Path(file_name).name)})]",
-    ):
+    except TimeoutException:
+        body_text = ""
         with contextlib.suppress(Exception):
-            card = node.find_element(
-                By.XPATH,
-                "./ancestor::div[contains(@class,'border') or contains(@class,'rounded')][1]",
+            body_text = driver.find_element(By.TAG_NAME, "body").text
+        details = _truncate(f"Title: {driver.title or ''}\nURL: {driver.current_url or ''}\n\n{body_text}")
+        return fail(f"Sign-in form not found on the BNS site.\n\n{details}", "admin-form-missing")
+
+    if not driver.find_elements(*signed_in):
+        user_input = driver.find_element(*login_user)
+        pass_input = driver.find_element(*login_pass)
+        user_input.clear()
+        user_input.send_keys(admin_username)
+        pass_input.clear()
+        pass_input.send_keys(admin_password)
+        submit = driver.find_element(By.XPATH, "//form[.//input[@id='bns-password']]//button[@type='submit']")
+        driver.execute_script("arguments[0].click();", submit)
+        try:
+            WebDriverWait(driver, 30).until(
+                lambda d: d.find_elements(*signed_in)
+                or any((el.text or "").strip() for el in d.find_elements(*login_alert))
             )
-            card_text = "".join((card.text or "").upper().split())
-            if "FAILED" in card_text or "ERROR" in card_text:
-                return False
-            if "ARCHIVED" in card_text or ("COMPLETED" in card_text and "100%" in card_text):
-                return True
+        except TimeoutException:
+            return fail("Sign-in did not complete within 30s.", "admin-login-failed")
+        if not driver.find_elements(*signed_in):
+            alert_text = " ".join((el.text or "").strip() for el in driver.find_elements(*login_alert))
+            return fail(f"BNS site rejected the sign-in for {admin_username}: {alert_text}", "admin-login-failed")
 
-    return False
-
-
-def _find_upload_queue_card(driver, file_name: str):
-    from selenium.webdriver.common.by import By
-
-    file_literal = _xpath_literal(Path(file_name).name)
-    nodes = driver.find_elements(
-        By.XPATH,
-        (
-            "//h3[normalize-space()='Processing Queue']"
-            "/ancestor::div[contains(@class,'space-y-4')][1]"
-            f"//*[normalize-space()={file_literal}]"
-        ),
-    )
-    for node in nodes:
-        with contextlib.suppress(Exception):
-            return node.find_element(
-                By.XPATH,
-                "./ancestor::div[contains(@class,'animate-slideDown')][1]",
-            )
-        with contextlib.suppress(Exception):
-            return node.find_element(
-                By.XPATH,
-                "./ancestor::div[contains(@class,'rounded-2xl') and contains(@class,'border')][1]",
-            )
-    return None
-
-
-def _upload_queue_card_text(driver, file_name: str) -> str:
-    card = _find_upload_queue_card(driver, file_name)
-    if not card:
-        return ""
-    return (card.text or "").strip()
+    try:
+        # The Upload tab only renders for admin accounts, after the session check returns.
+        WebDriverWait(driver, 30).until(lambda d: d.find_elements(*upload_tab))
+    except TimeoutException:
+        return fail(
+            f"Signed in as {admin_username}, but the Upload tab is missing. "
+            "The account must be listed in the site's ADMIN_CREDENTIALS (not VIEWER_CREDENTIALS).",
+            "upload-nav-missing",
+        )
+    return ""
 
 
 def upload_to_bns_site(
@@ -463,338 +451,118 @@ def upload_to_bns_site(
             "title": "",
             "summary": "",
         }
+    def result(status: str, reason: str, title: str = "", summary: str = "") -> dict:
+        return {"status": status, "reason": reason, "title": title, "summary": summary}
+
     try:
         driver.set_page_load_timeout(120)
-        driver.get(site_url)
-        wait = WebDriverWait(driver, 30)
-
-        def admin_ready(d) -> bool:
-            return bool(
-                d.find_elements(By.XPATH, "//*[contains(normalize-space(),'Admin:')]")
-                or d.find_elements(By.XPATH, "//button[normalize-space()='Upload']")
-                or d.find_elements(By.XPATH, "//button[contains(normalize-space(),'Add Recording')]")
-            )
-
-        def reveal_admin_form() -> None:
-            if admin_ready(driver):
-                return
-            try:
-                WebDriverWait(driver, 30).until(
-                    lambda d: admin_ready(d)
-                    or d.find_elements(
-                        By.XPATH,
-                        (
-                            "//button[normalize-space()='Are you an admin?']"
-                            "|//button[contains(translate(normalize-space(),"
-                            "'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz'),'admin')]"
-                        ),
-                    )
-                    or (
-                        d.find_elements(By.XPATH, "//input[@placeholder='Admin username']")
-                        and d.find_elements(By.XPATH, "//input[@placeholder='Admin password']")
-                    )
-                )
-            except TimeoutException:
-                return
-
-            for _ in range(6):
-                if admin_ready(driver):
-                    return
-                buttons = driver.find_elements(
-                    By.XPATH,
-                    (
-                        "//button[normalize-space()='Are you an admin?']"
-                        "|//button[contains(translate(normalize-space(),"
-                        "'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz'),'admin')]"
-                    ),
-                )
-                clicked = False
-                for button in reversed(buttons):
-                    try:
-                        driver.execute_script("arguments[0].click();", button)
-                        clicked = True
-                        break
-                    except Exception:
-                        continue
-                if not clicked:
-                    time.sleep(1)
-                    continue
-                try:
-                    WebDriverWait(driver, 10).until(
-                        lambda d: admin_ready(d)
-                        or (
-                            d.find_elements(By.XPATH, "//input[@placeholder='Admin username']")
-                            and d.find_elements(By.XPATH, "//input[@placeholder='Admin password']")
-                        )
-                    )
-                    return
-                except TimeoutException:
-                    continue
-
-        reveal_admin_form()
-
-        already_admin = driver.find_elements(
-            By.XPATH, "//*[contains(normalize-space(),'Admin:')]"
-        )
-        if not already_admin:
-            try:
-                wait.until(
-                    lambda d: (
-                        d.find_elements(By.XPATH, "//input[@placeholder='Admin username']")
-                        and d.find_elements(By.XPATH, "//input[@placeholder='Admin password']")
-                    )
-                )
-                user_input = driver.find_element(
-                    By.XPATH, "//input[@placeholder='Admin username']"
-                )
-                pass_input = driver.find_element(
-                    By.XPATH, "//input[@placeholder='Admin password']"
-                )
-            except TimeoutException:
-                page_title = driver.title or ""
-                page_url = driver.current_url or ""
-                body_text = ""
-                with contextlib.suppress(Exception):
-                    body_text = driver.find_element(By.TAG_NAME, "body").text
-                debug_hint = _write_debug_artifacts(driver, "admin-form-missing")
-                reason = "Admin login form not found on the upload page."
-                details = _truncate(f"Title: {page_title}\nURL: {page_url}\n\n{body_text}")
-                if debug_hint:
-                    details = f"{details}\n\n{debug_hint}"
-                return {
-                    "status": "error",
-                    "reason": f"{reason}\n\n{details}",
-                    "title": "",
-                    "summary": "",
-                }
-            user_input.clear()
-            user_input.send_keys(admin_username)
-            pass_input.clear()
-            pass_input.send_keys(admin_password)
-
-            verify_btn = wait.until(
-                EC.element_to_be_clickable((By.XPATH, "//button[normalize-space()='Verify']"))
-            )
-            driver.execute_script("arguments[0].click();", verify_btn)
-
-            try:
-                WebDriverWait(driver, 20).until(admin_ready)
-            except TimeoutException:
-                debug_hint = _write_debug_artifacts(driver, "admin-login-failed")
-                reason = "Admin verification did not unlock the upload controls."
-                if debug_hint:
-                    reason = f"{reason}\n\n{debug_hint}"
-                return {
-                    "status": "error",
-                    "reason": reason,
-                    "title": "",
-                    "summary": "",
-                }
-
-        if not admin_ready(driver):
-            reveal_admin_form()
-            wait.until(admin_ready)
-
-        nav_clicked = bool(
-            driver.find_elements(By.ID, "audio-upload")
-            or driver.find_elements(By.XPATH, "//h2[normalize-space()='Upload Recording']")
-        )
-
-        if not nav_clicked:
-            upload_locators = [
-                (By.XPATH, "//button[normalize-space()='Upload']"),
-                (By.XPATH, "//button[contains(normalize-space(),'Add Recording')]")
-            ]
-            for locator in upload_locators:
-                try:
-                    upload_btn = WebDriverWait(driver, 15).until(
-                        EC.element_to_be_clickable(locator)
-                    )
-                    driver.execute_script("arguments[0].click();", upload_btn)
-                    nav_clicked = True
-                    break
-                except TimeoutException:
-                    continue
-
-        if not nav_clicked:
-            debug_hint = _write_debug_artifacts(driver, "upload-nav-missing")
-            reason = "Upload navigation button not found after admin login."
-            if debug_hint:
-                reason = f"{reason}\n\n{debug_hint}"
-            return {
-                "status": "error",
-                "reason": reason,
-                "title": "",
-                "summary": "",
-            }
-
-        file_wait = WebDriverWait(driver, 60)
-        file_wait.until(
-            lambda d: d.find_elements(By.ID, "audio-upload")
-            or d.find_elements(By.XPATH, "//h2[normalize-space()='Upload Recording']")
-            or admin_ready(d)
-        )
-
-        if (
-            not driver.find_elements(By.ID, "audio-upload")
-            and not driver.find_elements(By.XPATH, "//h2[normalize-space()='Upload Recording']")
-            and admin_ready(driver)
-        ):
-            for locator in (
-                (By.XPATH, "//button[normalize-space()='Upload']"),
-                (By.XPATH, "//button[contains(normalize-space(),'Add Recording')]"),
-            ):
-                with contextlib.suppress(Exception):
-                    upload_btn = driver.find_element(*locator)
-                    driver.execute_script("arguments[0].click();", upload_btn)
-                    break
-
-        try:
-            file_wait.until(
-                lambda d: d.find_elements(By.ID, "audio-upload")
-                or d.find_elements(By.XPATH, "//h2[normalize-space()='Upload Recording']")
-            )
-        except TimeoutException:
-            pass
-
-        file_input = None
-        for locator in (
-            (By.ID, "audio-upload"),
-            (By.CSS_SELECTOR, "input[type='file']"),
-        ):
-            try:
-                file_input = file_wait.until(EC.presence_of_element_located(locator))
-                if file_input:
-                    break
-            except TimeoutException:
-                continue
-
-        if not file_input:
-            debug_hint = _write_debug_artifacts(driver, "file-input-missing")
-            reason = "Upload file input not found after admin login."
-            if debug_hint:
-                reason = f"{reason}\n\n{debug_hint}"
-            return {
-                "status": "error",
-                "reason": reason,
-                "title": "",
-                "summary": "",
-            }
-        file_input.send_keys(str(file_path.resolve()))
-
-        try:
-            alert = WebDriverWait(driver, 3).until(EC.alert_is_present())
-            alert_text = (alert.text or "").strip()
-            if "already uploaded" in alert_text.lower():
-                alert.dismiss()
-                return {
-                    "status": "skipped_duplicate",
-                    "reason": alert_text or "Already uploaded alert detected",
-                    "title": "",
-                    "summary": "",
-                }
-            alert.accept()
-        except TimeoutException:
-            pass
+        driver.set_script_timeout(30)
+        sign_in_error = _sign_in_to_bns_site(driver, site_url, admin_username, admin_password)
+        if sign_in_error:
+            return result("error", sign_in_error)
 
         file_name = file_path.name
-        expected_title = _expected_upload_title(file_name)
+
+        # Processing runs on the site's server, so a job from an earlier attempt may
+        # still be running (or finished) after this script timed out or restarted.
+        jobs, jobs_error = _site_jobs(driver, file_name)
+        if jobs is None:
+            return result("error", f"Could not read the BNS site's upload jobs ({jobs_error}).")
+        job = jobs[0] if jobs else None
+        if job and job.get("status") in {"error", "stopped"}:
+            print(f"Retrying existing BNS website job for {file_name}: {_job_status_line(job)}")
+            retry = _site_fetch(driver, f"/api/jobs/{job.get('id')}/retry", "POST")
+            if retry.get("status") != 200:
+                detail = (retry.get("body") or {}).get("error") or retry.get("error") or ""
+                return result(
+                    "error",
+                    f"Could not retry the failed website job (HTTP {retry.get('status', 0)}: {detail}).\n\n"
+                    f"{_truncate(_job_status_line(job), 1800)}",
+                )
+        elif job:
+            print(f"Found existing BNS website job for {file_name}: {_job_status_line(job)}")
+
+        if not job:
+            upload_tab = driver.find_element(By.XPATH, "//nav//button[normalize-space()='Upload']")
+            driver.execute_script("arguments[0].click();", upload_tab)
+            try:
+                file_input = WebDriverWait(driver, 60).until(
+                    lambda d: (d.find_elements(By.ID, "audio-upload")
+                               or d.find_elements(By.CSS_SELECTOR, "input[type='file']") or [None])[0]
+                )
+            except TimeoutException:
+                debug_hint = _write_debug_artifacts(driver, "file-input-missing")
+                reason = "Upload file input not found after sign-in."
+                return result("error", f"{reason}\n\n{debug_hint}" if debug_hint else reason)
+            file_input.send_keys(str(file_path.resolve()))
+
+            try:
+                alert = WebDriverWait(driver, 3).until(EC.alert_is_present())
+                alert_text = (alert.text or "").strip()
+                if "already uploaded" in alert_text.lower():
+                    alert.dismiss()
+                    return result("skipped_duplicate", alert_text or "Already uploaded alert detected")
+                alert.accept()
+            except TimeoutException:
+                pass
+
         deadline = time.time() + max(60, upload_timeout_seconds)
-        last_body_text = ""
-        last_queue_text = ""
+        last_status = ""
         last_change_at = time.time()
         next_progress_log_at = time.time() + 60
+        job_seen = bool(job)
         while time.time() < deadline:
-            browser_excerpt = _browser_error_excerpt(driver)
-            body_text = ""
-            with contextlib.suppress(Exception):
-                body_text = driver.find_element(By.TAG_NAME, "body").text.strip()
-            if body_text and body_text != last_body_text:
-                last_body_text = body_text
+            jobs, jobs_error = _site_jobs(driver, file_name)
+            job = jobs[0] if jobs else None
+            if job:
+                job_seen = True
+                status = _job_status_line(job)
+                if job.get("status") == "completed":
+                    title, summary = _site_record_summary(driver, job.get("recordId") or job.get("id") or "")
+                    return result("uploaded", job.get("message") or "Completed", title, summary)
+                if job.get("status") in {"error", "stopped"}:
+                    return result("error", _truncate(status, 1800) or "Website upload failed.")
+            else:
+                # Until the audio reaches storage the job exists only in the page.
+                status = _upload_card_text(driver, file_name)
+                if "could not be queued" in status.lower():
+                    browser_excerpt = _browser_error_excerpt(driver)
+                    reason = _truncate(status, 1800)
+                    if browser_excerpt:
+                        reason = f"{reason}\n\nBrowser console:\n{browser_excerpt}"
+                    return result("error", reason)
+            if status and status != last_status:
+                last_status = status
                 last_change_at = time.time()
-
-            queue_text = _upload_queue_card_text(driver, file_name)
-            if queue_text and queue_text != last_queue_text:
-                last_queue_text = queue_text
-                last_change_at = time.time()
-
-            compact_queue_text = "".join(queue_text.upper().split())
-            if _page_has_completed_queue_item(driver, file_name, body_text):
-                title, summary = _extract_recent_upload_summary(driver)
-                return {
-                    "status": "uploaded",
-                    "reason": "Completed",
-                    "title": title,
-                    "summary": summary,
-                }
             if time.time() >= next_progress_log_at:
-                status = _truncate(queue_text, 500) or "waiting for processing queue item"
-                print(f"BNS website upload still running for {file_name}: {status}")
+                shown = _truncate(status, 500) or f"waiting for upload to start ({jobs_error or 'no job yet'})"
+                print(f"BNS website upload still running for {file_name}: {shown}")
                 next_progress_log_at = time.time() + 60
-            if (
-                "ERROR" in compact_queue_text
-                or "FAILED" in compact_queue_text
-                or "RESOURCE_EXHAUSTED" in compact_queue_text
-            ):
-                err_text = _truncate(queue_text, 1800) or "Website upload failed."
-                if browser_excerpt and browser_excerpt not in err_text:
-                    err_text = f"{err_text}\n\nBrowser console:\n{browser_excerpt}"
-                return {
-                    "status": "error",
-                    "reason": err_text,
-                    "title": "",
-                    "summary": "",
-                }
-            if browser_excerpt and any(
-                token in browser_excerpt.lower()
-                for token in ("429", "quota", "resource_exhausted")
-            ):
-                if time.time() - last_change_at >= max(20, stall_timeout_seconds):
-                    return {
-                        "status": "error",
-                        "reason": (
-                            "Website upload appears stalled after a browser/API quota error.\n\n"
-                            f"Browser console:\n{browser_excerpt}"
-                        ),
-                        "title": "",
-                        "summary": "",
-                    }
-            time.sleep(2)
+            if not job_seen and time.time() - last_change_at >= max(20, stall_timeout_seconds):
+                reason = (
+                    f"Audio upload made no progress for {int(time.time() - last_change_at)}s "
+                    "and never reached the site's job queue."
+                )
+                debug_hint = _write_debug_artifacts(driver, "upload-stalled")
+                if debug_hint:
+                    reason = f"{reason}\n\n{debug_hint}"
+                if last_status:
+                    reason = f"{reason}\n\nLast status:\n{_truncate(last_status, 1800)}"
+                browser_excerpt = _browser_error_excerpt(driver)
+                if browser_excerpt:
+                    reason = f"{reason}\n\nBrowser console:\n{browser_excerpt}"
+                return result("error", reason)
+            time.sleep(5 if job_seen else 2)
 
-        with contextlib.suppress(Exception):
-            body_text = driver.find_element(By.TAG_NAME, "body").text.strip()
-            if _page_has_completed_queue_item(driver, file_name, body_text):
-                title, summary = _extract_recent_upload_summary(driver)
-                return {
-                    "status": "uploaded",
-                    "reason": "Completed after final status check",
-                    "title": title,
-                    "summary": summary,
-                }
-
-        browser_excerpt = _browser_error_excerpt(driver)
         reason = f"Timed out waiting for upload completion after {upload_timeout_seconds}s"
+        if job_seen:
+            reason = f"{reason}. The job keeps running on the site; the next run will pick it up without re-uploading."
         debug_hint = _write_debug_artifacts(driver, "upload-timeout")
         if debug_hint:
             reason = f"{reason}\n\n{debug_hint}"
-        if last_queue_text:
-            reason = f"{reason}\n\nLast queue status:\n{_truncate(last_queue_text, 1800)}"
-        elif expected_title and (
-            _page_has_uploaded_title(driver, expected_title)
-            or _upload_calendar_day_uploaded(driver, file_name)
-        ):
-            reason = (
-                f"{reason}\n\nA stale archive/calendar entry for {expected_title} exists, "
-                "but the current processing queue item never reached Archived/100%."
-            )
-        if browser_excerpt:
-            reason = f"{reason}\n\nBrowser console:\n{browser_excerpt}"
-        return {
-            "status": "error",
-            "reason": reason,
-            "title": "",
-            "summary": "",
-        }
+        if last_status:
+            reason = f"{reason}\n\nLast job status:\n{_truncate(last_status, 1800)}"
+        return result("error", reason)
     finally:
         driver.quit()
         with contextlib.suppress(Exception):
@@ -948,7 +716,7 @@ async def main():
         "--site-upload-stall-timeout",
         type=int,
         default=int(os.environ.get("BNS_UPLOAD_STALL_SECONDS", "90")),
-        help="Seconds with no visible upload progress before surfacing browser quota errors.",
+        help="Seconds the audio upload may show no progress before it is reported as stalled.",
     )
     ap.add_argument(
         "--no-site-upload",
