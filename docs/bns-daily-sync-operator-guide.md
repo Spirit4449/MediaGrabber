@@ -457,3 +457,31 @@ Check script syntax:
 ## Retry limits
 
 A remote upload can succeed just before a crash prevents saving its checkpoint. A retry can duplicate that Telegram post; website retries use the site's existing duplicate detection. Previously skipped posts are not rediscovered automatically—use targeted replay. A permanently failing message blocks later messages until resolved. Bot requests are not a durable queue and may need resending after a restart.
+
+## Moments with Mahant Swami (`moments_sync.py`)
+
+A separate, text-only import: the daily post on channel 2074676830 goes to the BNS
+site's `/api/moments/import`, which turns it into a prasang. No media is downloaded and
+no Telegram message is reposted.
+
+- Every run reads the whole channel and sends every post with text. The site ignores
+  unchanged posts, re-processes edited ones, and marks posts missing from the read as
+  deleted. Repeats and retries are safe.
+- A run then waits up to `MOMENTS_WAIT_SECONDS` (600) for today's post to finish on the
+  site and sends a notification with its title and whether it was linked to a
+  recording. If it is not finished, the run exits non-zero and the worker checks again.
+- PM2 app `moments_daily` (`service_worker.py moments --start-at 08:20`) runs it every
+  15 minutes from 08:20 in `BNS_TIMEZONE` until today's post is in, with the usual 18:00
+  missing-delivery alert. State: `.state/moments_state.json`.
+- It signs in with the same `BNS_SITE_URL` admin login as the audio upload, over plain
+  HTTP requests (no Selenium). `BNS_DISABLE_SITE_UPLOAD` does not apply to it.
+
+```bash
+.venv/bin/python moments_sync.py --dry-run --out /tmp/moments.jsonl   # read only
+.venv/bin/python moments_sync.py --limit 10 --state-file .state/moments_pilot.json   # pilot
+.venv/bin/python moments_sync.py                                       # full import
+pm2 logs moments_daily
+```
+
+`--limit` never marks posts deleted, because it is not a full read. The BNS side is
+described in the website repository's `docs/moments.md`.
