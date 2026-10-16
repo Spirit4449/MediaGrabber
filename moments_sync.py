@@ -43,6 +43,8 @@ except ImportError:
 DEFAULT_CHANNEL = int(os.environ.get("MOMENTS_CHANNEL_ID", "2074676830"))
 DEFAULT_STATE_FILE = Path(".state") / "moments_state.json"
 FINISHED = {"done", "skipped"}
+# Cloudflare's browser integrity check (error 1010) rejects Python's default User-Agent.
+USER_AGENT = os.environ.get("MOMENTS_USER_AGENT", "Mozilla/5.0 (compatible; MediaGrabber-moments/1.0)")
 
 
 def post_payload(msg) -> dict | None:
@@ -77,7 +79,7 @@ class BnsSite:
     def _call(self, method: str, path: str, body: dict | None = None):
         data = json.dumps(body).encode("utf-8") if body is not None else None
         request = urllib.request.Request(self.base_url + path, data=data, method=method,
-                                         headers={"Content-Type": "application/json", "Accept": "application/json"})
+                                         headers={"Content-Type": "application/json", "Accept": "application/json", "User-Agent": USER_AGENT})
         try:
             with self.opener.open(request, timeout=self.timeout) as response:
                 return json.loads(response.read().decode("utf-8") or "null")

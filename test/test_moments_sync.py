@@ -161,6 +161,11 @@ class BnsSiteTests(unittest.TestCase):
             def do_POST(self):
                 body = json.loads(self.rfile.read(int(self.headers["Content-Length"])))
                 seen.append((self.path, self.headers.get("Cookie"), body))
+                if "Python-urllib" in self.headers.get("User-Agent", ""):
+                    self.send_response(403)
+                    self.end_headers()
+                    self.wfile.write(b'{"title":"Error 1010: Access denied"}')
+                    return
                 if self.path == "/api/admin/login":
                     self.send_response(200)
                     self.send_header("Set-Cookie", "bns_session=abc; Path=/; HttpOnly")
