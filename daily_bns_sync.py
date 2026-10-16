@@ -627,16 +627,21 @@ def get_audio_duration_seconds(input_path: Path) -> float | None:
     return duration if duration > 0 else None
 
 
+# Use encoder-supported rates and leave room for headers, tags, and frame padding.
+MP3_BITRATES_KBPS = (192, 160, 128, 112, 96, 80, 64, 56, 48, 40, 32, 24, 16, 8)
+MP3_UPLOAD_HEADROOM = 0.97
+
+
 def mp3_bitrate_for_upload(input_path: Path) -> int | None:
     duration = get_audio_duration_seconds(input_path)
     if not duration:
         return None
-    target_kbps = int((BNS_MAX_UPLOAD_BYTES * 8) / duration / 1000)
-    return max(64, min(192, target_kbps))
+    target_kbps = BNS_MAX_UPLOAD_BYTES * MP3_UPLOAD_HEADROOM * 8 / duration / 1000
+    return next((rate for rate in MP3_BITRATES_KBPS if rate <= target_kbps), 8)
 
 
 def convert_audio_to_mp3(input_path: Path) -> Path:
-    """Convert audio to a high-quality MP3 for Telegram channel delivery."""
+    """Convert audio to an MP3 that fits the measured upload limit."""
     if input_path.suffix.lower() == ".mp3" and input_path.stat().st_size <= BNS_MAX_UPLOAD_BYTES:
         return input_path
     if shutil.which(FFMPEG_PATH) is None:
@@ -649,28 +654,37 @@ def convert_audio_to_mp3(input_path: Path) -> Path:
         output_path.unlink()
 
     bitrate = mp3_bitrate_for_upload(input_path)
-    audio_options = ["-b:a", f"{bitrate}k"] if bitrate else ["-q:a", "2"]
-    cmd = [
-        FFMPEG_PATH,
-        "-y",
-        "-i",
-        str(input_path),
-        "-vn",
-        "-c:a",
-        "libmp3lame",
-        *audio_options,
-        str(output_path),
-    ]
-    proc = subprocess.run(cmd, capture_output=True, text=True, timeout=1800)
-    if proc.returncode != 0:
-        detail = (proc.stderr or proc.stdout or "ffmpeg failed").strip()
-        raise RuntimeError(detail)
-    if output_path.stat().st_size > BNS_MAX_UPLOAD_BYTES:
-        raise RuntimeError(
-            f"MP3 is still too large: {output_path.stat().st_size / 1024 / 1024:.1f} MB "
-            f"(limit {BNS_MAX_UPLOAD_MB:.1f} MB)"
-        )
-    return output_path
+    # Bound conversion work even when ffprobe cannot determine duration.
+    for attempt in range(4):
+        audio_options = ["-b:a", f"{bitrate}k"] if bitrate else ["-q:a", "2"]
+        cmd = [
+            FFMPEG_PATH, "-y", "-i", str(input_path), "-vn",
+            "-c:a", "libmp3lame", *audio_options, str(output_path),
+        ]
+        proc = subprocess.run(cmd, capture_output=True, text=True, timeout=1800)
+        if proc.returncode != 0:
+            detail = (proc.stderr or proc.stdout or "ffmpeg failed").strip()
+            raise RuntimeError(detail)
+        size = output_path.stat().st_size
+        if size <= BNS_MAX_UPLOAD_BYTES:
+            return output_path
+        if bitrate is None:
+            duration = get_audio_duration_seconds(output_path)
+            estimated_rate = size * 8 / duration / 1000 if duration else 192
+        else:
+            estimated_rate = bitrate
+        target_rate = estimated_rate * BNS_MAX_UPLOAD_BYTES / size * MP3_UPLOAD_HEADROOM
+        lower_rates = [rate for rate in MP3_BITRATES_KBPS
+                       if rate < estimated_rate and rate <= target_rate]
+        if not lower_rates or attempt == 3:
+            break
+        bitrate = lower_rates[0]
+        print(f"MP3 exceeds upload limit ({size:,} bytes); retrying at {bitrate} kbps", flush=True)
+    output_path.unlink(missing_ok=True)
+    raise RuntimeError(
+        f"MP3 is still too large: {size / 1024 / 1024:.3f} MiB ({size:,} bytes) "
+        f"(limit {BNS_MAX_UPLOAD_BYTES / 1024 / 1024:.3f} MiB; {BNS_MAX_UPLOAD_BYTES:,} bytes)"
+    )
 
 
 async def resolve_entity_safely(client: TelegramClient, ref):

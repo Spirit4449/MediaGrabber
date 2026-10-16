@@ -92,7 +92,7 @@ def positive_env(name, default):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("mode", choices=["bot", "bns"])
+    parser.add_argument("mode", choices=["bot", "bns", "moments"])
     parser.add_argument("--state-file", default=".state/bns_state.json")
     parser.add_argument("--start-at", default="00:00")
     parser.add_argument("--target", type=int)
@@ -121,7 +121,9 @@ def main():
         raise ValueError("BNS start time must be before its daily cutoff")
     state_file = Path(args.state_file).resolve()
     alert_file = Path(str(state_file) + ".alert.json")
-    command = [sys.executable, "-u", str(ROOT / "daily_bns_sync.py"), "--state-file", str(state_file),
+    # "moments" imports the daily Moments with Mahant Swami post; "bns" the media posts.
+    script = "moments_sync.py" if args.mode == "moments" else "daily_bns_sync.py"
+    command = [sys.executable, "-u", str(ROOT / script), "--state-file", str(state_file),
                "--stop-after-today"]
     if args.target is not None:
         command += ["--target", str(args.target)]

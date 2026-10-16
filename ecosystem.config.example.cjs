@@ -26,5 +26,9 @@ module.exports = {
       args: ['bns', '--start-at', '08:00', '--target', '3744810661', '--audio-only',
         '--state-file', '.state/bns_audio_state.json'],
       out_file: './logs/bns_audio_out.log', error_file: './logs/bns_audio_err.log' },
+    // Moments with Mahant Swami: posted at 08:00, available by 08:15, imported from 08:20.
+    { ...common, name: 'moments_daily',
+      args: ['moments', '--start-at', '08:20', '--state-file', '.state/moments_state.json'],
+      out_file: './logs/moments_out.log', error_file: './logs/moments_err.log' },
   ],
 };
