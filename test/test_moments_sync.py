@@ -60,7 +60,7 @@ class MomentsSyncTests(unittest.IsolatedAsyncioTestCase):
             for item in self.messages[:limit] if limit else self.messages:
                 yield item
         return SimpleNamespace(connect=AsyncMock(), disconnect=AsyncMock(), is_user_authorized=AsyncMock(return_value=True),
-                               get_entity=AsyncMock(return_value=SimpleNamespace(username="MomentsWithMS")), iter_messages=iter_messages)
+                               get_entity=AsyncMock(return_value=SimpleNamespace(id=2074676830, username="MomentsWithMS")), iter_messages=iter_messages)
 
     async def test_full_read_is_sent_then_waits_for_todays_post(self):
         site = FakeSite([[{"messageId": 41, "status": "processing"}],
@@ -125,6 +125,20 @@ class MomentsSyncTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(code, 0)
         self.assertEqual(site.imports, [])
         self.assertEqual(len(out.read_text().splitlines()), 2)
+
+    async def test_unseen_channel_lists_the_channels_the_account_can_see(self):
+        dialogs = [SimpleNamespace(entity=SimpleNamespace(id=555), name="Moments with Mahant Swami", is_channel=True),
+                   SimpleNamespace(entity=SimpleNamespace(id=777), name="Family", is_channel=False, is_group=True)]
+        client = SimpleNamespace(get_dialogs=AsyncMock(return_value=dialogs))
+        with patch.object(moments, "resolve_entity_safely", new=AsyncMock(side_effect=ValueError("not found"))):
+            with self.assertRaisesRegex(RuntimeError, r"cannot see channel 2074676830[\s\S]*look related:\n  555  Moments with Mahant Swami$"):
+                await moments.resolve_channel(client, 2074676830)
+
+    def test_channel_ref_accepts_ids_usernames_and_links(self):
+        self.assertEqual(moments.channel_ref("2074676830"), 2074676830)
+        self.assertEqual(moments.channel_ref("-1002074676830"), 2074676830)
+        self.assertEqual(moments.channel_ref("@MomentsWithMS"), "MomentsWithMS")
+        self.assertEqual(moments.channel_ref("https://t.me/MomentsWithMS"), "MomentsWithMS")
 
     def test_post_payload(self):
         when = datetime(2026, 10, 16, 12, tzinfo=timezone.utc)

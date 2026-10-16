@@ -114,8 +114,37 @@ def describe(status: dict) -> str:
     return line
 
 
-async def read_channel(client, channel: int, limit: int | None) -> tuple[str, list[dict]]:
-    entity = await resolve_entity_safely(client, channel)
+def channel_ref(value: str) -> int | str:
+    """A numeric id (Bot API "-100..." ids are accepted), or a @username / t.me link."""
+    value = value.strip()
+    if value.lstrip("-").isdigit():
+        number = abs(int(value))
+        return number - 1_000_000_000_000 if number > 1_000_000_000_000 else number
+    return value.rsplit("/", 1)[-1].lstrip("@")
+
+
+async def visible_channels(client) -> list[tuple[int, str]]:
+    """Channels and groups this Telegram account has joined, as (id, title)."""
+    return [(dialog.entity.id, dialog.name or "") for dialog in await client.get_dialogs(limit=None)
+            if getattr(dialog, "is_channel", False) or getattr(dialog, "is_group", False)]
+
+
+async def resolve_channel(client, channel: int | str):
+    try:
+        return await resolve_entity_safely(client, channel)
+    except ValueError:
+        # Telegram only resolves a channel id for accounts that have joined it.
+        seen = await visible_channels(client)
+        likely = [item for item in seen if any(word in item[1].lower() for word in ("moment", "mahant", "swami"))]
+        listed = "\n".join(f"  {id}  {title}" for id, title in (likely or seen)[:40]) or "  (none)"
+        raise RuntimeError(
+            f"This Telegram account cannot see channel {channel}. Join the channel with this account "
+            f"(or check the id), then run again. Pass --channel with an id below, a @username or a t.me link.\n"
+            f"{'Channels that look related' if likely else 'Channels this account can see'}:\n{listed}") from None
+
+
+async def read_channel(client, channel: int | str, limit: int | None) -> tuple[int, str, list[dict]]:
+    entity = await resolve_channel(client, channel)
     full = await client.get_entity(entity)
     posts = []
     async for msg in client.iter_messages(entity, limit=limit):
@@ -123,7 +152,7 @@ async def read_channel(client, channel: int, limit: int | None) -> tuple[str, li
         if payload:
             posts.append(payload)
     posts.sort(key=lambda post: post["messageId"])
-    return getattr(full, "username", "") or "", posts
+    return full.id, getattr(full, "username", "") or "", posts
 
 
 async def run_sync(args) -> int:
@@ -149,10 +178,10 @@ async def run_sync(args) -> int:
         await client.connect()
         if not await client.is_user_authorized():
             raise RuntimeError("Telegram session is not authorized; run downloader.py --login on this host")
-        username, posts = await read_channel(client, args.channel, args.limit or None)
+        channel_id, username, posts = await read_channel(client, args.channel, args.limit or None)
     finally:
         await client.disconnect()
-    print(f"Read {len(posts)} posts with text from channel {args.channel}"
+    print(f"Read {len(posts)} posts with text from channel {channel_id}"
           + (f" (@{username})" if username else ""))
 
     if args.dry_run:
@@ -173,7 +202,7 @@ async def run_sync(args) -> int:
     site = BnsSite(site_url)
     site.login(username_bns, password)
     # Only a full read may mark missing posts as deleted.
-    result = site.import_posts(args.channel, username, posts, complete=not args.limit)
+    result = site.import_posts(channel_id, username, posts, complete=not args.limit)
     print(f"BNS import: {result.get('inserted', 0)} new, {result.get('updated', 0)} changed, {result.get('unchanged', 0)} unchanged")
 
     todays = [post["messageId"] for post in posts if local_date(post["postedAt"], zone) == today]
@@ -201,7 +230,8 @@ async def run_sync(args) -> int:
 
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("--channel", type=int, default=DEFAULT_CHANNEL, help="Moments channel id (numeric)")
+    ap.add_argument("--channel", type=channel_ref, default=DEFAULT_CHANNEL,
+                    help="Moments channel: numeric id, @username or t.me link")
     ap.add_argument("--state-file", default=str(DEFAULT_STATE_FILE), help="Holds the date of the last processed post.")
     ap.add_argument("--session", default="", help="Override TELEGRAM_SESSION for this run.")
     ap.add_argument("--dry-run", action="store_true", help="Read the channel and report; send nothing to the site.")
