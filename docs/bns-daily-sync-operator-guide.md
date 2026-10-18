@@ -479,9 +479,12 @@ no Telegram message is reposted.
 ```bash
 .venv/bin/python moments_sync.py --dry-run --out /tmp/moments.jsonl   # read only
 .venv/bin/python moments_sync.py --limit 10 --state-file .state/moments_pilot.json   # pilot
-.venv/bin/python moments_sync.py                                       # full import
+.venv/bin/python moments_sync.py                                       # last 14 days (what the daily run does)
+.venv/bin/python moments_sync.py --full                                # whole channel: backfill, notices deletions
 pm2 logs moments_daily
 ```
 
-`--limit` never marks posts deleted, because it is not a full read. The BNS side is
+The daily run reads only the last `MOMENTS_DAYS` (14) days of the channel, so older
+edits or deletions are picked up only by a `--full` run. `--limit` and `--days` never mark
+posts deleted, because they are not full reads. The BNS side is
 described in the website repository's `docs/moments.md`.

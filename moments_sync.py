@@ -5,10 +5,11 @@ moments_sync.py
 Send the "Moments with Mahant Swami" Telegram posts to the Brahma naa Sange site,
 then wait until today's post has been turned into a prasang there.
 
-The channel holds one short text post a day, so every run reads all of it: the same
-command is the initial backfill, the daily import, and the catch-up for posts that
-were edited or deleted later. The site stores posts by message id and ignores
-unchanged ones, so repeats and retries are harmless. Images are not downloaded.
+The channel holds one short text post a day. A run reads the last --days days of it
+(14 by default), which covers today's post and recent edits; --full reads the whole
+channel, for a backfill or to notice posts deleted later. The site stores posts by
+message id and ignores unchanged ones, so repeats and retries are harmless. Images are
+not downloaded.
 
 Requires TELEGRAM_API_ID, TELEGRAM_API_HASH and TELEGRAM_SESSION, plus the BNS admin
 login used by daily_bns_sync.py (BNS_SITE_URL, BNS_ADMIN_USERNAME, BNS_ADMIN_PASSWORD).
@@ -23,7 +24,7 @@ import os
 import time
 import urllib.error
 import urllib.request
-from datetime import datetime
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from zoneinfo import ZoneInfo
 
@@ -145,11 +146,15 @@ async def resolve_channel(client, channel: int | str):
             f"{'Channels that look related' if likely else 'Channels this account can see'}:\n{listed}") from None
 
 
-async def read_channel(client, channel: int | str, limit: int | None) -> tuple[int, str, list[dict]]:
+async def read_channel(client, channel: int | str, limit: int | None,
+                       since: datetime | None = None) -> tuple[int, str, list[dict]]:
     entity = await resolve_channel(client, channel)
     full = await client.get_entity(entity)
     posts = []
+    # Messages come newest first, so the read stops at the first one older than `since`.
     async for msg in client.iter_messages(entity, limit=limit):
+        if since and msg.date and msg.date < since:
+            break
         payload = post_payload(msg)
         if payload:
             posts.append(payload)
@@ -180,7 +185,8 @@ async def run_sync(args) -> int:
         await client.connect()
         if not await client.is_user_authorized():
             raise RuntimeError("Telegram session is not authorized; run downloader.py --login on this host")
-        channel_id, username, posts = await read_channel(client, args.channel, args.limit or None)
+        since = None if args.full or args.limit else datetime.now(timezone.utc) - timedelta(days=args.days)
+        channel_id, username, posts = await read_channel(client, args.channel, args.limit or None, since)
     finally:
         await client.disconnect()
     print(f"Read {len(posts)} posts with text from channel {channel_id}"
@@ -204,7 +210,7 @@ async def run_sync(args) -> int:
     site = BnsSite(site_url)
     site.login(username_bns, password)
     # Only a full read may mark missing posts as deleted.
-    result = site.import_posts(channel_id, username, posts, complete=not args.limit)
+    result = site.import_posts(channel_id, username, posts, complete=args.full and not args.limit)
     print(f"BNS import: {result.get('inserted', 0)} new, {result.get('updated', 0)} changed, {result.get('unchanged', 0)} unchanged")
 
     todays = [post["messageId"] for post in posts if local_date(post["postedAt"], zone) == today]
@@ -238,6 +244,10 @@ def main() -> int:
     ap.add_argument("--session", default="", help="Override TELEGRAM_SESSION for this run.")
     ap.add_argument("--dry-run", action="store_true", help="Read the channel and report; send nothing to the site.")
     ap.add_argument("--out", default="", help="With --dry-run, write the posts as JSON lines to this file.")
+    ap.add_argument("--days", type=int, default=int(os.environ.get("MOMENTS_DAYS", "14")),
+                    help="Read posts from the last N days (default 14). Deletions are not detected.")
+    ap.add_argument("--full", action="store_true",
+                    help="Read the whole channel (backfill); also marks posts deleted from it.")
     ap.add_argument("--limit", type=int, default=0, help="Only the newest N posts (pilot). Deletions are not detected.")
     ap.add_argument("--wait", type=int, default=int(os.environ.get("MOMENTS_WAIT_SECONDS", "600")),
                     help="Seconds to wait for today's post to be processed.")
