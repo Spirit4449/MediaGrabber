@@ -16,7 +16,7 @@ class RecoveryTests(unittest.IsolatedAsyncioTestCase):
             save_state(state_file, {'last_id': 10})
             args = SimpleNamespace(session='unused', audio_only=True, no_site_upload=False,
                                    state_file=str(state_file), source=1, target=2, seed=False,
-                                   only_message_id=0, site_upload_timeout=60, site_upload_stall_timeout=20)
+                                   only_message_id=0, site_upload_timeout=60)
             async def download(file):
                 target = Path(file) / 'audio.mp3'
                 target.write_bytes(b'audio')

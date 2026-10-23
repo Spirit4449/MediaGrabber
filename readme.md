@@ -33,7 +33,7 @@ Before applying this cleanup to another checkout, back up its session files and 
 
 ## Setup
 
-Requires Node.js 18+ and Python 3.10+. Install FFmpeg and FFprobe for audio conversion or optional compressed copies; BNS website uploads also require Chrome/Chromium and a compatible driver.
+Requires Node.js 18+ and Python 3.10+. Install FFmpeg and FFprobe for audio conversion or optional compressed copies. BNS website uploads are plain HTTP (`bns_site.py`); no browser is needed.
 
 ```bash
 npm ci

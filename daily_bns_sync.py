@@ -28,6 +28,7 @@ import urllib.parse
 import urllib.request
 from datetime import datetime
 from zoneinfo import ZoneInfo
+from bns_site import BnsSite
 from download_session import load_download_session
 from reliability import load_state, save_state, exclusive_lock
 from pathlib import Path
@@ -158,47 +159,11 @@ def _resolve_bns_admin_credentials() -> tuple[str, str]:
     return username, password
 
 
-def _xpath_literal(value: str) -> str:
-    if "'" not in value:
-        return f"'{value}'"
-    if '"' not in value:
-        return f'"{value}"'
-    parts = value.split("'")
-    return "concat(" + ", \"'\", ".join([f"'{p}'" for p in parts]) + ")"
-
-
 def _truncate(value: str, max_len: int = 1400) -> str:
     value = (value or "").strip()
     if len(value) <= max_len:
         return value
     return value[: max_len - 3].rstrip() + "..."
-
-
-def _tail_file(path: Path, max_lines: int = 40, max_len: int = 1800) -> str:
-    try:
-        with path.open("r", encoding="utf-8", errors="replace") as handle:
-            lines = handle.readlines()[-max_lines:]
-        return _truncate("".join(lines).strip(), max_len)
-    except Exception:
-        return ""
-
-
-def _write_debug_artifacts(driver, label: str) -> str:
-    debug_dir = os.environ.get("BNS_SELENIUM_DEBUG_DIR", "logs/selenium").strip()
-    if not debug_dir:
-        return ""
-    stamp = time.strftime("%Y%m%d-%H%M%S")
-    safe_label = "".join(ch if ch.isalnum() or ch in {"_", "-"} else "_" for ch in label)
-    base = f"{safe_label}-{stamp}"
-    debug_path = Path(debug_dir)
-    debug_path.mkdir(parents=True, exist_ok=True)
-    html_path = debug_path / f"{base}.html"
-    png_path = debug_path / f"{base}.png"
-    with contextlib.suppress(Exception):
-        html_path.write_text(driver.page_source, encoding="utf-8", errors="replace")
-    with contextlib.suppress(Exception):
-        driver.save_screenshot(str(png_path))
-    return f"HTML: {html_path}, Screenshot: {png_path}"
 
 
 def send_telegram_bot_message(bot_token: str, chat_id: str, text: str) -> None:
@@ -229,344 +194,15 @@ def notify(bot_token: str, chat_id: str, text: str) -> None:
         print(f"Telegram notify failed: {exc}")
 
 
-def _browser_error_excerpt(driver, max_len: int = 900) -> str:
+def upload_to_bns_site(file_path: Path, site_url: str, admin_username: str, admin_password: str,
+                       upload_timeout_seconds: int) -> dict:
+    """Uploads one recording to the BNS site over HTTP and waits until it is processed (bns_site.py)."""
     try:
-        entries = driver.get_log("browser")
-    except Exception:
-        return ""
-
-    interesting = []
-    for entry in entries[-20:]:
-        level = str(entry.get("level", "")).upper()
-        message = str(entry.get("message", "")).strip()
-        lowered = message.lower()
-        if (
-            level in {"SEVERE", "ERROR"}
-            or "429" in lowered
-            or "quota" in lowered
-            or "resource_exhausted" in lowered
-        ):
-            interesting.append(message)
-
-    if not interesting:
-        return ""
-    return _truncate("\n".join(interesting[-3:]), max_len)
-
-
-# Runs in the signed-in page, so the request carries the site's session cookie.
-_SITE_FETCH_SCRIPT = """
-const [path, method, done] = arguments;
-fetch(path, {
-  method,
-  credentials: 'same-origin',
-  ...(method === 'POST' ? {headers: {'Content-Type': 'application/json'}, body: '{}'} : {}),
-}).then(async (res) => done({status: res.status, body: await res.json().catch(() => null)}))
-  .catch((err) => done({status: 0, error: String(err)}));
-"""
-
-
-def _site_fetch(driver, path: str, method: str = "GET") -> dict:
-    try:
-        return driver.execute_async_script(_SITE_FETCH_SCRIPT, path, method) or {}
+        site = BnsSite(site_url)
+        site.login(admin_username, admin_password)
+        return site.upload_recording(file_path, upload_timeout_seconds)
     except Exception as exc:
-        return {"status": 0, "error": str(exc)}
-
-
-def _site_jobs(driver, file_name: str) -> tuple[list[dict] | None, str]:
-    """Return this account's server jobs for file_name (newest first), or None with a reason."""
-    res = _site_fetch(driver, "/api/jobs")
-    body = res.get("body")
-    if res.get("status") != 200 or not isinstance(body, list):
-        detail = res.get("error") or (body.get("error") if isinstance(body, dict) else "")
-        return None, f"HTTP {res.get('status', 0)}" + (f": {detail}" if detail else "")
-    return [job for job in body if isinstance(job, dict) and job.get("fileName") == file_name], ""
-
-
-def _job_status_line(job: dict) -> str:
-    line = f"{job.get('status', '?')} {int(job.get('progress') or 0)}% - {job.get('message', '')}".strip()
-    if job.get("error"):
-        line = f"{line}\n{job['error']}"
-    return line
-
-
-def _site_record_summary(driver, record_id: str) -> tuple[str, str]:
-    res = _site_fetch(
-        driver,
-        f"/api/database/rest/v1/transcriptions?id=eq.{record_id}&select=title,summary:analysis->>summary",
-    )
-    rows = res.get("body")
-    if res.get("status") != 200 or not isinstance(rows, list) or not rows:
-        return "", ""
-    return str(rows[0].get("title") or "").strip(), str(rows[0].get("summary") or "").strip()
-
-
-def _upload_card_text(driver, file_name: str) -> str:
-    """Text of the Uploads card for file_name; only needed before the server job exists."""
-    from selenium.webdriver.common.by import By
-
-    cards = driver.find_elements(
-        By.XPATH,
-        (
-            f"//h4[normalize-space()={_xpath_literal(Path(file_name).name)}]"
-            "/ancestor::div[contains(@class,'animate-slideDown')][1]"
-        ),
-    )
-    with contextlib.suppress(Exception):
-        return " | ".join(part.strip() for part in (cards[0].text or "").splitlines() if part.strip())
-    return ""
-
-
-def _sign_in_to_bns_site(driver, site_url: str, admin_username: str, admin_password: str) -> str:
-    """Open the site and sign in. Returns "" once the admin Upload tab is available, else a reason."""
-    from selenium.common.exceptions import TimeoutException
-    from selenium.webdriver.common.by import By
-    from selenium.webdriver.support.ui import WebDriverWait
-
-    upload_tab = (By.XPATH, "//nav//button[normalize-space()='Upload']")
-    signed_in = (By.XPATH, "//nav//button[normalize-space()='Archive']")
-    login_user = (By.ID, "bns-username")
-    login_pass = (By.ID, "bns-password")
-    login_alert = (By.XPATH, "//form//p[@role='alert']")
-
-    def fail(reason: str, label: str) -> str:
-        debug_hint = _write_debug_artifacts(driver, label)
-        return f"{reason}\n\n{debug_hint}" if debug_hint else reason
-
-    driver.get(site_url)
-    try:
-        WebDriverWait(driver, 60).until(
-            lambda d: d.find_elements(*signed_in)
-            or (d.find_elements(*login_user) and d.find_elements(*login_pass))
-        )
-    except TimeoutException:
-        body_text = ""
-        with contextlib.suppress(Exception):
-            body_text = driver.find_element(By.TAG_NAME, "body").text
-        details = _truncate(f"Title: {driver.title or ''}\nURL: {driver.current_url or ''}\n\n{body_text}")
-        return fail(f"Sign-in form not found on the BNS site.\n\n{details}", "admin-form-missing")
-
-    if not driver.find_elements(*signed_in):
-        user_input = driver.find_element(*login_user)
-        pass_input = driver.find_element(*login_pass)
-        user_input.clear()
-        user_input.send_keys(admin_username)
-        pass_input.clear()
-        pass_input.send_keys(admin_password)
-        submit = driver.find_element(By.XPATH, "//form[.//input[@id='bns-password']]//button[@type='submit']")
-        driver.execute_script("arguments[0].click();", submit)
-        try:
-            WebDriverWait(driver, 30).until(
-                lambda d: d.find_elements(*signed_in)
-                or any((el.text or "").strip() for el in d.find_elements(*login_alert))
-            )
-        except TimeoutException:
-            return fail("Sign-in did not complete within 30s.", "admin-login-failed")
-        if not driver.find_elements(*signed_in):
-            alert_text = " ".join((el.text or "").strip() for el in driver.find_elements(*login_alert))
-            return fail(f"BNS site rejected the sign-in for {admin_username}: {alert_text}", "admin-login-failed")
-
-    try:
-        # The Upload tab only renders for admin accounts, after the session check returns.
-        WebDriverWait(driver, 30).until(lambda d: d.find_elements(*upload_tab))
-    except TimeoutException:
-        return fail(
-            f"Signed in as {admin_username}, but the Upload tab is missing. "
-            "The account must be listed in the site's ADMIN_CREDENTIALS (not VIEWER_CREDENTIALS).",
-            "upload-nav-missing",
-        )
-    return ""
-
-
-def upload_to_bns_site(
-    file_path: Path,
-    site_url: str,
-    admin_username: str,
-    admin_password: str,
-    headless: bool,
-    upload_timeout_seconds: int,
-    stall_timeout_seconds: int,
-) -> dict:
-    from selenium import webdriver
-    from selenium.common.exceptions import TimeoutException
-    from selenium.webdriver.chrome.service import Service
-    from selenium.webdriver.common.by import By
-    from selenium.webdriver.support import expected_conditions as EC
-    from selenium.webdriver.support.ui import WebDriverWait
-
-    options = webdriver.ChromeOptions()
-    options.set_capability("goog:loggingPrefs", {"browser": "ALL"})
-    if headless:
-        options.add_argument("--headless")
-    options.add_argument("--no-sandbox")
-    options.add_argument("--disable-dev-shm-usage")
-    options.add_argument("--disable-gpu")
-    options.add_argument("--remote-debugging-pipe")
-    options.add_argument("--no-first-run")
-    options.add_argument("--no-default-browser-check")
-    options.add_argument("--disable-extensions")
-    options.add_argument("--disable-crash-reporter")
-    options.add_argument("--disable-blink-features=AutomationControlled")
-    options.add_argument(
-        "--user-agent=Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 "
-        "(KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36"
-    )
-    options.add_argument("--window-size=1600,1400")
-
-    chrome_profile_dir = tempfile.mkdtemp(prefix="bns_chrome_")
-    options.add_argument(f"--user-data-dir={chrome_profile_dir}")
-
-    chrome_binary = os.environ.get("BNS_CHROME_BINARY", "").strip()
-    if not chrome_binary:
-        chrome_binary = (
-            shutil.which("chromium-browser")
-            or shutil.which("chromium")
-            or shutil.which("google-chrome")
-            or ""
-        )
-    if chrome_binary:
-        options.binary_location = chrome_binary
-
-    driver_path = os.environ.get("BNS_CHROMEDRIVER_PATH", "").strip()
-    if not driver_path:
-        driver_path = shutil.which("chromedriver") or ""
-
-    log_path = os.environ.get("BNS_CHROMEDRIVER_LOG_PATH", "").strip()
-    log_output = None
-    if log_path:
-        Path(log_path).parent.mkdir(parents=True, exist_ok=True)
-        log_output = log_path
-
-    service = Service(executable_path=driver_path, log_output=log_output) if driver_path else Service(log_output=log_output)
-
-    try:
-        driver = webdriver.Chrome(service=service, options=options)
-    except Exception as exc:
-        log_excerpt = _tail_file(Path(log_path)) if log_path else ""
-        reason = f"ChromeDriver start failed: {exc}"
-        if log_excerpt:
-            reason = f"{reason}\n\nChromeDriver log:\n{log_excerpt}"
-        return {
-            "status": "error",
-            "reason": reason,
-            "title": "",
-            "summary": "",
-        }
-    def result(status: str, reason: str, title: str = "", summary: str = "") -> dict:
-        return {"status": status, "reason": reason, "title": title, "summary": summary}
-
-    try:
-        driver.set_page_load_timeout(120)
-        driver.set_script_timeout(30)
-        sign_in_error = _sign_in_to_bns_site(driver, site_url, admin_username, admin_password)
-        if sign_in_error:
-            return result("error", sign_in_error)
-
-        file_name = file_path.name
-
-        # Processing runs on the site's server, so a job from an earlier attempt may
-        # still be running (or finished) after this script timed out or restarted.
-        jobs, jobs_error = _site_jobs(driver, file_name)
-        if jobs is None:
-            return result("error", f"Could not read the BNS site's upload jobs ({jobs_error}).")
-        job = jobs[0] if jobs else None
-        if job and job.get("status") in {"error", "stopped"}:
-            print(f"Retrying existing BNS website job for {file_name}: {_job_status_line(job)}")
-            retry = _site_fetch(driver, f"/api/jobs/{job.get('id')}/retry", "POST")
-            if retry.get("status") != 200:
-                detail = (retry.get("body") or {}).get("error") or retry.get("error") or ""
-                return result(
-                    "error",
-                    f"Could not retry the failed website job (HTTP {retry.get('status', 0)}: {detail}).\n\n"
-                    f"{_truncate(_job_status_line(job), 1800)}",
-                )
-        elif job:
-            print(f"Found existing BNS website job for {file_name}: {_job_status_line(job)}")
-
-        if not job:
-            upload_tab = driver.find_element(By.XPATH, "//nav//button[normalize-space()='Upload']")
-            driver.execute_script("arguments[0].click();", upload_tab)
-            try:
-                file_input = WebDriverWait(driver, 60).until(
-                    lambda d: (d.find_elements(By.ID, "audio-upload")
-                               or d.find_elements(By.CSS_SELECTOR, "input[type='file']") or [None])[0]
-                )
-            except TimeoutException:
-                debug_hint = _write_debug_artifacts(driver, "file-input-missing")
-                reason = "Upload file input not found after sign-in."
-                return result("error", f"{reason}\n\n{debug_hint}" if debug_hint else reason)
-            file_input.send_keys(str(file_path.resolve()))
-
-            try:
-                alert = WebDriverWait(driver, 3).until(EC.alert_is_present())
-                alert_text = (alert.text or "").strip()
-                if "already uploaded" in alert_text.lower():
-                    alert.dismiss()
-                    return result("skipped_duplicate", alert_text or "Already uploaded alert detected")
-                alert.accept()
-            except TimeoutException:
-                pass
-
-        deadline = time.time() + max(60, upload_timeout_seconds)
-        last_status = ""
-        last_change_at = time.time()
-        next_progress_log_at = time.time() + 60
-        job_seen = bool(job)
-        while time.time() < deadline:
-            jobs, jobs_error = _site_jobs(driver, file_name)
-            job = jobs[0] if jobs else None
-            if job:
-                job_seen = True
-                status = _job_status_line(job)
-                if job.get("status") == "completed":
-                    title, summary = _site_record_summary(driver, job.get("recordId") or job.get("id") or "")
-                    return result("uploaded", job.get("message") or "Completed", title, summary)
-                if job.get("status") in {"error", "stopped"}:
-                    return result("error", _truncate(status, 1800) or "Website upload failed.")
-            else:
-                # Until the audio reaches storage the job exists only in the page.
-                status = _upload_card_text(driver, file_name)
-                if "could not be queued" in status.lower():
-                    browser_excerpt = _browser_error_excerpt(driver)
-                    reason = _truncate(status, 1800)
-                    if browser_excerpt:
-                        reason = f"{reason}\n\nBrowser console:\n{browser_excerpt}"
-                    return result("error", reason)
-            if status and status != last_status:
-                last_status = status
-                last_change_at = time.time()
-            if time.time() >= next_progress_log_at:
-                shown = _truncate(status, 500) or f"waiting for upload to start ({jobs_error or 'no job yet'})"
-                print(f"BNS website upload still running for {file_name}: {shown}")
-                next_progress_log_at = time.time() + 60
-            if not job_seen and time.time() - last_change_at >= max(20, stall_timeout_seconds):
-                reason = (
-                    f"Audio upload made no progress for {int(time.time() - last_change_at)}s "
-                    "and never reached the site's job queue."
-                )
-                debug_hint = _write_debug_artifacts(driver, "upload-stalled")
-                if debug_hint:
-                    reason = f"{reason}\n\n{debug_hint}"
-                if last_status:
-                    reason = f"{reason}\n\nLast status:\n{_truncate(last_status, 1800)}"
-                browser_excerpt = _browser_error_excerpt(driver)
-                if browser_excerpt:
-                    reason = f"{reason}\n\nBrowser console:\n{browser_excerpt}"
-                return result("error", reason)
-            time.sleep(5 if job_seen else 2)
-
-        reason = f"Timed out waiting for upload completion after {upload_timeout_seconds}s"
-        if job_seen:
-            reason = f"{reason}. The job keeps running on the site; the next run will pick it up without re-uploading."
-        debug_hint = _write_debug_artifacts(driver, "upload-timeout")
-        if debug_hint:
-            reason = f"{reason}\n\n{debug_hint}"
-        if last_status:
-            reason = f"{reason}\n\nLast job status:\n{_truncate(last_status, 1800)}"
-        return result("error", reason)
-    finally:
-        driver.quit()
-        with contextlib.suppress(Exception):
-            shutil.rmtree(chrome_profile_dir, ignore_errors=True)
+        return {"status": "error", "reason": str(exc), "title": "", "summary": ""}
 
 
 def _ext_from_media(msg) -> str:
@@ -724,18 +360,12 @@ async def main():
         "--site-upload-timeout",
         type=int,
         default=int(os.environ.get("BNS_UPLOAD_TIMEOUT_SECONDS", "2400")),
-        help="Max seconds to wait for website upload completion per file.",
-    )
-    ap.add_argument(
-        "--site-upload-stall-timeout",
-        type=int,
-        default=int(os.environ.get("BNS_UPLOAD_STALL_SECONDS", "90")),
-        help="Seconds the audio upload may show no progress before it is reported as stalled.",
+        help="Max seconds to wait for the website to finish processing each file.",
     )
     ap.add_argument(
         "--no-site-upload",
         action="store_true",
-        help="Disable Selenium website upload step for this run.",
+        help="Skip the website upload step for this run.",
     )
     ap.add_argument(
         "--only-message-id",
@@ -759,7 +389,6 @@ async def run_sync(args):
     notify_chat_id = os.environ.get("TELEGRAM_NOTIFY_CHAT_ID", "")
     site_url = os.environ.get("BNS_SITE_URL", "https://bns.classchats.net")
     admin_username, admin_password = _resolve_bns_admin_credentials()
-    selenium_headless = _env_bool("BNS_SELENIUM_HEADLESS", True)
     skip_site_upload = args.no_site_upload or _env_bool("BNS_DISABLE_SITE_UPLOAD", False)
 
     if not api_id or not api_hash:
@@ -908,14 +537,12 @@ async def run_sync(args):
 
                 steps = state.setdefault("pending", {}).setdefault(str(msg.id), {})
                 if can_site_upload and not steps.get("website"):
-                    print(f"Uploading {Path(path).name} to {site_url} via Selenium...")
+                    print(f"Uploading {Path(path).name} to {site_url}...")
                     site_result = await asyncio.to_thread(
                         upload_to_bns_site,
                         file_path=Path(path), site_url=site_url,
                         admin_username=admin_username, admin_password=admin_password,
-                        headless=selenium_headless,
                         upload_timeout_seconds=args.site_upload_timeout,
-                        stall_timeout_seconds=args.site_upload_stall_timeout,
                     )
                     if site_result.get("status") not in {"uploaded", "skipped_duplicate"}:
                         raise RuntimeError(site_result.get("reason") or "Website upload failed")

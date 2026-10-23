@@ -1,0 +1,16 @@
+node_modules
+.venv
+env
+__pycache__
+**/__pycache__
+.state
+logs
+downloads
+shared-downloads
+*.session
+*.session-journal
+.env
+.git
+*.csv
+telegram_channels_*.md
+login.txt

@@ -18,18 +18,16 @@ from __future__ import annotations
 
 import argparse
 import asyncio
-import http.cookiejar
 import json
 import os
 import time
-import urllib.error
-import urllib.request
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from zoneinfo import ZoneInfo
 
 from telethon import TelegramClient  # type: ignore
 
+from bns_site import BnsSite
 from daily_bns_sync import _resolve_bns_admin_credentials, _truncate, notify, resolve_entity_safely
 from download_session import load_download_session
 from reliability import exclusive_lock, load_state, save_state
@@ -45,7 +43,6 @@ DEFAULT_CHANNEL = int(os.environ.get("MOMENTS_CHANNEL_ID", "2074676830"))
 DEFAULT_STATE_FILE = Path(".state") / "moments_state.json"
 FINISHED = {"done", "skipped"}
 # Cloudflare's browser integrity check (error 1010) rejects Python's default User-Agent.
-USER_AGENT = os.environ.get("MOMENTS_USER_AGENT", "Mozilla/5.0 (compatible; MediaGrabber-moments/1.0)")
 
 
 def post_payload(msg) -> dict | None:
@@ -67,42 +64,6 @@ def post_payload(msg) -> dict | None:
 
 def local_date(iso: str, zone: ZoneInfo) -> str:
     return datetime.fromisoformat(iso).astimezone(zone).date().isoformat()
-
-
-class BnsSite:
-    """Signed-in JSON calls to the BNS site. Uses the same admin login as the audio upload."""
-
-    def __init__(self, base_url: str, timeout: int = 120):
-        self.base_url = base_url.rstrip("/")
-        self.timeout = timeout
-        self.opener = urllib.request.build_opener(urllib.request.HTTPCookieProcessor(http.cookiejar.CookieJar()))
-
-    def _call(self, method: str, path: str, body: dict | None = None):
-        data = json.dumps(body).encode("utf-8") if body is not None else None
-        request = urllib.request.Request(self.base_url + path, data=data, method=method,
-                                         headers={"Content-Type": "application/json", "Accept": "application/json", "User-Agent": USER_AGENT})
-        try:
-            with self.opener.open(request, timeout=self.timeout) as response:
-                return json.loads(response.read().decode("utf-8") or "null")
-        except urllib.error.HTTPError as exc:
-            detail = exc.read().decode("utf-8", "replace")
-            try:
-                detail = json.loads(detail).get("error") or detail
-            except (ValueError, AttributeError):
-                pass
-            raise RuntimeError(f"BNS site {method} {path} failed (HTTP {exc.code}): {_truncate(str(detail), 300)}") from exc
-
-    def login(self, username: str, password: str) -> None:
-        result = self._call("POST", "/api/admin/login", {"username": username, "password": password})
-        if not (result or {}).get("isAdmin"):
-            raise RuntimeError(f"BNS account {username} is not an admin; it must be listed in the site's ADMIN_CREDENTIALS")
-
-    def import_posts(self, channel_id: int, username: str, posts: list[dict], complete: bool) -> dict:
-        return self._call("POST", "/api/moments/import",
-                          {"channelId": channel_id, "channelUsername": username, "posts": posts, "complete": complete})
-
-    def status(self, message_ids: list[int]) -> list[dict]:
-        return self._call("GET", "/api/moments/status?ids=" + ",".join(str(i) for i in message_ids)) or []
 
 
 def describe(status: dict) -> str:

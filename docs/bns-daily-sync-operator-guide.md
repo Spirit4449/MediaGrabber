@@ -11,7 +11,7 @@ This guide covers how to run `daily_bns_sync.py`, how the state files work, what
 3. Compares each message id against a state file containing `last_id`.
 4. Processes messages with `id > last_id`.
 5. For audio runs, converts audio to an MP3 under the configured upload size.
-6. Signs in to the BNS website with Selenium and selects the MP3 on the Upload tab when site upload is enabled. The site uploads the audio to storage and processes it as a server-side job; the script waits for that job to finish.
+6. When site upload is enabled, signs in to the BNS website over HTTP (`bns_site.py`), uploads the MP3 straight to the site's audio storage through a presigned URL, and queues it as a server-side job; the script waits for that job to finish. No browser is involved.
 7. Reposts the media to the target Telegram channel.
 8. Saves each completed delivery step and advances `last_id` only after required deliveries succeed. On failure it stops and retains the message for retry.
 
@@ -74,8 +74,7 @@ cd /home/nisch/Desktop/MediaGrabber
   --target 3744810661 \
   --audio-only \
   --state-file .state/bns_audio_state.json \
-  --site-upload-timeout 7200 \
-  --site-upload-stall-timeout 300
+  --site-upload-timeout 7200
 ```
 
 Show all script options:
@@ -137,20 +136,12 @@ media_grabber_session_audio.session
 
 `--site-upload-timeout SECONDS`
 
-Maximum time Selenium waits for the BNS website's server job to finish one upload.
+Maximum time the script waits for the BNS website's server job to finish one upload.
 
 The job includes transcription, analysis, embeddings, and saving to Supabase, so large files can take a long time. If the wait times out, the job keeps running on the site and the next run attaches to it instead of uploading again. A practical value is:
 
 ```text
 7200
-```
-
-`--site-upload-stall-timeout SECONDS`
-
-How long the browser's audio upload may show no progress, before the site has queued a job, until it is reported as stalled. It does not apply once the server job exists. A practical value is:
-
-```text
-300
 ```
 
 `--no-site-upload`
@@ -196,12 +187,7 @@ BNS website variables:
 BNS_SITE_URL
 BNS_ADMIN_USERNAME
 BNS_ADMIN_PASSWORD
-BNS_SELENIUM_HEADLESS
-BNS_CHROMEDRIVER_PATH
-BNS_CHROME_BINARY
-BNS_SELENIUM_DEBUG_DIR
 BNS_UPLOAD_TIMEOUT_SECONDS
-BNS_UPLOAD_STALL_SECONDS
 ```
 
 Audio conversion variables:
@@ -248,24 +234,12 @@ logs/bns_out.log
 logs/bns_err.log
 ```
 
-Selenium artifacts:
-
-```text
-logs/selenium/
-```
-
-On website upload failures, the script writes an HTML snapshot and screenshot such as:
-
-```text
-logs/selenium/upload-timeout-YYYYMMDD-HHMMSS.html
-logs/selenium/upload-timeout-YYYYMMDD-HHMMSS.png
-```
-
-Open the HTML or PNG to see exactly what Selenium saw.
+Website upload failures are reported with the site's own error text (HTTP status and message) in the
+log and in the Telegram alert.
 
 ## Website Upload Success Criteria
 
-The script reads the signed-in account's jobs from the site's `/api/jobs` endpoint (through the browser session) and matches on the exact file name.
+The script reads the signed-in account's jobs from the site's `/api/jobs` endpoint (with its signed-in session) and matches on the exact file name.
 
 Current success means:
 
@@ -348,15 +322,9 @@ grep -n "BNS_DISABLE_SITE_UPLOAD\\|BNS_ADMIN\\|BNS_SITE_URL" .env
 
 Make sure the run includes `--audio-only`; website upload is intentionally allowed only during audio-only runs.
 
-Check Selenium debug files:
-
-```bash
-ls -lt logs/selenium | head
-```
-
 ### Sign-in fails
 
-The whole site is behind a sign-in page. The script fills `#bns-username` / `#bns-password` and reports the site's own error text (for example `Invalid username or password.`). The site locks an IP out after 10 failed sign-ins in 15 minutes.
+The script signs in with `POST /api/admin/login` and reports the site's own error text (for example `Invalid username or password.`). The site locks an IP out after 10 failed sign-ins in 15 minutes.
 
 The script resolves credentials from:
 
@@ -367,7 +335,7 @@ The script resolves credentials from:
 /home/nisch/Desktop/Brahma-naa-sange/.env.local
 ```
 
-The account must be in the website's `ADMIN_CREDENTIALS`. A `VIEWER_CREDENTIALS` account signs in but has no Upload tab, which the script reports as `the Upload tab is missing`.
+The account must be in the website's `ADMIN_CREDENTIALS`. A `VIEWER_CREDENTIALS` account is refused with `is not an admin`.
 
 ### Website upload hangs
 
@@ -378,8 +346,7 @@ Use a longer timeout:
   --target 3744810661 \
   --audio-only \
   --state-file .state/bns_audio_state.json \
-  --site-upload-timeout 7200 \
-  --site-upload-stall-timeout 300
+  --site-upload-timeout 7200
 ```
 
 Look for progress lines:
@@ -387,17 +354,6 @@ Look for progress lines:
 ```bash
 tail -f logs/bns_audio_out-8.log
 ```
-
-### Chrome or Selenium fails to start
-
-Check:
-
-```bash
-which chromium-browser chromium chromedriver
-grep -n "BNS_CHROME_BINARY\\|BNS_CHROMEDRIVER_PATH" .env
-```
-
-The current `.env` should point Selenium at local Chromium and ChromeDriver.
 
 ### Audio conversion fails
 
@@ -433,12 +389,6 @@ See current state:
 
 ```bash
 cat .state/bns_audio_state.json
-```
-
-See newest Selenium artifacts:
-
-```bash
-ls -lt logs/selenium | head -20
 ```
 
 Check available flags:

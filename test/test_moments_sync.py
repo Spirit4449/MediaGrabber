@@ -51,7 +51,7 @@ class MomentsSyncTests(unittest.IsolatedAsyncioTestCase):
 
     def args(self, **overrides):
         values = dict(channel=2074676830, state_file=str(self.state_file), session="unused", dry_run=False, out="",
-                      limit=0, wait=5, poll=0, stop_after_today=True)
+                      limit=0, wait=5, poll=0, stop_after_today=True, full=True, days=14)
         values.update(overrides)
         return SimpleNamespace(**values)
 

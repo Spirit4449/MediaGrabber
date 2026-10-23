@@ -18,7 +18,7 @@ flowchart TD
     Delivery --> Compression[FFmpeg]
     PM2[PM2 schedule] --> Sync[Daily sync]
     Sync --> Telegram
-    Sync --> Website[BNS website via Selenium]
+    Sync --> Website[BNS website over HTTP]
     Sync --> State[JSON checkpoint]
 ```
 
