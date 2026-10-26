@@ -37,6 +37,18 @@ class SupervisorTests(unittest.TestCase):
             check_deadline(state, alert, datetime(2026, 10, 12, 18, tzinfo=timezone.utc), time(18), sent.append)
             self.assertEqual(len(sent), 1)
 
+    def test_no_alert_when_last_nights_post_was_delivered_today(self):
+        with tempfile.TemporaryDirectory() as folder:
+            state, alert = Path(folder) / 'state.json', Path(folder) / 'alert.json'
+            sent = []
+            delivered_at = datetime(2026, 10, 11, 8, 15, tzinfo=timezone.utc).timestamp()
+            save_state(state, {'last_delivery_date': '2026-10-10', 'last_success_at': delivered_at})
+            check_deadline(state, alert, datetime(2026, 10, 11, 18, tzinfo=timezone.utc), time(18), sent.append)
+            self.assertFalse(sent)
+            # The next day nothing has been delivered yet.
+            check_deadline(state, alert, datetime(2026, 10, 12, 18, tzinfo=timezone.utc), time(18), sent.append)
+            self.assertEqual(len(sent), 1)
+
     def test_notification_failure_remains_retryable(self):
         with tempfile.TemporaryDirectory() as folder:
             state, alert = Path(folder) / 'state.json', Path(folder) / 'alert.json'

@@ -70,10 +70,16 @@ def check_deadline(state_file, alert_file, now, deadline, send):
         return
     state = load_state(state_file)
     alerts = load_state(alert_file)
-    if state.get("last_delivery_date", "") >= today or alerts.get("date") == today:
+    # The audio is usually posted the evening before, so its post is dated yesterday even
+    # when the sync delivered it this morning; a delivery finished today also counts.
+    last_success = state.get("last_success_at")
+    delivered_today = (state.get("last_delivery_date", "") >= today
+                       or (last_success is not None
+                           and datetime.fromtimestamp(float(last_success), now.tzinfo).date().isoformat() == today))
+    if delivered_today or alerts.get("date") == today:
         return
     # Record only after successful notification so a temporary network failure retries.
-    send(f"[BNS missing delivery] {state_file.name}: no completed source post dated {today}. "
+    send(f"[BNS missing delivery] {state_file.name}: nothing delivered today ({today}). "
          "Scheduled checks have stopped for today; check the worker logs.")
     save_state(alert_file, {"date": today})
 
